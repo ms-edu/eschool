@@ -1566,14 +1566,21 @@ function kartulSiswa(id){
     <div class="mbb" id="kartuArea">
       <div class="kartu" style="margin:0 auto">
         <div class="kartu-head">
-        <div class="kartu-logo"><i class="fa-solid fa-id-card" style="color:#fff;font-size:18px"></i></div>
+          <div class="kartu-logo"><i class="fa-solid fa-id-card" style="color:#fff;font-size:18px"></i></div>
           <div><div style="font-weight:800;font-size:13px">CBT E-School</div><div style="font-size:11px;color:var(--mu)">Kartu Peserta Ujian</div></div>
         </div>
-        <div style="display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:12.5px">
-          <span style="color:var(--mu)">Nama</span><span style="font-weight:700">: ${s.nama_siswa}</span>
-          <span style="color:var(--mu)">Username/NIS</span><span style="font-weight:700">: ${s.username}</span>
-          <span style="color:var(--mu)">Kelas</span><span style="font-weight:700">: ${s.kelas} - ${s.rombel}</span>
-          <span style="color:var(--mu)">Status</span><span style="font-weight:700">: ${s.status}</span>
+        <div style="display:flex;gap:12px">
+          <div style="width:56px;height:80px;border:1.5px solid #94a3b8;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;color:#94a3b8;text-align:center;line-height:1.4;flex-shrink:0;background:#f8fafc">
+            <div style="font-size:16px;opacity:.4">📷</div>
+            <div>Foto</div><div>2×3</div>
+          </div>
+          <div style="flex:1;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:12.5px;align-content:start">
+            <span style="color:var(--mu)">Nama</span><span style="font-weight:700">: ${s.nama_siswa}</span>
+            <span style="color:var(--mu)">NIS</span><span style="font-weight:700">: ${s.username}</span>
+            <span style="color:var(--mu)">Kelas</span><span style="font-weight:700">: ${s.kelas} - ${s.rombel}</span>
+            <span style="color:var(--mu)">Password</span><span style="font-weight:700">: ${s.password}</span>
+            <span style="color:var(--mu)">Status</span><span style="font-weight:700">: ${s.status}</span>
+          </div>
         </div>
         <div style="margin-top:12px;border-top:1px dashed #ccc;padding-top:10px">
           <div style="font-size:10px;color:var(--mu);text-align:center">Simpan kartu ini dengan baik. Password dapat direset oleh admin.</div>
@@ -1588,7 +1595,13 @@ function kartulSiswa(id){
 function printKartu(){
   const content=$('kartuArea')?.innerHTML;if(!content)return;
   const w=window.open('','_blank');
-  w.document.write(`<html><head><title>Kartu Peserta</title><style>body{font-family:'Plus Jakarta Sans',sans-serif;padding:20px}.kartu{width:340px;border:2px solid #334155;border-radius:10px;padding:16px}.kartu-head{display:flex;align-items:center;gap:10px;border-bottom:2px solid #334155;padding-bottom:10px;margin-bottom:10px}.kartu-logo{width:40px;height:40px;background:#2563eb;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px}</style></head><body>${content}</body></html>`);
+  w.document.write(`<html><head><title>Kartu Peserta</title><style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Plus Jakarta Sans',sans-serif;padding:20px}
+    .kartu{width:340px;border:2px solid #334155;border-radius:10px;padding:16px}
+    .kartu-head{display:flex;align-items:center;gap:10px;border-bottom:2px solid #334155;padding-bottom:10px;margin-bottom:10px}
+    .kartu-logo{width:40px;height:40px;background:#2563eb;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px}
+  </style></head><body>${content}</body></html>`);
   w.document.close();w.print();
 }
 
@@ -1618,43 +1631,114 @@ function cetakKartuSiswa(){
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
       *{margin:0;padding:0;box-sizing:border-box}
-      body{font-family:'Plus Jakarta Sans',sans-serif;padding:10mm}
-      .kartu-grid{display:grid;grid-template-columns:1fr 1fr;gap:8mm}
-      .kartu-print{width:100%;height:48mm;border:1.5pt solid #000;border-radius:4mm;padding:3mm;box-sizing:border-box;page-break-inside:avoid}
-      .kartu-head{display:flex;align-items:center;gap:2.5mm;border-bottom:1.5pt solid #000;padding-bottom:2mm;margin-bottom:2mm}
-      .kartu-logo{width:12mm;height:12mm;background:#2563eb;border-radius:2mm;display:flex;align-items:center;justify-content:center;font-size:16pt;color:#fff;font-weight:800;flex-shrink:0}
+      body{font-family:'Plus Jakarta Sans',sans-serif}
+      /* A4: 210mm x 297mm, margin 10mm each side => usable 190mm x 277mm */
+      /* 2 cols x 5 rows per page */
+      .kartu-grid{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:5mm;
+        padding:10mm;
+        width:210mm;
+        min-height:297mm;
+        box-sizing:border-box;
+      }
+      /* Each card: (190mm - 5mm gap) / 2 = 92.5mm wide, (277mm - 4*5mm) / 5 = 51.4mm tall */
+      .kartu-print{
+        width:92.5mm;
+        height:51mm;
+        border:1.5pt solid #1e293b;
+        border-radius:3mm;
+        padding:3mm;
+        box-sizing:border-box;
+        page-break-inside:avoid;
+        overflow:hidden;
+        display:flex;
+        flex-direction:column;
+        justify-content:flex-start;
+      }
+      .kartu-head{
+        display:flex;
+        align-items:center;
+        gap:2mm;
+        border-bottom:1.5pt solid #1e293b;
+        padding-bottom:1.5mm;
+        margin-bottom:1.5mm;
+      }
+      .kartu-logo{
+        width:10mm;height:10mm;
+        background:#2563eb;border-radius:1.5mm;
+        display:flex;align-items:center;justify-content:center;
+        font-size:12pt;color:#fff;font-weight:800;flex-shrink:0
+      }
       .kartu-title{flex:1}
-      .kartu-title h3{font-size:10pt;font-weight:800;margin-bottom:1mm}
-      .kartu-title p{font-size:7pt;color:#64748b}
-      .kartu-row{display:flex;justify-content:space-between;padding:1.5mm 0;font-size:9pt;border-bottom:0.5pt solid #e2e8f0}
+      .kartu-title h3{font-size:7pt;font-weight:800;margin-bottom:0.5mm}
+      .kartu-title p{font-size:6pt;color:#64748b}
+      /* Photo placeholder 2x3 cm (roughly 20x30mm, scaled down to fit) */
+      .kartu-photo{
+        width:14mm;height:20mm;
+        border:1pt solid #94a3b8;
+        border-radius:1mm;
+        display:flex;flex-direction:column;
+        align-items:center;justify-content:center;
+        font-size:5pt;color:#94a3b8;text-align:center;
+        flex-shrink:0;
+        background:#f8fafc;
+        line-height:1.3;
+      }
+      .kartu-body{display:flex;gap:2mm;flex:1;min-height:0}
+      .kartu-info{flex:1;display:flex;flex-direction:column;gap:0.5mm;justify-content:center}
+      .kartu-row{display:flex;justify-content:space-between;padding:0.7mm 0;font-size:7pt;border-bottom:0.3pt solid #e2e8f0}
       .kartu-row:last-child{border-bottom:none}
-      .kartu-label{color:#64748b;font-size:8pt}
-      .kartu-value{font-weight:700;text-align:right}
-      @page{size:A4 portrait;margin:10mm}
-      @media print{body{padding:0}}
-    </style></head><body><div class="kartu-grid">`);
-  
-  siswa.forEach(s=>{
-    pw.document.write(`
-      <div class="kartu-print">
-        <div class="kartu-head">
-          <div class="kartu-logo">E</div>
-          <div class="kartu-title">
-            <h3>KARTU PESERTA UJIAN</h3>
-            <p>Emes CBT System</p>
+      .kartu-label{color:#64748b;flex-shrink:0;margin-right:1mm}
+      .kartu-value{font-weight:700;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:45mm}
+      @page{size:A4 portrait;margin:0}
+      @media print{
+        body{padding:0}
+        .kartu-grid{padding:10mm}
+      }
+    </style></head><body>`);
+
+  // Chunk into pages of 10 (2 cols x 5 rows)
+  const perPage=10;
+  for(let i=0;i<siswa.length;i+=perPage){
+    const page=siswa.slice(i,i+perPage);
+    pw.document.write(`<div class="kartu-grid" style="${i+perPage<siswa.length?'page-break-after:always':''}">`);
+    page.forEach(s=>{
+      pw.document.write(`
+        <div class="kartu-print">
+          <div class="kartu-head">
+            <div class="kartu-logo">E</div>
+            <div class="kartu-title">
+              <h3>KARTU PESERTA UJIAN</h3>
+              <p>Emes CBT System</p>
+            </div>
           </div>
-        </div>
-        <div class="kartu-row"><span class="kartu-label">Nama Peserta</span><span class="kartu-value">${s.nama_siswa}</span></div>
-        <div class="kartu-row"><span class="kartu-label">No. Peserta / NIS</span><span class="kartu-value">${s.username}</span></div>
-        <div class="kartu-row"><span class="kartu-label">Kelas / Rombel</span><span class="kartu-value">${s.kelas} - ${s.rombel}</span></div>
-        <div class="kartu-row"><span class="kartu-label">Password</span><span class="kartu-value">${s.password}</span></div>
-        <div class="kartu-row"><span class="kartu-label">Status</span><span class="kartu-value">${s.status}</span></div>
-      </div>`);
-  });
+          <div class="kartu-body">
+            <div class="kartu-photo">
+              <div style="font-size:8pt;opacity:.4">📷</div>
+              <div>Foto</div>
+              <div>2 × 3</div>
+            </div>
+            <div class="kartu-info">
+              <div class="kartu-row"><span class="kartu-label">Nama</span><span class="kartu-value">${s.nama_siswa}</span></div>
+              <div class="kartu-row"><span class="kartu-label">NIS</span><span class="kartu-value">${s.username}</span></div>
+              <div class="kartu-row"><span class="kartu-label">Kelas</span><span class="kartu-value">${s.kelas} – ${s.rombel}</span></div>
+              <div class="kartu-row"><span class="kartu-label">Password</span><span class="kartu-value">${s.password}</span></div>
+              <div class="kartu-row"><span class="kartu-label">Status</span><span class="kartu-value">${s.status}</span></div>
+            </div>
+          </div>
+        </div>`);
+    });
+    // Fill empty slots to maintain grid alignment
+    const empty=perPage-page.length;
+    for(let j=0;j<empty;j++)pw.document.write('<div class="kartu-print" style="border-color:transparent"></div>');
+    pw.document.write('</div>');
+  }
   
-  pw.document.write('</div></body></html>');
+  pw.document.write('</body></html>');
   pw.document.close();
-  setTimeout(()=>pw.print(),500);
+  setTimeout(()=>pw.print(),600);
 }
 
 function impSiswa(){
@@ -1879,6 +1963,11 @@ async function loadLB(){
 // ─── DAFTAR HADIR ───
 async function rHadir(el){
   let soalList=demoMode?DEMO.soal:((await SB.from('soal').select('kode_soal,nama_soal,kelas,tanggal,mapel').order('id_soal',{ascending:false})).data||[]);
+  // Load all siswa to build unique kelas/rombel options
+  let allSiswa=demoMode?DEMO.siswa:((await SB.from('siswa').select('kelas,rombel').eq('status','Aktif')).data||[]);
+  // Build sorted unique kelas list (numerically sorted)
+  const allKelas=[...new Set(allSiswa.map(s=>s.kelas).filter(Boolean))].sort((a,b)=>parseInt(a)-parseInt(b));
+  const allRombel=[...new Set(allSiswa.map(s=>s.rombel).filter(Boolean))].sort();
   el.innerHTML=`<div class="card"><div class="ch"><div class="ct"><i class=\"fa-solid fa-clipboard-user\" style=\"color:var(--p)\"></i> Daftar Hadir & Berita Acara</div></div>
     <div class="cb">
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr 120px 120px;gap:10px;align-items:flex-end;margin-bottom:16px">
@@ -1886,11 +1975,15 @@ async function rHadir(el){
           <select id="hdKode" class="fc"><option value="">— Pilih paket soal —</option>
             ${soalList.map(s=>`<option value="${s.kode_soal}">${s.kode_soal} – ${s.nama_soal}</option>`).join('')}</select></div>
         <div class="fg" style="margin:0"><label class="fl">Kelas</label>
-          <select id="hdKelas" class="fc"><option value="">— Pilih kelas —</option>
-            ${['7','8','9','10','11','12'].map(k=>`<option value="${k}">Kelas ${k}</option>`).join('')}</select></div>
+          <select id="hdKelas" class="fc" onchange="updateHadirRombel()"><option value="">— Pilih kelas —</option>
+            ${allKelas.length?allKelas.map(k=>`<option value="${k}">Kelas ${k}</option>`).join(''):
+              ['1','2','3','4','5','6','7','8','9','10','11','12'].map(k=>`<option value="${k}">Kelas ${k}</option>`).join('')}
+          </select></div>
         <div class="fg" style="margin:0"><label class="fl">Rombel</label>
           <select id="hdRombel" class="fc"><option value="">— Pilih rombel —</option>
-            ${['A','B','C','D','E','F','G'].map(r=>`<option value="${r}">Rombel ${r}</option>`).join('')}</select></div>
+            ${allRombel.length?allRombel.map(r=>`<option value="${r}">Rombel ${r}</option>`).join(''):
+              ['A','B','C','D','E','F','G'].map(r=>`<option value="${r}">Rombel ${r}</option>`).join('')}
+          </select></div>
         <button class="btn bp" onclick="loadHadir()">Generate</button>
         <div style="display:flex;gap:6px;flex-direction:column">
           <button class="btn bo bsm" onclick="cetakHadir()"><i class="fa-solid fa-print"></i> Cetak</button>
@@ -1900,6 +1993,19 @@ async function rHadir(el){
     </div>
     <div id="hadirRes" class="cb"></div>
   </div>`;
+  // Store allSiswa for dynamic rombel filtering
+  window._hadirAllSiswa=allSiswa;
+}
+
+function updateHadirRombel(){
+  const kelas=$('hdKelas')?.value;
+  const allSiswa=window._hadirAllSiswa||[];
+  const rombels=kelas?[...new Set(allSiswa.filter(s=>s.kelas===kelas).map(s=>s.rombel).filter(Boolean))].sort():
+    [...new Set(allSiswa.map(s=>s.rombel).filter(Boolean))].sort();
+  const sel=$('hdRombel');if(!sel)return;
+  const fallback=['A','B','C','D','E','F','G'];
+  const opts=rombels.length?rombels:fallback;
+  sel.innerHTML=`<option value="">— Pilih rombel —</option>${opts.map(r=>`<option value="${r}">Rombel ${r}</option>`).join('')}`;
 }
 
 async function loadHadir(){
