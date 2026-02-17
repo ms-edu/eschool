@@ -252,23 +252,7 @@ tbody tr:hover td{background:#fafbff}
 <div id="ov" class="ov"><div class="spin" style="width:32px;height:32px;border-width:3px"></div><p style="color:#94a3b8;font-size:12.5px;margin-top:8px">Memuat aplikasi...</p></div>
 <div class="toasts" id="toasts"></div>
 
-<!-- CONFIG SCREEN -->
-<div id="cfgScreen" class="cfg hidden">
-  <div class="cfgcard">
-    <div style="font-size:34px;text-align:center;margin-bottom:12px"><i class="fa-solid fa-gear" style="font-size:32px;color:var(--p)"></i></div>
-    <h2 style="font-size:20px;font-weight:800;margin-bottom:4px;text-align:center">Konfigurasi Supabase</h2>
-    <p style="color:var(--mu);font-size:13px;margin-bottom:20px;text-align:center">Hubungkan ke database Supabase Anda</p>
-    <div class="fg"><label class="fl">Supabase Project URL</label><input id="cfgUrl" class="fc" placeholder="https://xxxx.supabase.co"><p class="fh">Project Settings → API → Project URL</p></div>
-    <div class="fg"><label class="fl">Supabase Anon Key</label><input id="cfgKey" class="fc" placeholder="eyJhbGci..."><p class="fh">Project Settings → API → anon / public key</p></div>
-    <button class="btn bp blg" style="width:100%" onclick="saveConfig()">Simpan &amp; Hubungkan</button>
-    <div class="dv"></div>
-    <div style="display:flex;gap:8px">
-      <button class="btn bo" style="flex:1;font-size:12px" onclick="useDemoMode()">Mode Demo</button>
-      <button class="btn bo" style="flex:1;font-size:12px" onclick="showSQLGuide()">SQL Setup</button>
-    </div>
-    <p style="font-size:10.5px;color:#94a3b8;text-align:center;margin-top:10px">Konfigurasi disimpan di localStorage browser</p>
-  </div>
-</div>
+<!-- CONFIG SCREEN REMOVED - credentials hardcoded -->
 
 <!-- APP WRAPPER -->
 <div id="appWrap" class="hidden">
@@ -619,29 +603,137 @@ on conflict do nothing;
 -- (ulangi untuk semua tabel)
 `;}
 
+// ═══════════════════════════ HYBRID MODE (IndexedDB untuk Siswa) ═══════════════════════════
+// Siswa bisa tetap ujian walaupun internet tidak stabil
+// Jawaban disimpan ke IndexedDB dulu, lalu sync ke Supabase saat online kembali
+
+const IDB_NAME='emescbt_exam';const IDB_VER=1;let idb=null;
+
+function openIDB(){
+  return new Promise((res,rej)=>{
+    if(idb){res(idb);return;}
+    const r=indexedDB.open(IDB_NAME,IDB_VER);
+    r.onupgradeneeded=e=>{
+      const db=e.target.result;
+      if(!db.objectStoreNames.contains('exam_state'))db.createObjectStore('exam_state',{keyPath:'key'});
+      if(!db.objectStoreNames.contains('pending_sync'))db.createObjectStore('pending_sync',{keyPath:'id',autoIncrement:true});
+    };
+    r.onsuccess=e=>{idb=e.target.result;res(idb);};
+    r.onerror=e=>rej(e.target.error);
+  });
+}
+
+async function idbSet(store,data){
+  const db=await openIDB();
+  return new Promise((res,rej)=>{
+    const tx=db.transaction(store,'readwrite');
+    tx.objectStore(store).put(data).onsuccess=()=>res();
+    tx.onerror=e=>rej(e.target.error);
+  });
+}
+
+async function idbGet(store,key){
+  const db=await openIDB();
+  return new Promise((res,rej)=>{
+    const tx=db.transaction(store,'readonly');
+    const req=tx.objectStore(store).get(key);
+    req.onsuccess=()=>res(req.result);
+    req.onerror=e=>rej(e.target.error);
+  });
+}
+
+async function idbGetAll(store){
+  const db=await openIDB();
+  return new Promise((res,rej)=>{
+    const tx=db.transaction(store,'readonly');
+    const req=tx.objectStore(store).getAll();
+    req.onsuccess=()=>res(req.result||[]);
+    req.onerror=e=>rej(e.target.error);
+  });
+}
+
+async function idbDelete(store,key){
+  const db=await openIDB();
+  return new Promise((res,rej)=>{
+    const tx=db.transaction(store,'readwrite');
+    tx.objectStore(store).delete(key).onsuccess=()=>res();
+    tx.onerror=e=>rej(e.target.error);
+  });
+}
+
+// Simpan state ujian ke IndexedDB (offline-safe)
+async function saveExamStateLocal(){
+  try{
+    await idbSet('exam_state',{
+      key:'current_exam',
+      jaw:EX.jaw,ragu:EX.ragu,cur:EX.cur,tsec:EX.tsec,
+      asi:EX.asi,sid:EX.sid,
+      kode_soal:EX.soal?.kode_soal,
+      timestamp:Date.now()
+    });
+  }catch(e){console.warn('IDB save failed:',e);}
+}
+
+// Load state ujian dari IndexedDB
+async function loadExamStateLocal(){
+  try{
+    const s=await idbGet('exam_state','current_exam');
+    return s;
+  }catch(e){return null;}
+}
+
+// Hapus state ujian dari IndexedDB (saat selesai)
+async function clearExamStateLocal(){
+  try{await idbDelete('exam_state','current_exam');}catch(e){}
+}
+
+// Tambahkan ke antrian sync
+async function addPendingSync(data){
+  try{await idbSet('pending_sync',{...data,id:Date.now()});}catch(e){}
+}
+
+// Sync semua pending ke Supabase
+async function syncPending(){
+  if(!navigator.onLine||!SB)return;
+  try{
+    const all=await idbGetAll('pending_sync');
+    for(const item of all){
+      try{
+        if(item.type==='update_jawaban'){
+          await SB.from('jawaban_siswa').update({jawaban:item.jawaban,status_ujian:item.status,waktu_sisa:item.waktu_sisa,waktu_dijawab:new Date().toISOString()}).eq('id_jawaban',item.asi);
+        }
+        await idbDelete('pending_sync',item.id);
+      }catch(e){console.warn('Sync item failed:',e);}
+    }
+  }catch(e){}
+}
+
+// Online event → sync
+window.addEventListener('online',()=>{
+  toast('Koneksi internet tersambung kembali. Menyinkronkan data...','ok',3000);
+  syncPending();
+});
+window.addEventListener('offline',()=>{
+  if(EX.soal)toast('Koneksi terputus. Jawaban tetap tersimpan lokal dan akan disinkronkan saat online.','wa',5000);
+});
+
+// ═══════════════════════════ SUPABASE CONFIG (HARDCODED) ═══════════════════════════
+const SUPABASE_URL='https://oshnmliknppofbfsbkwq.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9zaG5tbGlrbnBwb2ZiZnNia3dxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTg3MzUsImV4cCI6MjA4Njg5NDczNX0.R2GyLMr0RuA4LoT60n3fYX2EFC998zlSC9AzclPealY';
+
 // ═══════════════════════════ INIT ═══════════════════════════
 async function init(){
-  const url=localStorage.getItem('sb_url'),key=localStorage.getItem('sb_key');
-  if(url&&key){
-    try{
-      SB=window.supabase.createClient(url,key);
-      const {error}=await SB.from('admins').select('id').limit(1);
-      if(error){SB=null;}
-    }catch(e){SB=null;}
-  }
+  try{
+    SB=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+    const {error}=await SB.from('admins').select('id').limit(1);
+    if(error){SB=null;toast('Koneksi database gagal: '+error.message,'er',5000);}
+  }catch(e){SB=null;toast('Gagal terhubung ke database: '+e.message,'er',5000);}
   hide('ov');show('appWrap');
-  if(!SB&&!demoMode){show('cfgScreen');return;}
   showAdminLogin();
 }
 
-function saveConfig(){
-  const u=$('cfgUrl').value.trim(),k=$('cfgKey').value.trim();
-  if(!u||!k){toast('URL dan Key wajib diisi!','er');return;}
-  localStorage.setItem('sb_url',u);localStorage.setItem('sb_key',k);
-  toast('Tersimpan! Menghubungkan...','in');setTimeout(()=>location.reload(),1000);
-}
-function useDemoMode(){demoMode=true;hide('cfgScreen');toast('Mode Demo aktif — data tidak tersimpan ke database','in',5000);showAdminLogin();}
-function showConfig(){hideAll(['adminPanel','siswaPanel','loginAdmin','loginSiswa','examScreen','gameScreen']);show('cfgScreen');}
+function useDemoMode(){demoMode=true;toast('Mode Demo aktif — data tidak tersimpan ke database','in',5000);showAdminLogin();}
+function showConfig(){/* config screen removed - credentials hardcoded */}
 function showSQLGuide(){
   document.getElementById('mdSQL')?.remove();
   const html=`<div class="mo" id="mdSQL"><div class="md mdxl"><div class="mh"><div class="mtt"><i class=\"fa-solid fa-database\"></i> SQL Setup — Jalankan di Supabase SQL Editor</div><button class="xb" onclick="rmModal('mdSQL')">✕</button></div>
@@ -654,8 +746,8 @@ function showSQLGuide(){
 function copySQL(){navigator.clipboard.writeText(getSQL()).then(()=>toast('SQL disalin ke clipboard!','ok'));}
 
 // ═══════════════════════════ AUTH ═══════════════════════════
-function showAdminLogin(){hideAll(['loginSiswa','adminPanel','siswaPanel','examScreen','gameScreen','cfgScreen']);show('loginAdmin');$('admErr').classList.add('hidden');$('admU').value='';$('admP').value='';}
-function showSiswaLogin(){hideAll(['loginAdmin','adminPanel','siswaPanel','examScreen','gameScreen','cfgScreen']);show('loginSiswa');$('sisErr').classList.add('hidden');$('sisU').value='';$('sisP').value='';}
+function showAdminLogin(){hideAll(['loginSiswa','adminPanel','siswaPanel','examScreen','gameScreen']);show('loginAdmin');$('admErr').classList.add('hidden');$('admU').value='';$('admP').value='';}
+function showSiswaLogin(){hideAll(['loginAdmin','adminPanel','siswaPanel','examScreen','gameScreen']);show('loginSiswa');$('sisErr').classList.add('hidden');$('sisU').value='';$('sisP').value='';}
 
 async function loginAdmin(){
   const u=$('admU').value.trim(),p=$('admP').value.trim();
@@ -702,7 +794,7 @@ function logoutSiswa(){if(!confirm('Yakin ingin keluar?'))return;sis=null;showSi
 
 // ═══════════════════════════ ADMIN PANEL ═══════════════════════════
 function showAdminPanel(){
-  hideAll(['loginAdmin','loginSiswa','siswaPanel','examScreen','gameScreen','cfgScreen']);show('adminPanel');
+  hideAll(['loginAdmin','loginSiswa','siswaPanel','examScreen','gameScreen']);show('adminPanel');
   $('admAv').textContent=adm.nama_admin[0].toUpperCase();
   $('admAv').style.background=adm.role==='admin'?'var(--p)':'var(--ok)';
   $('admName').textContent=adm.nama_admin;
@@ -1299,6 +1391,7 @@ async function rSiswa(el){
   el.innerHTML=`<div class="card"><div class="ch"><div class="ct"><i class=\"fa-solid fa-users\" style=\"color:var(--p)\"></i> Data Siswa</div><div style="display:flex;gap:7px">
     <button class="btn bsm bo" onclick="impSiswa()">Import Excel</button>
     <button class="btn bsm bo" onclick="expSiswa()"><i class="fa-solid fa-file-export"></i> Export</button>
+    <button class="btn bsm bo" onclick="cetakSemuaKartu()" title="Cetak Kartu Semua Siswa"><i class="fa-solid fa-print"></i> Cetak Semua Kartu</button>
     <button class="btn bsm bp" onclick="mSiswa()">+ Tambah</button></div></div>
     <div class="cb" style="padding:12px"><div class="sbar">
       <div class="siw" style="flex:1"><input type="text" id="srSiswa" class="fc si" placeholder="Cari nama atau username..." oninput="ftSiswa()"></div>
@@ -1396,8 +1489,73 @@ function kartulSiswa(id){
 function printKartu(){
   const content=$('kartuArea')?.innerHTML;if(!content)return;
   const w=window.open('','_blank');
-  w.document.write(`<html><head><title>Kartu Peserta</title><style>body{font-family:'Plus Jakarta Sans',sans-serif;padding:20px}.kartu{width:340px;border:2px solid #334155;border-radius:10px;padding:16px}.kartu-head{display:flex;align-items:center;gap:10px;border-bottom:2px solid #334155;padding-bottom:10px;margin-bottom:10px}.kartu-logo{width:40px;height:40px;background:#2563eb;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px}</style></head><body>${content}</body></html>`);
+  w.document.write(`<!DOCTYPE html><html><head><title>Kartu Peserta</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Plus Jakarta Sans',sans-serif;padding:20px;background:#fff}
+    .kartu{width:340px;border:2px solid #334155;border-radius:10px;padding:16px;background:#fff}
+    .kartu-head{display:flex;align-items:center;gap:10px;border-bottom:2px solid #334155;padding-bottom:10px;margin-bottom:10px}
+    .kartu-logo{width:40px;height:40px;background:#2563eb;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff}
+    @media print{@page{margin:10mm}}
+  </style></head><body>${content}</body></html>`);
   w.document.close();w.print();
+}
+
+function cetakSemuaKartu(){
+  const siswaData=window._siswa||[];
+  if(!siswaData.length){toast('Tidak ada data siswa untuk dicetak!','wa');return;}
+  const schoolName=document.title||'CBT E-School';
+  const w=window.open('','_blank');
+  const kartuHTML=siswaData.map(s=>`
+    <div class="kartu">
+      <div class="kartu-head">
+        <div class="kartu-logo"><i class="fa-solid fa-id-card" style="color:#fff;font-size:16px"></i></div>
+        <div>
+          <div style="font-weight:800;font-size:13px">CBT E-School</div>
+          <div style="font-size:11px;color:#64748b">Kartu Peserta Ujian</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:3px 8px;font-size:12px">
+        <span style="color:#64748b">Nama</span><span style="font-weight:700">: ${s.nama_siswa}</span>
+        <span style="color:#64748b">Username/NIS</span><span style="font-weight:700">: ${s.username}</span>
+        <span style="color:#64748b">Password</span><span style="font-weight:700">: ${s.password}</span>
+        <span style="color:#64748b">Kelas</span><span style="font-weight:700">: ${s.kelas} - ${s.rombel}</span>
+        <span style="color:#64748b">Status</span><span style="font-weight:700">: ${s.status}</span>
+      </div>
+      <div style="margin-top:10px;border-top:1px dashed #cbd5e1;padding-top:8px">
+        <div style="font-size:9.5px;color:#94a3b8;text-align:center">Simpan kartu ini. Password dapat direset oleh admin.</div>
+      </div>
+    </div>`).join('');
+  w.document.write(`<!DOCTYPE html><html><head><title>Kartu Peserta — Semua Siswa</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;padding:15mm 10mm}
+    .page-title{text-align:center;margin-bottom:12mm;border-bottom:2px solid #334155;padding-bottom:8mm}
+    .page-title h1{font-size:18px;font-weight:800;color:#0f172a}
+    .page-title p{font-size:12px;color:#64748b;margin-top:4px}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10mm;align-items:start}
+    .kartu{border:2px solid #334155;border-radius:10px;padding:14px;background:#fff;break-inside:avoid;page-break-inside:avoid}
+    .kartu-head{display:flex;align-items:center;gap:10px;border-bottom:2px solid #334155;padding-bottom:9px;margin-bottom:9px}
+    .kartu-logo{width:36px;height:36px;background:#2563eb;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;color:#fff}
+    @page{size:A4;margin:10mm}
+    @media print{
+      body{padding:0;background:#fff}
+      .page-title{margin-bottom:8mm;padding-bottom:5mm}
+      .grid{gap:7mm}
+      .kartu{border:1.5px solid #334155}
+    }
+  </style></head><body>
+  <div class="page-title">
+    <h1><i class="fa-solid fa-id-card"></i> Kartu Peserta Ujian</h1>
+    <p>Total ${siswaData.length} siswa &nbsp;·&nbsp; Dicetak: ${new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})}</p>
+  </div>
+  <div class="grid">${kartuHTML}</div>
+  <script>window.onload=function(){window.print();}<\/script>
+  </body></html>`);
+  w.document.close();
 }
 
 async function resetLogin(id){
@@ -1861,8 +2019,8 @@ async function rSet(el){
         </div>
         <div class="dv"></div>
         <div class="fg"><label class="fl">Konfigurasi Supabase</label>
-          <p class="fh" style="margin-bottom:8px">URL: ${localStorage.getItem('sb_url')||'(Mode Demo)'}</p>
-          <button class="btn bo" onclick="showConfig()"><i class="fa-solid fa-gear"></i> Ubah Konfigurasi</button>
+          <p class="fh" style="margin-bottom:8px">URL: <span class="mono" style="font-size:10.5px">${SUPABASE_URL}</span></p>
+          <p class="fh">Konfigurasi tertanam langsung dalam kode aplikasi.</p>
         </div>
         <div class="dv"></div>
         <div class="fg"><label class="fl">SQL Schema</label>
@@ -1895,7 +2053,7 @@ async function resetDataUjian(){
 
 // ═══════════════════════════ SISWA PANEL ═══════════════════════════
 function showSiswaPanel(){
-  hideAll(['loginAdmin','loginSiswa','adminPanel','examScreen','gameScreen','cfgScreen']);show('siswaPanel');
+  hideAll(['loginAdmin','loginSiswa','adminPanel','examScreen','gameScreen']);show('siswaPanel');
   $('sisAv').textContent=sis.nama_siswa[0].toUpperCase();
   $('sisName').textContent=sis.nama_siswa;
   $('sisKls').textContent=`Kelas ${sis.kelas}-${sis.rombel}`;
@@ -2019,24 +2177,49 @@ async function mulaiUjian(idSoal, expectedToken){
   let butirs=demoMode?DEMO.butir.filter(b=>b.kode_soal===soal.kode_soal):((await SB.from('butir_soal').select('*').eq('kode_soal',soal.kode_soal).eq('status_soal','Aktif').order('nomer_soal')).data||[]);
   if(!butirs.length){toast('Tidak ada soal dalam paket ini!','er');return;}
   if(soal.tampilan_soal==='Acak')butirs=shuffleButirPerTipe(butirs);
-  // Cek apakah ada sesi yang belum selesai
+  // Cek state lokal di IndexedDB terlebih dahulu (hybrid mode)
+  let localState=null;
+  if(!demoMode){
+    try{
+      const ls=await loadExamStateLocal();
+      if(ls&&ls.kode_soal===soal.kode_soal&&ls.sid===sis.id_siswa&&ls.asi){
+        // Ada state lokal, periksa apakah masih valid (< 3 jam)
+        if(Date.now()-ls.timestamp<3*60*60*1000)localState=ls;
+      }
+    }catch(e){}
+  }
+  // Cek sesi aktif di Supabase
   let existingJaw=null;
   if(!demoMode){
-    const{data:ej}=await SB.from('jawaban_siswa').select('*').eq('id_siswa',sis.id_siswa).eq('kode_soal',soal.kode_soal).eq('status_ujian','Aktif').single();
-    existingJaw=ej;
+    try{
+      const{data:ej}=await SB.from('jawaban_siswa').select('*').eq('id_siswa',sis.id_siswa).eq('kode_soal',soal.kode_soal).eq('status_ujian','Aktif').single();
+      existingJaw=ej;
+    }catch(e){}
   }
   // Setup exam state
   EX.soal=soal;EX.butirs=butirs;EX.jaw={};EX.ragu={};EX.cur=1;EX.sid=sis.id_siswa;EX.asi=null;
-  if(existingJaw){
+  if(localState&&localState.asi){
+    // Gunakan state dari IndexedDB (lebih fresh karena disimpan lokal tiap perubahan)
+    EX.tsec=localState.tsec||soal.waktu_ujian*60;EX.asi=localState.asi;
+    Object.assign(EX.jaw,localState.jaw||{});EX.ragu=localState.ragu||{};EX.cur=localState.cur||1;
+    toast('Melanjutkan dari penyimpanan lokal...','in');
+    // Sync state ke Supabase jika online
+    if(navigator.onLine)syncPending();
+  }else if(existingJaw){
     EX.tsec=existingJaw.waktu_sisa||soal.waktu_ujian*60;EX.asi=existingJaw.id_jawaban;
-    // Restore jawaban
     try{const jl=JSON.parse(existingJaw.jawaban||'{}');Object.assign(EX.jaw,jl);}catch(e){}
     toast('Melanjutkan ujian sebelumnya...','in');
   }else{
     EX.tsec=soal.waktu_ujian*60;
     if(!demoMode){
-      const{data:nj}=await SB.from('jawaban_siswa').insert({id_siswa:sis.id_siswa,nama_siswa:sis.nama_siswa,kode_soal:soal.kode_soal,jawaban:'{}',status_ujian:'Aktif',waktu_sisa:EX.tsec}).select().single();
-      EX.asi=nj?.id_jawaban;
+      try{
+        const{data:nj}=await SB.from('jawaban_siswa').insert({id_siswa:sis.id_siswa,nama_siswa:sis.nama_siswa,kode_soal:soal.kode_soal,jawaban:'{}',status_ujian:'Aktif',waktu_sisa:EX.tsec}).select().single();
+        EX.asi=nj?.id_jawaban;
+      }catch(e){
+        // Offline: buat ID temporary
+        EX.asi='offline_'+Date.now();
+        toast('Mode offline: jawaban disimpan lokal dan akan disinkronkan saat online.','wa',5000);
+      }
     }
   }
   renderExam();
@@ -2052,6 +2235,7 @@ function renderExam(){
       <div class="exsb">
         <div class="exhd"><h2>${s.nama_soal}</h2><p>${s.mapel} · ${s.waktu_ujian} menit</p></div>
         <div class="timebox"><div class="tl">Sisa Waktu</div><div class="td" id="examTD">${secToTime(EX.tsec)}</div></div>
+        <div id="netStatus" style="margin:0 12px 8px;padding:5px 10px;border-radius:6px;font-size:10.5px;text-align:center;font-weight:600;${navigator.onLine?'background:#dcfce7;color:#15803d':'background:#fef9c3;color:#854d0e'}">${navigator.onLine?'<i class="fa-solid fa-wifi"></i> Online':'<i class="fa-solid fa-wifi-slash"></i> Offline — Simpan Lokal'}</div>
         <div class="ngw">
           <div style="font-size:11px;font-weight:700;color:var(--mu);margin-bottom:6px">NAVIGASI SOAL</div>
           <div class="ng" id="numGrid"></div>
@@ -2147,26 +2331,26 @@ function renderSoal(n){
   </div>`;
 }
 
-function pilihPG(n,val){EX.jaw[n]=val;updateNumGrid();renderSoal(n);}
+function pilihPG(n,val){EX.jaw[n]=val;updateNumGrid();renderSoal(n);saveExamStateLocal();}
 function pilihPGK(n,val){
   const cur=(EX.jaw[n]||'').split(',').filter(Boolean);
   const idx=cur.indexOf(val);idx>=0?cur.splice(idx,1):cur.push(val);
-  EX.jaw[n]=cur.join(',');updateNumGrid();renderSoal(n);
+  EX.jaw[n]=cur.join(',');updateNumGrid();renderSoal(n);saveExamStateLocal();
 }
 function pilihBS(n,idx,val){
   const stmts=[EX.butirs[n-1].pilihan_1,EX.butirs[n-1].pilihan_2,EX.butirs[n-1].pilihan_3,EX.butirs[n-1].pilihan_4].filter(Boolean);
   const arr=(EX.jaw[n]||stmts.map(()=>'')).split('|');
   while(arr.length<stmts.length)arr.push('');
-  arr[idx]=val;EX.jaw[n]=arr.join('|');updateNumGrid();renderSoal(n);
+  arr[idx]=val;EX.jaw[n]=arr.join('|');updateNumGrid();renderSoal(n);saveExamStateLocal();
 }
-function pilihUraian(n){const el=$('jawUraian');if(el)EX.jaw[n]=el.value;updateNumGrid();}
+function pilihUraian(n){const el=$('jawUraian');if(el)EX.jaw[n]=el.value;updateNumGrid();saveExamStateLocal();}
 function pilihJodoh(n){
   const b=EX.butirs[n-1];const pairs=(b.jawaban_benar||'').split('|').filter(Boolean);
   const lefts=pairs.map(p=>p.split(':')[0]);
   const arr=lefts.map((l,i)=>{const sel=$(`jodoh_${n}_${i}`);return sel?`${l}:${sel.value}`:null;}).filter(Boolean);
-  EX.jaw[n]=arr.join('|');updateNumGrid();
+  EX.jaw[n]=arr.join('|');updateNumGrid();saveExamStateLocal();
 }
-function toggleRagu(n){EX.ragu[n]=!EX.ragu[n];updateNumGrid();renderSoal(n);}
+function toggleRagu(n){EX.ragu[n]=!EX.ragu[n];updateNumGrid();renderSoal(n);saveExamStateLocal();}
 
 function examKeyNav(e){
   if(['input','textarea','select'].includes(e.target.tagName.toLowerCase()))return;
@@ -2183,6 +2367,9 @@ function startTimer(){
       el.textContent=secToTime(EX.tsec);
       el.className='td'+(EX.tsec<=300?' warn':'')+(EX.tsec<=60?' dang':'');
     }
+    // Update indikator status jaringan
+    const ns=$('netStatus');
+    if(ns)ns.innerHTML=navigator.onLine?'<i class="fa-solid fa-wifi"></i> Online':'<i class="fa-solid fa-wifi-slash"></i> Offline — Simpan Lokal',ns.style.cssText=ns.style.cssText.replace(/background:[^;]+;color:[^;]+/,navigator.onLine?'background:#dcfce7;color:#15803d':'background:#fef9c3;color:#854d0e');
     if(EX.tsec<=0){clearInterval(EX.timer);autoSubmit();}
   },1000);
 }
@@ -2195,9 +2382,26 @@ function startAutoSave(){
 async function saveJawaban(isFinish=false){
   if(demoMode||!EX.asi)return;
   const status=isFinish?'Selesai':'Aktif';
-  try{
-    await SB.from('jawaban_siswa').update({jawaban:JSON.stringify(EX.jaw),status_ujian:status,waktu_sisa:EX.tsec,waktu_dijawab:new Date().toISOString()}).eq('id_jawaban',EX.asi);
-  }catch(e){console.error('Auto-save error:',e);}
+  const jawStr=JSON.stringify(EX.jaw);
+  // Selalu simpan ke IndexedDB terlebih dahulu (offline-safe)
+  await saveExamStateLocal();
+  // Coba simpan ke Supabase
+  if(navigator.onLine){
+    try{
+      await SB.from('jawaban_siswa').update({jawaban:jawStr,status_ujian:status,waktu_sisa:EX.tsec,waktu_dijawab:new Date().toISOString()}).eq('id_jawaban',EX.asi);
+      // Sync pending jika ada
+      syncPending();
+    }catch(e){
+      console.warn('Supabase save failed, queuing for sync:',e);
+      // Simpan ke antrian sync jika gagal
+      await addPendingSync({type:'update_jawaban',asi:EX.asi,jawaban:jawStr,status,waktu_sisa:EX.tsec});
+    }
+  }else{
+    // Offline: simpan ke antrian sync
+    await addPendingSync({type:'update_jawaban',asi:EX.asi,jawaban:jawStr,status,waktu_sisa:EX.tsec});
+  }
+  // Hapus state lokal jika sudah selesai
+  if(isFinish)await clearExamStateLocal();
 }
 
 async function autoSubmit(){clearInterval(EX.autoSaveInt);await saveJawaban(true);hitungNilai();}
