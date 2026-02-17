@@ -3,8 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title id="appTitle">CBT Online — E-School</title>
+<title id="appTitle">Emes CBT System</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/bT70O4C.png">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -20,22 +22,30 @@ img{max-width:100%;height:auto}
 .sidebar{width:var(--sw);background:#0f172a;color:#fff;position:fixed;left:0;top:0;bottom:0;z-index:100;display:flex;flex-direction:column;transition:transform .25s;overflow:hidden}
 .sbh{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
 .sblogo{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:800}
-.sbicon{width:34px;height:34px;background:var(--p);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.sbicon{width:34px;height:34px;background:var(--p);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden}
+.sbicon img{width:100%;height:100%;object-fit:cover;border-radius:9px}
 .sbrole{font-size:10px;color:rgba(255,255,255,.38);margin-top:3px;text-transform:uppercase;letter-spacing:.08em}
 .sbnav{flex:1;padding:12px 8px;overflow-y:auto}
 .sbsec{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.25);padding:3px 8px;margin:10px 0 3px}
 .ni{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;color:rgba(255,255,255,.55);font-size:12.5px;font-weight:500;cursor:pointer;transition:all .12s;margin-bottom:1px;border:none;background:none;width:100%;text-align:left}
 .ni:hover{background:rgba(255,255,255,.07);color:#fff}.ni.active{background:var(--p);color:#fff}
-.ni .ic{font-size:14px;flex-shrink:0}
-.sbfoot{padding:12px;border-top:1px solid rgba(255,255,255,.08)}
-.susr{display:flex;align-items:center;gap:8px}
-.uav{width:30px;height:30px;background:var(--p);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0}
-.unm{font-size:12px;font-weight:600;color:#fff}.url{font-size:11px;color:rgba(255,255,255,.35)}
-.lob{margin-left:auto;background:none;border:none;color:rgba(255,255,255,.35);font-size:15px;padding:4px;border-radius:5px;cursor:pointer;transition:all .12s}
-.lob:hover{color:var(--er);background:rgba(239,68,68,.1)}
+.ni .ic{font-size:14px;flex-shrink:0;width:16px;text-align:center}
+/* FOOTER */
+.app-footer{text-align:center;font-size:11px;color:rgba(255,255,255,.28);padding:10px 12px;border-top:1px solid rgba(255,255,255,.08);letter-spacing:.02em}
+.app-footer-main{text-align:center;font-size:11.5px;color:var(--mu);padding:14px 20px;border-top:1px solid var(--br);background:#fff;margin-top:auto}
+.login-footer{font-size:11.5px;color:rgba(255,255,255,.45);text-align:center;margin-top:auto;padding-top:20px}
+.lp-footer{font-size:11px;color:#94a3b8;text-align:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--br)}
+.sbfoot{padding:10px 12px;border-top:1px solid rgba(255,255,255,.08)}
 .main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh}
 .topbar{background:#fff;border-bottom:1px solid var(--br);padding:0 22px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
 .tbtt{font-size:15px;font-weight:700}
+.tbusr{display:flex;align-items:center;gap:10px}
+.tbuav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;color:#fff}
+.tbunm{font-size:13px;font-weight:600;color:var(--tx);line-height:1.2}
+.tburl{font-size:11px;color:var(--mu)}
+.tblob{background:none;border:1.5px solid var(--br);color:var(--mu);font-size:12.5px;padding:5px 11px;border-radius:7px;cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:6px;font-weight:600;font-family:inherit}
+.tblob:hover{color:var(--er);border-color:var(--er);background:#fff1f2}
+.tbusr-div{width:1px;height:24px;background:var(--br);flex-shrink:0}
 .pb{padding:20px;flex:1}
 .g{display:grid;gap:13px}.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
 .card{background:var(--card);border:1px solid var(--br);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
@@ -109,7 +119,8 @@ tbody tr:hover td{background:#fafbff}
 .lp h2{font-size:21px;font-weight:800;margin-bottom:3px}
 .lp .ls{font-size:12.5px;color:var(--mu);margin-bottom:24px}
 .llogo{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:800;margin-bottom:5px}
-.lic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;background:var(--p);flex-shrink:0}
+.lic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;background:var(--p);flex-shrink:0;overflow:hidden}
+.lic img{width:100%;height:100%;object-fit:cover;border-radius:10px}
 .swl{text-align:center;margin-top:16px;font-size:12.5px;color:var(--mu)}
 .swl a{color:var(--p);font-weight:600;cursor:pointer}.swl a:hover{text-decoration:underline}
 /* CONFIG */
@@ -191,7 +202,7 @@ tbody tr:hover td{background:#fafbff}
 .empty h3{font-size:15px;font-weight:700;margin-bottom:4px}.empty p{color:var(--mu);font-size:12.5px;margin-bottom:14px}
 .sbar{display:flex;gap:8px;margin-bottom:13px;flex-wrap:wrap}
 .siw{position:relative;flex:1;min-width:190px}
-.siw::before{content:'🔍';position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:11px;pointer-events:none}
+.siw::before{content:'\f002';font-family:'Font Awesome 6 Free';font-weight:900;position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:11px;pointer-events:none;color:var(--mu)}
 .si{padding-left:30px!important}
 .mono{font-family:'JetBrains Mono',monospace;font-size:11.5px;background:#f1f5f9;padding:2px 6px;border-radius:4px;color:#334155}
 .butr{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--br)}
@@ -229,6 +240,8 @@ tbody tr:hover td{background:#fafbff}
   .main{margin-left:0}.g4,.g3{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}
   .fr,.fr3{grid-template-columns:1fr}.la{display:none}.lp{width:100%;padding:28px 20px}
   .exsb{width:200px}.resgrid{grid-template-columns:1fr 1fr 1fr}
+  .tbunm,.tburl,.tbusr-div{display:none}
+  #mbtn,#mbtnDiv{display:flex!important}
 }
 @media(max-width:480px){.g4{grid-template-columns:1fr 1fr}.g3,.g2{grid-template-columns:1fr}}
 </style>
@@ -240,16 +253,16 @@ tbody tr:hover td{background:#fafbff}
 <!-- CONFIG SCREEN -->
 <div id="cfgScreen" class="cfg hidden">
   <div class="cfgcard">
-    <div style="font-size:34px;text-align:center;margin-bottom:12px">⚙️</div>
+    <div style="font-size:34px;text-align:center;margin-bottom:12px"><i class="fa-solid fa-gear" style="font-size:32px;color:var(--p)"></i></div>
     <h2 style="font-size:20px;font-weight:800;margin-bottom:4px;text-align:center">Konfigurasi Supabase</h2>
     <p style="color:var(--mu);font-size:13px;margin-bottom:20px;text-align:center">Hubungkan ke database Supabase Anda</p>
     <div class="fg"><label class="fl">Supabase Project URL</label><input id="cfgUrl" class="fc" placeholder="https://xxxx.supabase.co"><p class="fh">Project Settings → API → Project URL</p></div>
     <div class="fg"><label class="fl">Supabase Anon Key</label><input id="cfgKey" class="fc" placeholder="eyJhbGci..."><p class="fh">Project Settings → API → anon / public key</p></div>
-    <button class="btn bp blg" style="width:100%" onclick="saveConfig()">💾 Simpan &amp; Hubungkan</button>
+    <button class="btn bp blg" style="width:100%" onclick="saveConfig()">Simpan &amp; Hubungkan</button>
     <div class="dv"></div>
     <div style="display:flex;gap:8px">
-      <button class="btn bo" style="flex:1;font-size:12px" onclick="useDemoMode()">🎮 Mode Demo</button>
-      <button class="btn bo" style="flex:1;font-size:12px" onclick="showSQLGuide()">📋 SQL Setup</button>
+      <button class="btn bo" style="flex:1;font-size:12px" onclick="useDemoMode()">Mode Demo</button>
+      <button class="btn bo" style="flex:1;font-size:12px" onclick="showSQLGuide()">SQL Setup</button>
     </div>
     <p style="font-size:10.5px;color:#94a3b8;text-align:center;margin-top:10px">Konfigurasi disimpan di localStorage browser</p>
   </div>
@@ -261,32 +274,34 @@ tbody tr:hover td{background:#fafbff}
 <div id="loginAdmin" class="lw hidden">
   <div class="la" style="background:linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#0284c7 100%)">
     <div class="laart">
-      <div style="font-size:56px;margin-bottom:14px">📝</div>
-      <h1>CBT Online E-School</h1>
+      <div style="font-size:56px;margin-bottom:14px"><i class="fa-solid fa-laptop-code" style="font-size:52px;color:#fff;opacity:.9"></i></div>
+      <h1>Emes CBT System</h1>
       <p>Sistem ujian berbasis komputer modern. 5 tipe soal, penilaian otomatis, monitor real-time, analisa per-butir, chat, dan leaderboard.</p>
       <div class="chips">
-        <span class="chip">✅ Pilihan Ganda</span><span class="chip">✅ PG Kompleks</span>
-        <span class="chip">✅ Benar/Salah</span><span class="chip">✅ Uraian</span>
-        <span class="chip">✅ Menjodohkan</span><span class="chip">✅ Monitor Real-time</span>
-        <span class="chip">✅ Analisa Per-butir</span><span class="chip">✅ Chat Siswa</span>
-        <span class="chip">✅ Export Excel</span><span class="chip">✅ Import Siswa</span>
+        <span class="chip"><i class="fa-solid fa-circle-check"></i> Pilihan Ganda</span><span class="chip"><i class="fa-solid fa-circle-check"></i> PG Kompleks</span>
+        <span class="chip"><i class="fa-solid fa-circle-check"></i> Benar/Salah</span><span class="chip"><i class="fa-solid fa-circle-check"></i> Uraian</span>
+        <span class="chip"><i class="fa-solid fa-circle-check"></i> Menjodohkan</span><span class="chip"><i class="fa-solid fa-circle-check"></i> Monitor Real-time</span>
+        <span class="chip"><i class="fa-solid fa-circle-check"></i> Analisa Per-butir</span><span class="chip"><i class="fa-solid fa-circle-check"></i> Chat Siswa</span>
+        <span class="chip"><i class="fa-solid fa-circle-check"></i> Export Excel</span><span class="chip"><i class="fa-solid fa-circle-check"></i> Import Siswa</span>
       </div>
+      <div class="login-footer">&copy; 2026 Emes EduTech. All rights reserved.</div>
     </div>
   </div>
-  <div class="lp">
-    <div class="llogo"><div class="lic">📝</div> CBT E-School</div>
+  <div class="lp" style="display:flex;flex-direction:column">
+    <div class="llogo"><div class="lic"><img src="https://i.imgur.com/bT70O4C.png" alt="Logo" onerror="this.parentNode.innerHTML='<i class=\'fa-solid fa-clipboard-list\' style=\'color:#fff;font-size:18px\'></i>'"></div> Emes CBT System</div>
     <p style="font-size:11.5px;color:var(--mu);margin-bottom:22px">Admin &amp; Guru</p>
     <h2>Selamat Datang</h2>
     <p class="ls">Masuk ke panel pengelolaan ujian</p>
     <div id="admErr" class="al aler hidden"></div>
     <div class="fg"><label class="fl">Username</label><input id="admU" class="fc" placeholder="Username" onkeydown="if(event.key==='Enter')loginAdmin()"></div>
-    <div class="fg"><label class="fl">Password</label><div class="pww"><input id="admP" type="password" class="fc" placeholder="Password" onkeydown="if(event.key==='Enter')loginAdmin()"><button class="pwb" onclick="tpw('admP',this)">👁</button></div></div>
-    <button class="btn bp blg" style="width:100%" onclick="loginAdmin()" id="admBtn">Masuk →</button>
-    <div class="swl"><a onclick="showSiswaLogin()">Login sebagai Siswa →</a></div>
+    <div class="fg"><label class="fl">Password</label><div class="pww"><input id="admP" type="password" class="fc" placeholder="Password" onkeydown="if(event.key==='Enter')loginAdmin()"><button class="pwb" onclick="tpw('admP',this)"><i class="fa-solid fa-eye"></i></button></div></div>
+    <button class="btn bp blg" style="width:100%" onclick="loginAdmin()" id="admBtn">Masuk <i class="fa-solid fa-arrow-right"></i></button>
+    <div class="swl"><a onclick="showSiswaLogin()">Login sebagai Siswa <i class="fa-solid fa-arrow-right"></i></a></div>
     <div style="margin-top:18px;padding-top:13px;border-top:1px solid var(--br);text-align:center;font-size:11.5px;color:#94a3b8">
-      <a onclick="showConfig()" style="cursor:pointer;color:#94a3b8">⚙️ Ubah Konfigurasi</a>
-      &nbsp;·&nbsp;<a onclick="showSQLGuide()" style="cursor:pointer;color:#94a3b8">📋 SQL Setup</a>
+      <a onclick="showConfig()" style="cursor:pointer;color:#94a3b8"><i class="fa-solid fa-gear"></i> Ubah Konfigurasi</a>
+      &nbsp;·&nbsp;<a onclick="showSQLGuide()" style="cursor:pointer;color:#94a3b8"><i class="fa-solid fa-database"></i> SQL Setup</a>
     </div>
+    <div class="lp-footer">&copy; 2026 Emes EduTech</div>
   </div>
 </div>
 
@@ -294,85 +309,109 @@ tbody tr:hover td{background:#fafbff}
 <div id="loginSiswa" class="lw hidden">
   <div class="la" style="background:linear-gradient(135deg,#065f46,#047857,#059669)">
     <div class="laart">
-      <div style="font-size:56px;margin-bottom:14px">🎓</div>
+      <div style="font-size:56px;margin-bottom:14px"><i class="fa-solid fa-graduation-cap" style="font-size:52px;color:#fff;opacity:.9"></i></div>
       <h1>Portal Ujian Online</h1>
       <p>Masuk untuk mengikuti ujian. Jawaban tersimpan otomatis setiap 30 detik. Tersedia mini game saat menunggu ujian dimulai.</p>
       <div class="chips">
-        <span class="chip">⏱ Timer Otomatis</span><span class="chip">💾 Auto-Save</span>
-        <span class="chip">📊 Nilai Langsung</span><span class="chip">🎮 Mini Game</span>
-        <span class="chip">💬 Chat Guru</span>
+        <span class="chip"><i class="fa-solid fa-stopwatch"></i> Timer Otomatis</span><span class="chip"><i class="fa-solid fa-floppy-disk"></i> Auto-Save</span>
+        <span class="chip"><i class="fa-solid fa-chart-bar"></i> Nilai Langsung</span><span class="chip"><i class="fa-solid fa-gamepad"></i> Mini Game</span>
+        <span class="chip"><i class="fa-solid fa-comments"></i> Chat Guru</span>
       </div>
+      <div class="login-footer">&copy; 2026 Emes EduTech. All rights reserved.</div>
     </div>
   </div>
-  <div class="lp">
-    <div class="llogo"><div class="lic" style="background:#059669">🎓</div> CBT E-School</div>
+  <div class="lp" style="display:flex;flex-direction:column">
+    <div class="llogo"><div class="lic" style="background:#059669"><img src="https://i.imgur.com/bT70O4C.png" alt="Logo" onerror="this.parentNode.innerHTML='<i class=\'fa-solid fa-graduation-cap\' style=\'color:#fff;font-size:18px\'></i>'"></div> Emes CBT System</div>
     <p style="font-size:11.5px;color:var(--mu);margin-bottom:22px">Portal Siswa</p>
     <h2>Login Siswa</h2>
     <p class="ls">Masukkan nomor peserta dan password</p>
     <div id="sisErr" class="al aler hidden"></div>
     <div class="fg"><label class="fl">Nomor Peserta / NIS</label><input id="sisU" class="fc" placeholder="Nomor peserta" onkeydown="if(event.key==='Enter')loginSiswa()"></div>
-    <div class="fg"><label class="fl">Password</label><div class="pww"><input id="sisP" type="password" class="fc" placeholder="Password" onkeydown="if(event.key==='Enter')loginSiswa()"><button class="pwb" onclick="tpw('sisP',this)">👁</button></div></div>
-    <button class="btn bs blg" style="width:100%;background:#059669;border-color:#059669" onclick="loginSiswa()" id="sisBtn">Masuk →</button>
-    <div class="swl"><a onclick="showAdminLogin()">← Login sebagai Admin/Guru</a></div>
+    <div class="fg"><label class="fl">Password</label><div class="pww"><input id="sisP" type="password" class="fc" placeholder="Password" onkeydown="if(event.key==='Enter')loginSiswa()"><button class="pwb" onclick="tpw('sisP',this)"><i class="fa-solid fa-eye"></i></button></div></div>
+    <button class="btn bs blg" style="width:100%;background:#059669;border-color:#059669" onclick="loginSiswa()" id="sisBtn">Masuk <i class="fa-solid fa-arrow-right"></i></button>
+    <div class="swl"><a onclick="showAdminLogin()"><i class="fa-solid fa-arrow-left"></i> Login sebagai Admin/Guru</a></div>
+    <div class="lp-footer">&copy; 2026 Emes EduTech</div>
   </div>
 </div>
 
 <!-- ADMIN PANEL -->
 <div id="adminPanel" class="app hidden">
   <aside class="sidebar" id="admSB">
-    <div class="sbh"><div class="sblogo"><div class="sbicon">📝</div> CBT E-School</div><div class="sbrole">Admin Panel</div></div>
+    <div class="sbh"><div class="sblogo"><div class="sbicon"><img src="https://i.imgur.com/bT70O4C.png" alt="Logo" onerror="this.parentNode.innerHTML='<i class=\'fa-solid fa-clipboard-list\' style=\'color:#fff;font-size:16px\'></i>'"></div> Emes CBT System</div><div class="sbrole">Admin Panel</div></div>
     <nav class="sbnav">
       <div class="sbsec">Utama</div>
-      <button class="ni active" data-p="dash" onclick="nav('dash')"><span class="ic">📊</span>Dashboard</button>
+      <button class="ni active" data-p="dash" onclick="nav('dash')"><span class="ic"><i class="fa-solid fa-gauge-high"></i></span>Dashboard</button>
       <div class="sbsec">Ujian</div>
-      <button class="ni" data-p="soal" onclick="nav('soal')"><span class="ic">📋</span>Paket Soal</button>
-      <button class="ni" data-p="butir" onclick="nav('butir')"><span class="ic">❓</span>Butir Soal</button>
-      <button class="ni" data-p="hasil" onclick="nav('hasil')"><span class="ic">📈</span>Hasil Ujian</button>
-      <button class="ni" data-p="analisa" onclick="nav('analisa')"><span class="ic">🔬</span>Analisa Per-butir</button>
+      <button class="ni" data-p="soal" onclick="nav('soal')"><span class="ic"><i class="fa-solid fa-folder-open"></i></span>Paket Soal</button>
+      <button class="ni" data-p="butir" onclick="nav('butir')"><span class="ic"><i class="fa-solid fa-circle-question"></i></span>Butir Soal</button>
+      <button class="ni" data-p="hasil" onclick="nav('hasil')"><span class="ic"><i class="fa-solid fa-chart-line"></i></span>Hasil Ujian</button>
+      <button class="ni" data-p="analisa" onclick="nav('analisa')"><span class="ic"><i class="fa-solid fa-microscope"></i></span>Analisa Per-butir</button>
       <div class="sbsec">Manajemen</div>
-      <button class="ni" data-p="siswa" onclick="nav('siswa')"><span class="ic">👥</span>Data Siswa</button>
-      <button class="ni" data-p="monitor" onclick="nav('monitor')"><span class="ic">👁</span>Monitor Ujian</button>
-      <button class="ni" data-p="lb" onclick="nav('lb')"><span class="ic">🏆</span>Leaderboard</button>
-      <button class="ni" data-p="hadir" onclick="nav('hadir')"><span class="ic">📋</span>Daftar Hadir</button>
-      <button class="ni" data-p="chat" onclick="nav('chat')"><span class="ic">💬</span>Chat Siswa</button>
+      <button class="ni" data-p="siswa" onclick="nav('siswa')"><span class="ic"><i class="fa-solid fa-users"></i></span>Data Siswa</button>
+      <button class="ni" data-p="monitor" onclick="nav('monitor')"><span class="ic"><i class="fa-solid fa-display"></i></span>Monitor Ujian</button>
+      <button class="ni" data-p="lb" onclick="nav('lb')"><span class="ic"><i class="fa-solid fa-trophy"></i></span>Leaderboard</button>
+      <button class="ni" data-p="hadir" onclick="nav('hadir')"><span class="ic"><i class="fa-solid fa-clipboard-user"></i></span>Daftar Hadir</button>
+      <button class="ni" data-p="chat" onclick="nav('chat')"><span class="ic"><i class="fa-solid fa-comments"></i></span>Chat Siswa</button>
       <div class="sbsec">Sistem</div>
-      <button class="ni" data-p="users" onclick="nav('users')"><span class="ic">👤</span>Manajemen User</button>
-      <button class="ni" data-p="faq" onclick="nav('faq')"><span class="ic">❔</span>FAQ</button>
-      <button class="ni" data-p="set" onclick="nav('set')"><span class="ic">⚙️</span>Pengaturan</button>
+      <button class="ni" data-p="users" onclick="nav('users')"><span class="ic"><i class="fa-solid fa-user-shield"></i></span>Manajemen User</button>
+      <button class="ni" data-p="faq" onclick="nav('faq')"><span class="ic"><i class="fa-solid fa-circle-info"></i></span>FAQ</button>
+      <button class="ni" data-p="set" onclick="nav('set')"><span class="ic"><i class="fa-solid fa-sliders"></i></span>Pengaturan</button>
     </nav>
-    <div class="sbfoot"><div class="susr">
-      <div class="uav" id="admAv">A</div>
-      <div><div class="unm" id="admName">Admin</div><div class="url" id="admRole">Administrator</div></div>
-      <button class="lob" onclick="logoutAdmin()" title="Logout">🚪</button>
-    </div></div>
+    <div class="sbfoot">
+    <div class="app-footer">&copy; 2026 Emes EduTech</div>
+    </div>
   </aside>
   <div class="main">
-    <div class="topbar"><div class="tbtt" id="admPT">Dashboard</div><div style="display:flex;align-items:center;gap:10px"><span id="admTN" style="font-size:12px;color:var(--mu)"></span><button class="btn bo bsm" id="mbtn" onclick="toggleMobile()" style="display:none">☰</button></div></div>
+    <div class="topbar">
+      <div class="tbtt" id="admPT">Dashboard</div>
+      <div class="tbusr">
+        <button class="btn bo bsm" id="mbtn" onclick="toggleMobile()" style="display:none"><i class="fa-solid fa-bars"></i></button>
+        <div class="tbusr-div" id="mbtnDiv" style="display:none"></div>
+        <div class="tbuav" id="admAv" style="background:var(--p)">A</div>
+        <div>
+          <div class="tbunm" id="admName">Admin</div>
+          <div class="tburl" id="admRole">Administrator</div>
+        </div>
+        <div class="tbusr-div"></div>
+        <button class="tblob" onclick="logoutAdmin()" title="Logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+      </div>
+    </div>
     <div class="pb" id="admBody"></div>
+    <div class="app-footer-main">&copy; 2026 Emes EduTech. All rights reserved.</div>
   </div>
 </div>
 
 <!-- SISWA PANEL -->
 <div id="siswaPanel" class="app hidden">
   <aside class="sidebar" id="sisSB">
-    <div class="sbh"><div class="sblogo"><div class="sbicon" style="background:#059669">🎓</div> CBT E-School</div><div class="sbrole">Portal Siswa</div></div>
+    <div class="sbh"><div class="sblogo"><div class="sbicon" style="background:#059669"><img src="https://i.imgur.com/bT70O4C.png" alt="Logo" onerror="this.parentNode.innerHTML='<i class=\'fa-solid fa-graduation-cap\' style=\'color:#fff;font-size:16px\'></i>'"></div> Emes CBT System</div><div class="sbrole">Portal Siswa</div></div>
     <nav class="sbnav">
-      <button class="ni active" data-p="sdash" onclick="snav('sdash')"><span class="ic">🏠</span>Dashboard</button>
-      <button class="ni" data-p="sujian" onclick="snav('sujian')"><span class="ic">📝</span>Daftar Ujian</button>
-      <button class="ni" data-p="snilai" onclick="snav('snilai')"><span class="ic">📊</span>Nilai Saya</button>
-      <button class="ni" data-p="schat" onclick="snav('schat')"><span class="ic">💬</span>Chat</button>
-      <button class="ni" data-p="sgame" onclick="snav('sgame')"><span class="ic">🎮</span>Mini Game</button>
-      <button class="ni" data-p="sfaq" onclick="snav('sfaq')"><span class="ic">❔</span>Bantuan</button>
+      <button class="ni active" data-p="sdash" onclick="snav('sdash')"><span class="ic"><i class="fa-solid fa-house"></i></span>Dashboard</button>
+      <button class="ni" data-p="sujian" onclick="snav('sujian')"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span>Daftar Ujian</button>
+      <button class="ni" data-p="snilai" onclick="snav('snilai')"><span class="ic"><i class="fa-solid fa-chart-bar"></i></span>Nilai Saya</button>
+      <button class="ni" data-p="schat" onclick="snav('schat')"><span class="ic"><i class="fa-solid fa-comments"></i></span>Chat</button>
+      <button class="ni" data-p="sgame" onclick="snav('sgame')"><span class="ic"><i class="fa-solid fa-gamepad"></i></span>Mini Game</button>
+      <button class="ni" data-p="sfaq" onclick="snav('sfaq')"><span class="ic"><i class="fa-solid fa-circle-info"></i></span>Bantuan</button>
     </nav>
-    <div class="sbfoot"><div class="susr">
-      <div class="uav" id="sisAv" style="background:#059669">S</div>
-      <div><div class="unm" id="sisName">Siswa</div><div class="url" id="sisKls">Kelas</div></div>
-      <button class="lob" onclick="logoutSiswa()" title="Logout">🚪</button>
-    </div></div>
+    <div class="sbfoot">
+    <div class="app-footer">&copy; 2026 Emes EduTech</div>
+    </div>
   </aside>
   <div class="main">
-    <div class="topbar"><div class="tbtt" id="sisPT">Dashboard</div></div>
+    <div class="topbar">
+      <div class="tbtt" id="sisPT">Dashboard</div>
+      <div class="tbusr">
+        <div class="tbuav" id="sisAv" style="background:#059669">S</div>
+        <div>
+          <div class="tbunm" id="sisName">Siswa</div>
+          <div class="tburl" id="sisKls">Kelas</div>
+        </div>
+        <div class="tbusr-div"></div>
+        <button class="tblob" onclick="logoutSiswa()" title="Logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+      </div>
+    </div>
     <div class="pb" id="sisBody"></div>
+    <div class="app-footer-main">&copy; 2026 Emes EduTech. All rights reserved.</div>
   </div>
 </div>
 
@@ -423,15 +462,15 @@ function fd(dt){if(!dt)return'—';try{return new Date(dt).toLocaleDateString('i
 function fdt(dt){if(!dt)return'—';try{return new Date(dt).toLocaleString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}catch(e){return dt}}
 function strip(h){return h?h.replace(/<[^>]*>/g,''):''}
 function bst(s){return s==='Aktif'?'<span class="badge bok">● Aktif</span>':'<span class="badge bno">● Nonaktif</span>'}
-function tpw(id,btn){const i=$(id);i.type=i.type==='password'?'text':'password';btn.textContent=i.type==='password'?'👁':'🙈'}
+function tpw(id,btn){const i=$(id);i.type=i.type==='password'?'text':'password';btn.innerHTML=i.type==='password'?'<i class="fa-solid fa-eye"></i>':'<i class="fa-solid fa-eye-slash"></i>'}
 function setBtn(id,html){const b=$(id);if(b)b.innerHTML=html}
-function showErr(el,msg){el.innerHTML='⚠️ '+msg;el.classList.remove('hidden')}
+function showErr(el,msg){el.innerHTML='<i class="fa-solid fa-triangle-exclamation" style="color:var(--er)"></i> '+msg;el.classList.remove('hidden')}
 function toggleMobile(){$('admSB')?.classList.toggle('open')}
 function rmModal(id){$( id)?.remove()}
 function toast(msg,type='in',dur=3200){
   const d=document.createElement('div');
-  const icons={ok:'✅',er:'❌',in:'ℹ️',wa:'⚠️'};
-  d.className=`toast t${type}`;d.innerHTML=`<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  const icons={ok:'<i class="fa-solid fa-circle-check" style="color:var(--ok)"></i>',er:'<i class="fa-solid fa-circle-xmark" style="color:var(--er)"></i>',in:'<i class="fa-solid fa-circle-info" style="color:var(--p)"></i>',wa:'<i class="fa-solid fa-triangle-exclamation" style="color:var(--wa)"></i>'};
+  d.className=`toast t${type}`;d.innerHTML=`<span>${icons[type]||'<i class="fa-solid fa-circle-info"></i>'}</span><span>${msg}</span>`;
   $('toasts').appendChild(d);setTimeout(()=>d.remove(),dur);
 }
 function parseJ(str,sep=':'){
@@ -607,10 +646,10 @@ function useDemoMode(){demoMode=true;hide('cfgScreen');toast('Mode Demo aktif �
 function showConfig(){hideAll(['adminPanel','siswaPanel','loginAdmin','loginSiswa','examScreen','gameScreen']);show('cfgScreen');}
 function showSQLGuide(){
   document.getElementById('mdSQL')?.remove();
-  const html=`<div class="mo" id="mdSQL"><div class="md mdxl"><div class="mh"><div class="mtt">📋 SQL Setup — Jalankan di Supabase SQL Editor</div><button class="xb" onclick="rmModal('mdSQL')">✕</button></div>
-    <div class="mbb"><div class="al alin"><span>ℹ️</span><div>Salin SQL ini dan jalankan di <strong>Supabase Dashboard → SQL Editor → New query</strong></div></div>
+  const html=`<div class="mo" id="mdSQL"><div class="md mdxl"><div class="mh"><div class="mtt"><i class=\"fa-solid fa-database\"></i> SQL Setup — Jalankan di Supabase SQL Editor</div><button class="xb" onclick="rmModal('mdSQL')">✕</button></div>
+    <div class="mbb"><div class="al alin"><i class=\"fa-solid fa-circle-info\" style=\"color:var(--p)\"></i><div>Salin SQL ini dan jalankan di <strong>Supabase Dashboard → SQL Editor → New query</strong></div></div>
     <textarea class="fc" style="min-height:380px;font-family:'JetBrains Mono',monospace;font-size:11.5px" readonly>${getSQL()}</textarea></div>
-    <div class="mf"><button class="btn bo" onclick="rmModal('mdSQL')">Tutup</button><button class="btn bp" onclick="copySQL()">📋 Salin SQL</button></div>
+    <div class="mf"><button class="btn bo" onclick="rmModal('mdSQL')">Tutup</button><button class="btn bp" onclick="copySQL()">Salin SQL</button></div>
   </div></div>`;
   document.body.insertAdjacentHTML('beforeend',html);
 }
@@ -667,9 +706,9 @@ function logoutSiswa(){if(!confirm('Yakin ingin keluar?'))return;sis=null;showSi
 function showAdminPanel(){
   hideAll(['loginAdmin','loginSiswa','siswaPanel','examScreen','gameScreen','cfgScreen']);show('adminPanel');
   $('admAv').textContent=adm.nama_admin[0].toUpperCase();
+  $('admAv').style.background=adm.role==='admin'?'var(--p)':'var(--ok)';
   $('admName').textContent=adm.nama_admin;
   $('admRole').textContent=adm.role==='admin'?'Administrator':'Editor';
-  $('admTN').textContent=adm.nama_admin;
   nav('dash');
 }
 
@@ -704,19 +743,19 @@ async function rDash(el){
   }
   el.innerHTML=`
     <div class="g g4" style="margin-bottom:14px">
-      <div class="card stc"><div class="stl">Total Siswa</div><div class="stv">${ts}</div><div class="sts">👥 Terdaftar</div></div>
-      <div class="card stc"><div class="stl">Paket Soal</div><div class="stv">${tp}</div><div class="sts">📋 Dibuat</div></div>
-      <div class="card stc"><div class="stl">Sesi Ujian</div><div class="stv">${tu}</div><div class="sts">📝 Total sesi</div></div>
-      <div class="card stc"><div class="stl">Nilai Tersimpan</div><div class="stv">${tn}</div><div class="sts">📊 Hasil ujian</div></div>
+      <div class="card stc"><div class="stl">Total Siswa</div><div class="stv">${ts}</div><div class="sts"><i class="fa-solid fa-users" style="color:var(--p)"></i> Terdaftar</div></div>
+      <div class="card stc"><div class="stl">Paket Soal</div><div class="stv">${tp}</div><div class="sts"><i class="fa-solid fa-folder-open" style="color:var(--ok)"></i> Dibuat</div></div>
+      <div class="card stc"><div class="stl">Sesi Ujian</div><div class="stv">${tu}</div><div class="sts"><i class="fa-solid fa-pen-to-square" style="color:var(--wa)"></i> Total sesi</div></div>
+      <div class="card stc"><div class="stl">Nilai Tersimpan</div><div class="stv">${tn}</div><div class="sts"><i class="fa-solid fa-chart-bar" style="color:var(--er)"></i> Hasil ujian</div></div>
     </div>
     <div class="g g2" style="margin-bottom:14px">
-      <div class="card"><div class="ch"><div class="ct">📊 Ujian per Bulan</div></div><div class="cb"><div class="chartbox"><canvas id="cBulan"></canvas></div></div></div>
-      <div class="card"><div class="ch"><div class="ct">🏆 Rata-rata per Paket Soal</div></div><div class="cb"><div class="chartbox"><canvas id="cSoal"></canvas></div></div></div>
+      <div class="card"><div class="ch"><div class="ct"><i class="fa-solid fa-chart-column" style="color:var(--p)"></i> Ujian per Bulan</div></div><div class="cb"><div class="chartbox"><canvas id="cBulan"></canvas></div></div></div>
+      <div class="card"><div class="ch"><div class="ct"><i class="fa-solid fa-trophy" style="color:var(--wa)"></i> Rata-rata per Paket Soal</div></div><div class="cb"><div class="chartbox"><canvas id="cSoal"></canvas></div></div></div>
     </div>
     <div class="g g2">
-      <div class="card"><div class="ch"><div class="ct">📋 Paket Soal Terbaru</div><button class="btn bsm bp" onclick="nav('soal')">Lihat →</button></div>
+      <div class="card"><div class="ch"><div class="ct"><i class="fa-solid fa-folder-open" style="color:var(--p)"></i> Paket Soal Terbaru</div><button class="btn bsm bp" onclick="nav('soal')">Lihat <i class="fa-solid fa-arrow-right"></i></button></div>
         <div class="tw"><table><tbody id="tbDS"></tbody></table></div></div>
-      <div class="card"><div class="ch"><div class="ct">📊 Nilai Terbaru</div><button class="btn bsm bp" onclick="nav('hasil')">Lihat →</button></div>
+      <div class="card"><div class="ch"><div class="ct"><i class="fa-solid fa-chart-bar" style="color:var(--ok)"></i> Nilai Terbaru</div><button class="btn bsm bp" onclick="nav('hasil')">Lihat <i class="fa-solid fa-arrow-right"></i></button></div>
         <div class="tw"><table><tbody id="tbDN"></tbody></table></div></div>
     </div>`;
   setTimeout(()=>{buildCharts(rNilai);fillDTables(rSoal,rNilai);},50);
@@ -754,7 +793,7 @@ function fillDTables(rSoal,rNilai){
 async function rSoal(el){
   let soalList=demoMode?DEMO.soal:((await SB.from('soal').select('*').order('id_soal',{ascending:false})).data||[]);
   window._soal=soalList;
-  el.innerHTML=`<div class="card"><div class="ch"><div class="ct">📋 Paket Soal</div><button class="btn bp bsm" onclick="mSoal()">+ Tambah</button></div>
+  el.innerHTML=`<div class="card"><div class="ch"><div class="ct"><i class=\"fa-solid fa-folder-open\" style=\"color:var(--p)\"></i> Paket Soal</div><button class="btn bp bsm" onclick="mSoal()">+ Tambah</button></div>
     <div class="cb" style="padding:12px"><div class="sbar">
       <div class="siw"><input type="text" id="srSoal" class="fc si" placeholder="Cari kode/nama/mapel..." oninput="ftSoal()"></div>
       <select id="ftSoalSt" class="fc" style="width:150px" onchange="ftSoal()"><option value="">Semua Status</option><option>Aktif</option><option>Nonaktif</option></select>
@@ -767,7 +806,7 @@ function ftSoal(){
   const q=($('srSoal')?.value||'').toLowerCase(),st=$('ftSoalSt')?.value||'';
   const d=(window._soal||[]).filter(s=>(!q||(s.nama_soal+s.kode_soal+s.mapel).toLowerCase().includes(q))&&(!st||s.status===st));
   const tb=$('tbSoal');if(!tb)return;
-  if(!d.length){tb.innerHTML=`<tr><td colspan="8"><div class="empty"><div class="ei">📋</div><h3>Belum ada paket soal</h3><button class="btn bp" onclick="mSoal()">+ Tambah</button></div></td></tr>`;return;}
+  if(!d.length){tb.innerHTML=`<tr><td colspan="8"><div class="empty"><div class="ei"><i class=\"fa-solid fa-folder-open\" style=\"font-size:40px;color:var(--mu)\"></i></div><h3>Belum ada paket soal</h3><button class="btn bp" onclick="mSoal()">+ Tambah</button></div></td></tr>`;return;}
   tb.innerHTML=d.map(s=>`<tr>
     <td><span class="mono">${s.kode_soal}</span></td>
     <td><div style="font-weight:600">${s.nama_soal}</div><div style="font-size:11px;color:var(--mu)">${fd(s.tanggal)}</div></td>
@@ -775,12 +814,12 @@ function ftSoal(){
     <td>${s.token?`<span class="mono">${s.token}</span>`:'<span class="badge bgr">—</span>'}</td>
     <td>${bst(s.status)}</td>
     <td><div style="display:flex;gap:5px;flex-wrap:wrap">
-      <button class="btn bsm bo" onclick="mSoal(${s.id_soal})" title="Edit">✏️</button>
-      <button class="btn bsm bo" onclick="dupSoal(${s.id_soal})" title="Duplikat">📋</button>
-      <button class="btn bsm bo" onclick="genToken(${s.id_soal})" title="Buat Token">🔑</button>
-      <button class="btn bsm bo" onclick="previewSoal(${s.id_soal})" title="Preview">👁</button>
-      <button class="btn bsm bo" onclick="toggleSt(${s.id_soal},'${s.status}')" title="Toggle">${s.status==='Aktif'?'🔴':'🟢'}</button>
-      <button class="btn bsm bd" onclick="delSoal(${s.id_soal})" title="Hapus">🗑️</button>
+      <button class="btn bsm bo" onclick="mSoal(${s.id_soal})" title="Edit"><i class="fa-solid fa-pen"></i></button>
+      <button class="btn bsm bo" onclick="dupSoal(${s.id_soal})" title="Duplikat"><i class="fa-solid fa-copy"></i></button>
+      <button class="btn bsm bo" onclick="genToken(${s.id_soal})" title="Buat Token"><i class="fa-solid fa-key"></i></button>
+      <button class="btn bsm bo" onclick="previewSoal(${s.id_soal})" title="Preview"><i class="fa-solid fa-eye"></i></button>
+      <button class="btn bsm bo" onclick="toggleSt(${s.id_soal},'${s.status}')" title="Toggle">${s.status==='Aktif'?'<i class="fa-solid fa-circle-xmark" style="color:var(--er)"></i>':'<i class="fa-solid fa-circle-check" style="color:var(--ok)"></i>'}</button>
+      <button class="btn bsm bd" onclick="delSoal(${s.id_soal})" title="Hapus"><i class="fa-solid fa-trash"></i></button>
     </div></td>
   </tr>`).join('');
 }
@@ -801,7 +840,7 @@ function mSoal(id){
       <div class="fr"><div class="fg"><label class="fl">Tombol Selesai</label><select id="mTombol" class="fc"><option value="1" ${d.tampil_tombol_selesai?'selected':''}>Tampilkan (siswa bisa selesai lebih awal)</option><option value="0" ${!d.tampil_tombol_selesai?'selected':''}>Sembunyikan (auto-submit saat waktu habis)</option></select></div>
       <div class="fg"><label class="fl">Status</label><select id="mStatus" class="fc"><option value="Aktif" ${d.status!=='Nonaktif'?'selected':''}>Aktif</option><option value="Nonaktif" ${d.status==='Nonaktif'?'selected':''}>Nonaktif</option></select></div></div>
     </div>
-    <div class="mf"><button class="btn bo" onclick="rmModal('mdSoal')">Batal</button><button class="btn bp" onclick="svSoal(${id||0})">💾 Simpan</button></div>
+    <div class="mf"><button class="btn bo" onclick="rmModal('mdSoal')">Batal</button><button class="btn bp" onclick="svSoal(${id||0})"><i class="fa-solid fa-floppy-disk"><\/i> Simpan</button></div>
   </div></div>`;
   document.body.insertAdjacentHTML('beforeend',html);
 }
@@ -848,15 +887,15 @@ async function previewSoal(id){
   const s=(window._soal||[]).find(x=>x.id_soal===id);if(!s)return;
   let butirs=demoMode?DEMO.butir.filter(b=>b.kode_soal===s.kode_soal):((await SB.from('butir_soal').select('*').eq('kode_soal',s.kode_soal).order('nomer_soal')).data||[]);
   document.getElementById('mdPrev')?.remove();
-  const html=`<div class="mo" id="mdPrev"><div class="md mdxl"><div class="mh"><div class="mtt">👁 Preview: ${s.nama_soal}</div><button class="xb" onclick="rmModal('mdPrev')">✕</button></div>
+  const html=`<div class="mo" id="mdPrev"><div class="md mdxl"><div class="mh"><div class="mtt"><i class=\"fa-solid fa-eye\"></i> Preview: ${s.nama_soal}</div><button class="xb" onclick="rmModal('mdPrev')">✕</button></div>
     <div class="mbb">
-      <div class="al alin" style="margin-bottom:16px"><span>📋</span><div><strong>${s.kode_soal}</strong> · ${s.mapel} · Kelas ${s.kelas} · ${s.waktu_ujian} menit · ${butirs.length} soal</div></div>
+      <div class="al alin" style="margin-bottom:16px"><i class="fa-solid fa-clipboard-list" style="color:var(--p)"></i><div><strong>${s.kode_soal}</strong> · ${s.mapel} · Kelas ${s.kelas} · ${s.waktu_ujian} menit · ${butirs.length} soal</div></div>
       ${butirs.map(b=>`<div class="card" style="margin-bottom:10px"><div class="cb">
         <div class="snl" style="margin-bottom:5px">SOAL ${b.nomer_soal}</div>
         <span class="stipe">${b.tipe_soal}</span>
         <div style="font-size:13.5px;margin:8px 0">${b.pertanyaan}</div>
         ${renderPilihanPreview(b)}
-        <div style="font-size:11.5px;color:var(--mu);margin-top:8px;border-top:1px solid var(--br);padding-top:7px">🔑 Kunci: <strong>${b.jawaban_benar}</strong></div>
+        <div style="font-size:11.5px;color:var(--mu);margin-top:8px;border-top:1px solid var(--br);padding-top:7px">Kunci: <strong>${b.jawaban_benar}</strong></div>
       </div></div>`).join('')}
     </div>
     <div class="mf"><button class="btn bo" onclick="rmModal('mdPrev')">Tutup</button></div>
@@ -889,7 +928,7 @@ async function delSoal(id){
 async function rButir(el){
   let soalList=demoMode?DEMO.soal:((await SB.from('soal').select('id_soal,kode_soal,nama_soal').order('id_soal',{ascending:false})).data||[]);
   window._soalListB=soalList;
-  el.innerHTML=`<div class="card"><div class="ch"><div class="ct">❓ Butir Soal</div><button class="btn bp bsm" onclick="mButir()">+ Tambah Soal</button></div>
+  el.innerHTML=`<div class="card"><div class="ch"><div class="ct"><i class=\"fa-solid fa-circle-question\" style=\"color:var(--p)\"></i> Butir Soal</div><button class="btn bp bsm" onclick="mButir()">+ Tambah Soal</button></div>
     <div class="cb" style="padding:12px"><div class="sbar">
       <select id="ftBKode" class="fc" style="width:220px" onchange="loadButir()"><option value="">Semua Paket Soal</option>
         ${soalList.map(s=>`<option value="${s.kode_soal}">${s.kode_soal} – ${s.nama_soal}</option>`).join('')}</select>
@@ -913,7 +952,7 @@ function ftButir(){
   const q=($('srButir')?.value||'').toLowerCase(),tp=$('ftBTipe')?.value||'';
   const d=(window._butir||[]).filter(b=>(!q||(strip(b.pertanyaan)+b.kode_soal).toLowerCase().includes(q))&&(!tp||b.tipe_soal===tp));
   const tb=$('tbButir');if(!tb)return;
-  if(!d.length){tb.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="ei">❓</div><h3>Belum ada butir soal</h3><p>Pilih paket soal atau tambah soal baru</p><button class="btn bp" onclick="mButir()">+ Tambah</button></div></td></tr>`;return;}
+  if(!d.length){tb.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="ei"><i class=\"fa-solid fa-circle-question\" style=\"font-size:40px;color:var(--mu)\"></i></div><h3>Belum ada butir soal</h3><p>Pilih paket soal atau tambah soal baru</p><button class="btn bp" onclick="mButir()">+ Tambah</button></div></td></tr>`;return;}
   tb.innerHTML=d.map(b=>`<tr>
     <td style="font-weight:700;color:var(--mu)">${b.nomer_soal}</td>
     <td><span class="mono">${b.kode_soal}</span></td>
@@ -921,8 +960,8 @@ function ftButir(){
     <td><span class="badge bbl">${b.tipe_soal}</span></td>
     <td>${bst(b.status_soal)}</td>
     <td><div style="display:flex;gap:5px">
-      <button class="btn bsm bo" onclick="mButir(${b.id_soal})">✏️</button>
-      <button class="btn bsm bd" onclick="delButir(${b.id_soal})">🗑️</button>
+      <button class="btn bsm bo" onclick="mButir(${b.id_soal})"><i class="fa-solid fa-pen"></i></button>
+      <button class="btn bsm bd" onclick="delButir(${b.id_soal})"><i class="fa-solid fa-trash"></i></button>
     </div></td>
   </tr>`).join('');
 }
@@ -932,18 +971,18 @@ function mButir(id){
   document.getElementById('mdButir')?.remove();
   const kodeOpts=(window._soalListB||[]).map(s=>`<option value="${s.kode_soal}" ${d.kode_soal===s.kode_soal?'selected':''}>${s.kode_soal}</option>`).join('');
   const tipeOpts=['Pilihan Ganda','Pilihan Ganda Kompleks','Benar/Salah','Uraian','Menjodohkan'].map(t=>`<option ${d.tipe_soal===t?'selected':''}>${t}</option>`).join('');
-  const html=`<div class="mo" id="mdButir"><div class="md mdxl"><div class="mh"><div class="mtt">${id?'Edit':'Tambah'} Butir Soal</div><button class="xb" onclick="rmModal('mdButir')">✕</button></div>
+  const html=`<div class="mo" id="mdButir"><div class="md mdxl"><div class="mh"><div class="mtt"><i class="fa-solid fa-pen-to-square" style="color:var(--p)"></i> ${id?'Edit':'Tambah'} Butir Soal</div><button class="xb" onclick="rmModal('mdButir')">✕</button></div>
     <div class="mbb">
       <div class="fr"><div class="fg"><label class="fl">Kode Paket Soal *</label><select id="bKode" class="fc">${kodeOpts}</select></div>
       <div class="fg"><label class="fl">Nomor Soal *</label><input id="bNo" type="number" class="fc" value="${d.nomer_soal||1}" min="1"></div></div>
-      <div class="fg"><label class="fl">Tipe Soal *</label><select id="bTipe" class="fc" onchange="upBTipe()">${tipeOpts}</select></div>
+      <div class="fr"><div class="fg"><label class="fl">Tipe Soal *</label><select id="bTipe" class="fc" onchange="upBTipe()">${tipeOpts}</select></div>
+      <div class="fg"><label class="fl">Status Soal</label><select id="bSt" class="fc"><option value="Aktif" ${d.status_soal!=='Nonaktif'?'selected':''}>Aktif</option><option value="Nonaktif" ${d.status_soal==='Nonaktif'?'selected':''}>Nonaktif</option></select></div></div>
       <div class="fg"><label class="fl">Pertanyaan *</label><textarea id="bQ" class="fc" style="min-height:100px" placeholder="Ketik pertanyaan... (mendukung tag HTML sederhana: &lt;b&gt;, &lt;i&gt;, &lt;img&gt;)">${d.pertanyaan||''}</textarea></div>
       <div id="bOpsi"></div>
-      <div class="fg"><label class="fl">Kunci Jawaban *</label><input id="bKunci" class="fc" value="${d.jawaban_benar||''}" placeholder="Format sesuai tipe soal"></div>
-      <div id="bKHint" class="fh"></div>
-      <div class="fg"><label class="fl">Status Soal</label><select id="bSt" class="fc"><option value="Aktif" ${d.status_soal!=='Nonaktif'?'selected':''}>Aktif</option><option value="Nonaktif" ${d.status_soal==='Nonaktif'?'selected':''}>Nonaktif</option></select></div>
+      <div class="fg" id="bKunciWrap"><label class="fl">Kunci Jawaban *</label><input id="bKunci" class="fc" value="${d.jawaban_benar||''}" placeholder="Format sesuai tipe soal">
+      <div id="bKHint" class="fh" style="margin-top:4px"></div></div>
     </div>
-    <div class="mf"><button class="btn bo" onclick="rmModal('mdButir')">Batal</button><button class="btn bp" onclick="svButir(${id||0})">💾 Simpan</button></div>
+    <div class="mf"><button class="btn bo" onclick="rmModal('mdButir')"><i class="fa-solid fa-xmark"></i> Batal</button><button class="btn bp" onclick="svButir(${id||0})"><i class="fa-solid fa-floppy-disk"></i> Simpan</button></div>
   </div></div>`;
   document.body.insertAdjacentHTML('beforeend',html);
   upBTipe(d);
@@ -953,18 +992,88 @@ function upBTipe(d){
   d=d||{};const t=$('bTipe')?.value;
   const area=$('bOpsi');if(!area)return;
   const hint=$('bKHint');if(!hint)return;
+  const kunciWrap=$('bKunciWrap');
   if(t==='Pilihan Ganda'||t==='Pilihan Ganda Kompleks'){
-    area.innerHTML=['A','B','C','D','E'].map((l,i)=>`<div class="fg"><label class="fl">Pilihan ${l}${i<2?' *':' (opsional)'}</label><input id="bP${i+1}" class="fc" value="${d['pilihan_'+(i+1)]||''}" placeholder="Pilihan ${l}"></div>`).join('');
-    hint.textContent=t==='Pilihan Ganda'?'Format: pilihan_1  (hanya satu jawaban yang benar)':'Format: pilihan_1,pilihan_3  (bisa lebih dari satu, pisahkan koma)';
+    const labels=['A','B','C','D','E'];
+    const isPG=t==='Pilihan Ganda';
+    area.innerHTML=`
+      <div style="margin-bottom:10px;padding:10px 12px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
+        <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">
+          <i class="fa-solid fa-list-ul" style="color:var(--p)"></i> Opsi Jawaban ${isPG?'(pilih 1 benar)':'(bisa lebih dari 1)'}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          ${labels.map((l,i)=>`
+          <div class="fg" style="margin:0">
+            <label class="fl" style="display:flex;align-items:center;gap:6px">
+              <span style="width:20px;height:20px;border-radius:50%;background:${i<2?'var(--p)':'var(--br)'};color:${i<2?'#fff':'var(--mu)'};display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">${l}</span>
+              Pilihan ${l}${i<2?' <span style="color:var(--er)">*</span>':' <span style="color:var(--mu);font-weight:400">(opsional)</span>'}
+            </label>
+            <input id="bP${i+1}" class="fc" value="${d['pilihan_'+(i+1)]||''}" placeholder="Ketik pilihan ${l}...">
+          </div>`).join('')}
+        </div>
+      </div>`;
+    hint.innerHTML=isPG
+      ?'<i class="fa-solid fa-circle-info"></i> Format kunci: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">pilihan_1</code> (masukkan angka pilihan yang benar)'
+      :'<i class="fa-solid fa-circle-info"></i> Format kunci: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">pilihan_1,pilihan_3</code> (pisahkan dengan koma, bisa lebih dari satu)';
+    if(kunciWrap)kunciWrap.style.display='';
   }else if(t==='Benar/Salah'){
-    area.innerHTML=[1,2,3,4].map(i=>`<div class="fg"><label class="fl">Pernyataan ${i}${i<2?' *':' (opsional)'}</label><input id="bP${i}" class="fc" value="${d['pilihan_'+i]||''}" placeholder="Pernyataan ${i}"></div>`).join('');
-    hint.textContent='Format kunci: Benar|Salah|Benar  (sesuai urutan pernyataan, pisah pipe)';
+    area.innerHTML=`
+      <div style="margin-bottom:10px;padding:10px 12px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
+        <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">
+          <i class="fa-solid fa-toggle-on" style="color:var(--ok)"></i> Pernyataan Benar/Salah
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          ${[1,2,3,4].map(i=>`
+          <div class="fg" style="margin:0">
+            <label class="fl" style="display:flex;align-items:center;gap:6px">
+              <span style="width:20px;height:20px;border-radius:4px;background:${i<3?'var(--ok)':'var(--br)'};color:${i<3?'#fff':'var(--mu)'};display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">${i}</span>
+              Pernyataan ${i}${i<2?' <span style="color:var(--er)">*</span>':' <span style="color:var(--mu);font-weight:400">(opsional)</span>'}
+            </label>
+            <input id="bP${i}" class="fc" value="${d['pilihan_'+i]||''}" placeholder="Ketik pernyataan ${i}...">
+          </div>`).join('')}
+        </div>
+      </div>`;
+    hint.innerHTML='<i class="fa-solid fa-circle-info"></i> Format kunci: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">Benar|Salah|Benar</code> (sesuai urutan pernyataan, pisah dengan | pipe)';
+    if(kunciWrap)kunciWrap.style.display='';
   }else if(t==='Uraian'){
-    area.innerHTML='';
-    hint.textContent='Isi kunci jawaban sebagai referensi bagi guru saat koreksi manual';
+    area.innerHTML=`
+      <div style="margin-bottom:10px;padding:10px 12px;background:#fffbeb;border-radius:8px;border:1px solid #fde68a">
+        <div style="font-size:12px;color:#92400e;display:flex;align-items:center;gap:7px">
+          <i class="fa-solid fa-pencil" style="font-size:14px"></i>
+          <div><strong>Soal Uraian (Essay)</strong> — Siswa mengetik jawaban bebas. Isi kunci jawaban sebagai referensi guru saat koreksi manual.</div>
+        </div>
+      </div>`;
+    hint.innerHTML='<i class="fa-solid fa-circle-info"></i> Isi kunci sebagai referensi koreksi, tidak digunakan untuk penilaian otomatis';
+    if(kunciWrap)kunciWrap.style.display='';
   }else if(t==='Menjodohkan'){
-    area.innerHTML='';
-    hint.textContent='Format: Kiri1:Kanan1|Kiri2:Kanan2|Kiri3:Kanan3  (pisah pasangan dengan pipe, pisah kolom dengan titik dua)';
+    area.innerHTML=`
+      <div style="margin-bottom:10px;padding:10px 12px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
+        <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">
+          <i class="fa-solid fa-arrows-left-right" style="color:var(--p)"></i> Pasangan Menjodohkan
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          ${[1,2,3].map(i=>`
+          <div class="fg" style="margin:0;grid-column:span 2">
+            <label class="fl" style="display:flex;align-items:center;gap:6px;color:var(--mu)">
+              <i class="fa-solid fa-link" style="color:var(--p);font-size:11px"></i> Pasangan ${i}${i===1?' <span style="color:var(--er)">*</span>':''}
+              <span style="font-size:10.5px;color:var(--mu);font-weight:400">— format: <code style="background:#f1f5f9;padding:1px 4px;border-radius:3px">Kiri${i}:Kanan${i}</code></span>
+            </label>
+            <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center">
+              <input id="bMatchL${i}" class="fc" value="${(d.jawaban_benar||'').split('|')[i-1]?.split(':')[0]||''}" placeholder="Kolom kiri ${i}">
+              <i class="fa-solid fa-arrow-right" style="color:var(--mu)"></i>
+              <input id="bMatchR${i}" class="fc" value="${(d.jawaban_benar||'').split('|')[i-1]?.split(':')[1]||''}" placeholder="Kolom kanan ${i}">
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>`;
+    hint.innerHTML='<i class="fa-solid fa-circle-info"></i> Kunci diisi otomatis dari pasangan di atas: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">Kiri1:Kanan1|Kiri2:Kanan2|Kiri3:Kanan3</code>';
+    // Auto-fill kunci from match inputs
+    const syncMatch=()=>{
+      const pairs=[1,2,3].map(i=>{const l=$(`bMatchL${i}`)?.value||'';const r=$(`bMatchR${i}`)?.value||'';return l&&r?`${l}:${r}`:null;}).filter(Boolean);
+      const k=$('bKunci');if(k)k.value=pairs.join('|');
+    };
+    setTimeout(()=>{[1,2,3].forEach(i=>{$(`bMatchL${i}`)?.addEventListener('input',syncMatch);$(`bMatchR${i}`)?.addEventListener('input',syncMatch);});syncMatch();},50);
+    if(kunciWrap)kunciWrap.style.display='';
   }
 }
 
@@ -991,9 +1100,9 @@ async function delButir(id){
 // ─── HASIL UJIAN ───
 async function rHasil(el){
   let soalList=demoMode?DEMO.soal:((await SB.from('soal').select('kode_soal,nama_soal').order('id_soal',{ascending:false})).data||[]);
-  el.innerHTML=`<div class="card"><div class="ch"><div class="ct">📈 Hasil Ujian</div><div style="display:flex;gap:7px">
-    <button class="btn bsm bo" onclick="exportHasil()">📥 Export Excel</button>
-    <button class="btn bsm bp" onclick="loadHasil()">🔄 Refresh</button></div></div>
+  el.innerHTML=`<div class="card"><div class="ch"><div class="ct"><i class=\"fa-solid fa-chart-line\" style=\"color:var(--p)\"></i> Hasil Ujian</div><div style="display:flex;gap:7px">
+    <button class="btn bsm bo" onclick="exportHasil()">Export Excel</button>
+    <button class="btn bsm bp" onclick="loadHasil()">Refresh</button></div></div>
     <div class="cb" style="padding:12px"><div class="sbar">
       <select id="ftHKode" class="fc" style="width:220px" onchange="loadHasil()"><option value="">Semua Paket Soal</option>
         ${soalList.map(s=>`<option value="${s.kode_soal}">${s.kode_soal}</option>`).join('')}</select>
@@ -1001,7 +1110,7 @@ async function rHasil(el){
       <select id="ftHSt" class="fc" style="width:160px" onchange="ftHasil()"><option value="">Semua Status</option>
         <option value="otomatis">Otomatis</option><option value="perlu_dinilai">Perlu Dinilai</option><option value="selesai">Selesai</option></select>
     </div></div>
-    <div class="tw"><table><thead><tr><th>Siswa</th><th>Paket Soal</th><th>Nilai</th><th>✅</th><th>❌</th><th>Total</th><th>Status</th><th>Tanggal</th><th>Aksi</th></tr></thead><tbody id="tbHasil"></tbody></table></div></div>`;
+    <div class="tw"><table><thead><tr><th>Siswa</th><th>Paket Soal</th><th>Nilai</th><th><i class="fa-solid fa-circle-check" style="color:var(--ok)"></i></th><th><i class="fa-solid fa-circle-xmark" style="color:var(--er)"></i></th><th>Total</th><th>Status</th><th>Tanggal</th><th>Aksi</th></tr></thead><tbody id="tbHasil"></tbody></table></div></div>`;
   loadHasil();
 }
 
@@ -1016,7 +1125,7 @@ function ftHasil(){
   const q=($('srHasil')?.value||'').toLowerCase(),st=$('ftHSt')?.value||'';
   const d=(window._hasil||[]).filter(n=>(!q||n.nama_siswa.toLowerCase().includes(q))&&(!st||n.status_penilaian===st));
   const tb=$('tbHasil');if(!tb)return;
-  if(!d.length){tb.innerHTML=`<tr><td colspan="9"><div class="empty"><div class="ei">📊</div><h3>Belum ada hasil ujian</h3></div></td></tr>`;return;}
+  if(!d.length){tb.innerHTML=`<tr><td colspan="9"><div class="empty"><div class="ei"><i class=\"fa-solid fa-chart-bar\" style=\"font-size:40px;color:var(--mu)\"></i></div><h3>Belum ada hasil ujian</h3></div></td></tr>`;return;}
   tb.innerHTML=d.map(n=>`<tr>
     <td style="font-weight:600">${n.nama_siswa}</td>
     <td><span class="mono">${n.kode_soal}</span></td>
@@ -1024,12 +1133,12 @@ function ftHasil(){
     <td style="color:var(--ok);font-weight:700">${n.jawaban_benar}</td>
     <td style="color:var(--er);font-weight:700">${n.jawaban_salah}</td>
     <td style="color:var(--mu)">${n.total_soal}</td>
-    <td>${n.status_penilaian==='perlu_dinilai'?'<span class="badge bwa">⏳ Koreksi</span>':n.status_penilaian==='selesai'?'<span class="badge bok">✅ Selesai</span>':'<span class="badge bgr">Auto</span>'}</td>
+    <td>${n.status_penilaian==='perlu_dinilai'?'<span class="badge bwa"><i class=\"fa-solid fa-hourglass-half\"></i> Koreksi</span>':n.status_penilaian==='selesai'?'<span class="badge bok"><i class=\"fa-solid fa-circle-check\"></i> Selesai</span>':'<span class="badge bgr">Auto</span>'}</td>
     <td style="font-size:11.5px;color:var(--mu)">${fdt(n.tanggal_ujian)}</td>
     <td><div style="display:flex;gap:5px">
-      <button class="btn bsm bo" onclick="detailHasil(${n.id_nilai})">👁</button>
-      ${n.status_penilaian==='perlu_dinilai'?`<button class="btn bsm bw" onclick="koreksiUraian(${n.id_nilai})" title="Koreksi Uraian">✍️</button>`:''}
-      <button class="btn bsm bd" onclick="delHasil(${n.id_nilai})">🗑️</button>
+      <button class="btn bsm bo" onclick="detailHasil(${n.id_nilai})"><i class=\"fa-solid fa-eye\"></i></button>
+      ${n.status_penilaian==='perlu_dinilai'?`<button class="btn bsm bw" onclick="koreksiUraian(${n.id_nilai})" title="Koreksi Uraian"><i class="fa-solid fa-pen-nib"></i>️</button>`:''}
+      <button class="btn bsm bd" onclick="delHasil(${n.id_nilai})"><i class=\"fa-solid fa-trash\"></i></button>
     </div></td>
   </tr>`).join('');
 }
@@ -1039,16 +1148,16 @@ async function detailHasil(id){
   const{data:n}=await SB.from('nilai').select('*').eq('id_nilai',id).single();if(!n)return;
   const lulus=parseFloat(n.nilai)>=60;
   document.getElementById('mdDetail')?.remove();
-  const html=`<div class="mo" id="mdDetail"><div class="md mdlg"><div class="mh"><div class="mtt">📊 Detail Hasil Ujian</div><button class="xb" onclick="rmModal('mdDetail')">✕</button></div>
+  const html=`<div class="mo" id="mdDetail"><div class="md mdlg"><div class="mh"><div class="mtt"><i class=\"fa-solid fa-chart-bar\" style=\"color:var(--p)\"></i> Detail Hasil Ujian</div><button class="xb" onclick="rmModal('mdDetail')">✕</button></div>
     <div class="mbb">
       <div class="reshero" style="padding:22px">
         <div style="font-size:12px;color:rgba(255,255,255,.65)">Nilai Akhir</div>
         <div class="resscore">${parseFloat(n.nilai).toFixed(1)}</div>
         <div style="font-size:12.5px;color:rgba(255,255,255,.7);margin-top:4px">${n.nama_siswa} · ${n.kode_soal}</div>
-        <span class="badge ${lulus?'bok':'bno'}" style="margin-top:8px;font-size:11.5px">${lulus?'🎉 LULUS':'😔 TIDAK LULUS'}</span>
-        <div class="resgrid"><div class="resst"><div class="ressv">${n.jawaban_benar}</div><div class="ressl">✅ Benar</div></div>
-          <div class="resst"><div class="ressv">${n.jawaban_salah}</div><div class="ressl">❌ Salah</div></div>
-          <div class="resst"><div class="ressv">${n.total_soal}</div><div class="ressl">📝 Total</div></div></div>
+        <span class="badge ${lulus?'bok':'bno'}" style="margin-top:8px;font-size:11.5px">${lulus?'<i class="fa-solid fa-star"></i> LULUS':'<i class="fa-solid fa-circle-xmark"></i> TIDAK LULUS'}</span>
+        <div class="resgrid"><div class="resst"><div class="ressv">${n.jawaban_benar}</div><div class="ressl"><i class="fa-solid fa-circle-check"></i> Benar</div></div>
+          <div class="resst"><div class="ressv">${n.jawaban_salah}</div><div class="ressl"><i class="fa-solid fa-circle-xmark"></i> Salah</div></div>
+          <div class="resst"><div class="ressv">${n.total_soal}</div><div class="ressl"><i class="fa-solid fa-list-ol"></i> Total</div></div></div>
       </div>
       <div class="ir"><span class="iil">Tanggal Ujian</span><span class="iiv">${fdt(n.tanggal_ujian)}</span></div>
       <div class="ir"><span class="iil">Status Penilaian</span><span class="iiv">${n.status_penilaian}</span></div>
@@ -1069,9 +1178,9 @@ async function koreksiUraian(idNilai){
   const{count:totalS}=await SB.from('butir_soal').select('id_soal',{count:'exact',head:true}).eq('kode_soal',n.kode_soal);
   const maxPerS=totalS?parseFloat((100/totalS).toFixed(2)):0;
   document.getElementById('mdKoreksi')?.remove();
-  const html=`<div class="mo" id="mdKoreksi"><div class="md mdxl"><div class="mh"><div class="mtt">✍️ Koreksi Uraian — ${n.nama_siswa}</div><button class="xb" onclick="rmModal('mdKoreksi')">✕</button></div>
+  const html=`<div class="mo" id="mdKoreksi"><div class="md mdxl"><div class="mh"><div class="mtt"><i class="fa-solid fa-pen-nib"></i>️ Koreksi Uraian — ${n.nama_siswa}</div><button class="xb" onclick="rmModal('mdKoreksi')">✕</button></div>
     <div class="mbb">
-      <div class="al alin"><span>ℹ️</span><div>Nilai per soal: <strong>${maxPerS}</strong> | Total soal: ${totalS}</div></div>
+      <div class="al alin"><i class=\"fa-solid fa-circle-info\" style=\"color:var(--p)\"></i><div>Nilai per soal: <strong>${maxPerS}</strong> | Total soal: ${totalS}</div></div>
       ${(butirs||[]).map(b=>`
         <div class="card" style="margin-bottom:12px"><div class="cb">
           <div style="font-size:11px;font-weight:700;color:var(--mu);margin-bottom:6px">SOAL NOMOR ${b.nomer_soal}</div>
@@ -1084,7 +1193,7 @@ async function koreksiUraian(idNilai){
           </div>
         </div>`).join('')}
     </div>
-    <div class="mf"><button class="btn bo" onclick="rmModal('mdKoreksi')">Batal</button><button class="btn bp" onclick="simpanKoreksi(${idNilai},[${(butirs||[]).map(b=>b.nomer_soal).join(',')}],${maxPerS})">💾 Simpan Koreksi</button></div>
+    <div class="mf"><button class="btn bo" onclick="rmModal('mdKoreksi')">Batal</button><button class="btn bp" onclick="simpanKoreksi(${idNilai},[${(butirs||[]).map(b=>b.nomer_soal).join(',')}],${maxPerS})"><i class="fa-solid fa-floppy-disk"><\/i> Simpan Koreksi</button></div>
   </div></div>`;
   document.body.insertAdjacentHTML('beforeend',html);
 }
@@ -1114,13 +1223,13 @@ function exportHasil(){
 // ─── ANALISA PER-BUTIR ───
 async function rAnalisa(el){
   let soalList=demoMode?DEMO.soal:((await SB.from('soal').select('kode_soal,nama_soal').order('id_soal',{ascending:false})).data||[]);
-  el.innerHTML=`<div class="card"><div class="ch"><div class="ct">🔬 Analisa Per-butir Soal</div></div>
+  el.innerHTML=`<div class="card"><div class="ch"><div class="ct"><i class=\"fa-solid fa-microscope\" style=\"color:var(--p)\"></i> Analisa Per-butir Soal</div></div>
     <div class="cb">
       <div class="fr" style="align-items:flex-end">
         <div class="fg" style="margin:0"><label class="fl">Pilih Paket Soal</label>
           <select id="anlKode" class="fc"><option value="">— Pilih paket soal —</option>
             ${soalList.map(s=>`<option value="${s.kode_soal}">${s.kode_soal} – ${s.nama_soal}</option>`).join('')}</select></div>
-        <button class="btn bp" onclick="loadAnalisa()" style="margin-left:10px">🔬 Analisa</button>
+        <button class="btn bp" onclick="loadAnalisa()" style="margin-left:10px">Analisa</button>
       </div>
     </div>
     <div id="anlRes"></div></div>`;
@@ -1128,7 +1237,7 @@ async function rAnalisa(el){
 
 async function loadAnalisa(){
   const kode=$('anlKode')?.value;const res=$('anlRes');if(!kode){toast('Pilih paket soal dahulu!','er');return;}
-  if(demoMode){res.innerHTML='<div class="cb"><div class="al alin"><span>ℹ️</span><div>Mode demo tidak memiliki data analisa. Hubungkan Supabase untuk analisa real.</div></div></div>';return;}
+  if(demoMode){res.innerHTML='<div class="cb"><div class="al alin"><i class=\"fa-solid fa-circle-info\" style=\"color:var(--p)\"></i><div>Mode demo tidak memiliki data analisa. Hubungkan Supabase untuk analisa real.</div></div></div>';return;}
   res.innerHTML='<div style="padding:20px;text-align:center"><div class="spin" style="width:28px;height:28px;border-width:3px"></div></div>';
   const[{data:butirs},{data:nilaiRows}]=await Promise.all([
     SB.from('butir_soal').select('*').eq('kode_soal',kode).order('nomer_soal'),
@@ -1157,16 +1266,16 @@ async function loadAnalisa(){
     <div class="card stc"><div class="stl">Rata-rata Tingkat Benar</div><div class="stv">${avgBenar.toFixed(1)}%</div></div>
   </div>
   <div class="g g2 cb" style="padding:14px;gap:12px;margin-bottom:0">
-    <div class="card"><div class="ch"><div class="ct">📊 Tingkat Kebenaran per Soal</div></div>
+    <div class="card"><div class="ch"><div class="ct"><i class=\"fa-solid fa-chart-bar\" style=\"color:var(--p)\"></i> Tingkat Kebenaran per Soal</div></div>
       <div class="cb">
         ${butirs.map(b=>{const pct=total?Math.round(benar[b.nomer_soal]/total*100):0;const c=pct>=70?'var(--ok)':pct>=40?'var(--wa)':'var(--er)';return`<div class="butr"><div class="butn">No.${b.nomer_soal}</div><div class="butbw"><div class="butb" style="width:${pct}%;background:${c}"></div></div><div class="butp" style="color:${c}">${pct}%</div></div>`;}).join('')}
       </div>
     </div>
-    <div class="card"><div class="ch"><div class="ct">🍰 Komposisi Jenis Soal</div></div>
+    <div class="card"><div class="ch"><div class="ct"><i class="fa-solid fa-chart-pie" style="color:var(--p)"></i> Komposisi Jenis Soal</div></div>
       <div class="cb"><div class="chartbox"><canvas id="anlChart"></canvas></div></div>
     </div>
   </div>
-  <div class="card" style="margin:14px"><div class="ch"><div class="ct">📋 Detail per Butir Soal</div></div>
+  <div class="card" style="margin:14px"><div class="ch"><div class="ct"><i class=\"fa-solid fa-list-ul\" style=\"color:var(--p)\"></i> Detail per Butir Soal</div></div>
     <div class="tw"><table><thead><tr><th>No</th><th>Pertanyaan</th><th>Tipe</th><th>Benar</th><th>Salah</th><th>% Benar</th><th>Tingkat</th></tr></thead><tbody>
       ${butirs.map(b=>{const bn=benar[b.nomer_soal]||0,pct=total?Math.round(bn/total*100):0;const lv=pct>=70?'Mudah':pct>=40?'Sedang':'Sulit';const lc=pct>=70?'bok':pct>=40?'bwa':'bno';return`<tr><td style="font-weight:700">${b.nomer_soal}</td><td style="max-width:240px;font-size:12.5px">${strip(b.pertanyaan).substring(0,65)}${strip(b.pertanyaan).length>65?'…':''}</td><td><span class="badge bbl" style="font-size:10.5px">${b.tipe_soal}</span></td><td style="color:var(--ok);font-weight:700">${bn}</td><td style="color:var(--er);font-weight:700">${total-bn}</td><td style="font-weight:700">${pct}%</td><td><span class="badge ${lc}">${lv}</span></td></tr>`;}).join('')}
     </tbody></table></div>
@@ -1178,9 +1287,9 @@ async function loadAnalisa(){
 
 // ─── DATA SISWA ───
 async function rSiswa(el){
-  el.innerHTML=`<div class="card"><div class="ch"><div class="ct">👥 Data Siswa</div><div style="display:flex;gap:7px">
-    <button class="btn bsm bo" onclick="impSiswa()">📥 Import Excel</button>
-    <button class="btn bsm bo" onclick="expSiswa()">📤 Export</button>
+  el.innerHTML=`<div class="card"><div class="ch"><div class="ct"><i class=\"fa-solid fa-users\" style=\"color:var(--p)\"></i> Data Siswa</div><div style="display:flex;gap:7px">
+    <button class="btn bsm bo" onclick="impSiswa()">Import Excel</button>
+    <button class="btn bsm bo" onclick="expSiswa()"><i class="fa-solid fa-file-export"></i> Export</button>
     <button class="btn bsm bp" onclick="mSiswa()">+ Tambah</button></div></div>
     <div class="cb" style="padding:12px"><div class="sbar">
       <div class="siw" style="flex:1"><input type="text" id="srSiswa" class="fc si" placeholder="Cari nama atau username..." oninput="ftSiswa()"></div>
@@ -1204,17 +1313,17 @@ function ftSiswa(){
   const d=(window._siswa||[]).filter(s=>(!q||(s.nama_siswa+s.username).toLowerCase().includes(q))&&(!kls||s.kelas===kls)&&(!rbl||s.rombel===rbl));
   const tb=$('tbSiswa');if(!tb)return;
   const cnt=$('sisCnt');if(cnt)cnt.textContent=`Menampilkan ${d.length} dari ${(window._siswa||[]).length} siswa`;
-  if(!d.length){tb.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="ei">👥</div><h3>Tidak ada siswa ditemukan</h3><button class="btn bp" onclick="mSiswa()">+ Tambah Siswa</button></div></td></tr>`;return;}
+  if(!d.length){tb.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="ei"><i class=\"fa-solid fa-users\" style=\"font-size:40px;color:var(--mu)\"></i></div><h3>Tidak ada siswa ditemukan</h3><button class="btn bp" onclick="mSiswa()">+ Tambah Siswa</button></div></td></tr>`;return;}
   tb.innerHTML=d.map(s=>`<tr>
     <td style="font-weight:600">${s.nama_siswa}</td>
     <td><span class="mono">${s.username}</span></td>
     <td>Kelas ${s.kelas}</td><td>${s.rombel}</td>
     <td>${bst(s.status)}</td>
     <td><div style="display:flex;gap:5px">
-      <button class="btn bsm bo" onclick="mSiswa(${s.id_siswa})">✏️</button>
-      <button class="btn bsm bo" onclick="kartulSiswa(${s.id_siswa})" title="Kartu Siswa">🪪</button>
-      <button class="btn bsm bo" onclick="resetLogin(${s.id_siswa})" title="Reset Session">🔄</button>
-      <button class="btn bsm bd" onclick="delSiswa(${s.id_siswa})">🗑️</button>
+      <button class="btn bsm bo" onclick="mSiswa(${s.id_siswa})"><i class="fa-solid fa-pen"></i></button>
+      <button class="btn bsm bo" onclick="kartulSiswa(${s.id_siswa})" title="Kartu Siswa"><i class="fa-solid fa-id-card"></i></button>
+      <button class="btn bsm bo" onclick="resetLogin(${s.id_siswa})" title="Reset Session"><i class=\"fa-solid fa-rotate-right\"></i></button>
+      <button class="btn bsm bd" onclick="delSiswa(${s.id_siswa})"><i class="fa-solid fa-trash"></i></button>
     </div></td>
   </tr>`).join('');
 }
@@ -1231,7 +1340,7 @@ function mSiswa(id){
       <div class="fg"><label class="fl">Rombel *</label><select id="msR" class="fc">${['A','B','C','D','E','F','G'].map(r=>`<option value="${r}" ${d.rombel===r?'selected':''}>${r}</option>`).join('')}</select></div>
       <div class="fg"><label class="fl">Status</label><select id="msSt" class="fc"><option value="Aktif" ${d.status!=='Nonaktif'?'selected':''}>Aktif</option><option value="Nonaktif" ${d.status==='Nonaktif'?'selected':''}>Nonaktif</option></select></div></div>
     </div>
-    <div class="mf"><button class="btn bo" onclick="rmModal('mdSiswa')">Batal</button><button class="btn bp" onclick="svSiswa(${id||0})">💾 Simpan</button></div>
+    <div class="mf"><button class="btn bo" onclick="rmModal('mdSiswa')">Batal</button><button class="btn bp" onclick="svSiswa(${id||0})"><i class="fa-solid fa-floppy-disk"><\/i> Simpan</button></div>
   </div></div>`;
   document.body.insertAdjacentHTML('beforeend',html);
 }
@@ -1252,11 +1361,11 @@ async function svSiswa(id){
 function kartulSiswa(id){
   const s=(window._siswa||[]).find(x=>x.id_siswa===id);if(!s)return;
   document.getElementById('mdKartu')?.remove();
-  const html=`<div class="mo" id="mdKartu"><div class="md"><div class="mh"><div class="mtt">🪪 Kartu Peserta — ${s.nama_siswa}</div><button class="xb" onclick="rmModal('mdKartu')">✕</button></div>
+  const html=`<div class="mo" id="mdKartu"><div class="md"><div class="mh"><div class="mtt"><i class="fa-solid fa-id-card"></i> Kartu Peserta — ${s.nama_siswa}</div><button class="xb" onclick="rmModal('mdKartu')">✕</button></div>
     <div class="mbb" id="kartuArea">
       <div class="kartu" style="margin:0 auto">
         <div class="kartu-head">
-          <div class="kartu-logo">📝</div>
+        <div class="kartu-logo"><i class="fa-solid fa-id-card" style="color:#fff;font-size:18px"></i></div>
           <div><div style="font-weight:800;font-size:13px">CBT E-School</div><div style="font-size:11px;color:var(--mu)">Kartu Peserta Ujian</div></div>
         </div>
         <div style="display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:12.5px">
@@ -1270,7 +1379,7 @@ function kartulSiswa(id){
         </div>
       </div>
     </div>
-    <div class="mf"><button class="btn bo" onclick="rmModal('mdKartu')">Tutup</button><button class="btn bp" onclick="printKartu()">🖨️ Cetak</button></div>
+    <div class="mf"><button class="btn bo" onclick="rmModal('mdKartu')">Tutup</button><button class="btn bp" onclick="printKartu()">Cetak</button></div>
   </div></div>`;
   document.body.insertAdjacentHTML('beforeend',html);
 }
@@ -1300,13 +1409,13 @@ async function delSiswa(id){
 
 function impSiswa(){
   document.getElementById('mdImp')?.remove();
-  const html=`<div class="mo" id="mdImp"><div class="md mdlg"><div class="mh"><div class="mtt">📥 Import Siswa dari Excel</div><button class="xb" onclick="rmModal('mdImp')">✕</button></div>
+  const html=`<div class="mo" id="mdImp"><div class="md mdlg"><div class="mh"><div class="mtt"><i class="fa-solid fa-file-excel"></i> Import Siswa dari Excel</div><button class="xb" onclick="rmModal('mdImp')">✕</button></div>
     <div class="mbb">
-      <div class="al alin"><span>ℹ️</span><div>Format kolom Excel yang dibutuhkan:<br><strong>nama_siswa, username, password, kelas, rombel</strong><br>Baris pertama harus berisi nama kolom (header).</div></div>
+      <div class="al alin"><i class=\"fa-solid fa-circle-info\" style=\"color:var(--p)\"></i><div>Format kolom Excel yang dibutuhkan:<br><strong>nama_siswa, username, password, kelas, rombel</strong><br>Baris pertama harus berisi nama kolom (header).</div></div>
       <div class="fg"><label class="fl">Pilih File Excel (.xlsx, .xls, .csv)</label><input id="impFile" type="file" class="fc" accept=".xlsx,.xls,.csv"></div>
       <div id="impPrev"></div>
     </div>
-    <div class="mf"><button class="btn bo" onclick="rmModal('mdImp')">Batal</button><button class="btn bp" onclick="doImpSiswa()" id="impBtn">📥 Import</button></div>
+    <div class="mf"><button class="btn bo" onclick="rmModal('mdImp')">Batal</button><button class="btn bp" onclick="doImpSiswa()" id="impBtn">Import</button></div>
   </div></div>`;
   document.body.insertAdjacentHTML('beforeend',html);
   $('impFile').addEventListener('change',e=>{
@@ -1317,7 +1426,7 @@ function impSiswa(){
       const ws=wb.Sheets[wb.SheetNames[0]];
       const rows=XLSX.utils.sheet_to_json(ws);
       window._impData=rows;
-      $('impPrev').innerHTML=`<div class="al alok"><span>✅</span><div><strong>${rows.length} baris</strong> ditemukan. Kolom: ${Object.keys(rows[0]||{}).join(', ')}</div></div>
+      $('impPrev').innerHTML=`<div class="al alok"><span><i class="fa-solid fa-circle-check" style="color:var(--ok)"></i></span><div><strong>${rows.length} baris</strong> ditemukan. Kolom: ${Object.keys(rows[0]||{}).join(', ')}</div></div>
         <div class="tw" style="max-height:180px;overflow-y:auto"><table><thead><tr>${Object.keys(rows[0]||{}).map(k=>`<th>${k}</th>`).join('')}</tr></thead><tbody>${rows.slice(0,5).map(r=>`<tr>${Object.values(r).map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
         ${rows.length>5?`<p style="font-size:12px;color:var(--mu);text-align:center">… dan ${rows.length-5} baris lainnya</p>`:''}`;
     };reader.readAsBinaryString(f);
@@ -1362,9 +1471,9 @@ async function rMonitor(el){
     <div class="card stc" style="background:linear-gradient(135deg,#d97706,#f59e0b);color:#fff;border:none">
       <div class="stl" style="color:rgba(255,255,255,.65)">Non-Aktif/Terputus</div><div class="stv" id="monNA">—</div><div class="sts" style="color:rgba(255,255,255,.6)">Keluar atau terputus</div></div>
   </div>
-  <div class="card"><div class="ch"><div class="ct">👁 Monitor Ujian Real-time</div>
+  <div class="card"><div class="ch"><div class="ct"><i class=\"fa-solid fa-display\" style=\"color:var(--p)\"></i> Monitor Ujian Real-time</div>
     <div style="display:flex;gap:7px">
-      <button class="btn bsm bo" onclick="nav('monitor')">🔄 Refresh</button>
+      <button class="btn bsm bo" onclick="nav('monitor')">Refresh</button>
       <button class="btn bsm bd" onclick="pakuAll()">⏹ Paksa Selesai Semua</button></div></div>
   <div class="tw"><table><thead><tr><th>Siswa</th><th>Paket Soal</th><th>Status</th><th>Waktu Sisa</th><th>Terakhir Aktif</th><th>Aksi</th></tr></thead>
   <tbody id="tbMon"></tbody></table></div></div>`;
@@ -1373,7 +1482,7 @@ async function rMonitor(el){
 
 async function loadMonitor(){
   const tb=$('tbMon');if(!tb)return;
-  if(demoMode){$('monAkt').textContent='0';$('monSel').textContent='0';$('monNA').textContent='0';tb.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="ei">👁</div><h3>Tidak ada ujian aktif</h3><p>Mode demo</p></div></td></tr>`;return;}
+  if(demoMode){$('monAkt').textContent='0';$('monSel').textContent='0';$('monNA').textContent='0';tb.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="ei"><i class=\"fa-solid fa-display\" style=\"font-size:40px;color:var(--mu)\"></i></div><h3>Tidak ada ujian aktif</h3><p>Mode demo</p></div></td></tr>`;return;}
   try{
     const[a,s,na]=await Promise.all([
       SB.from('jawaban_siswa').select('*',{count:'exact'}).eq('status_ujian','Aktif'),
@@ -1382,11 +1491,11 @@ async function loadMonitor(){
     ]);
     $('monAkt').textContent=a.count||0;$('monSel').textContent=s.count||0;$('monNA').textContent=na.count||0;
     const d=a.data||[];
-    if(!d.length){tb.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="ei">👁</div><h3>Tidak ada siswa yang sedang ujian</h3></div></td></tr>`;return;}
+    if(!d.length){tb.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="ei"><i class=\"fa-solid fa-display\" style=\"font-size:40px;color:var(--mu)\"></i></div><h3>Tidak ada siswa yang sedang ujian</h3></div></td></tr>`;return;}
     tb.innerHTML=d.map(j=>`<tr>
       <td style="font-weight:600">${j.nama_siswa}</td>
       <td><span class="mono">${j.kode_soal}</span></td>
-      <td><span class="badge bok">🟢 Aktif</span></td>
+      <td><span class="badge bok"><i class="fa-solid fa-circle" style="font-size:8px;color:var(--ok)"></i> Aktif</span></td>
       <td><span class="badge bwa">⏱ ${Math.floor(j.waktu_sisa/60)}m ${j.waktu_sisa%60}s</span></td>
       <td style="font-size:11.5px;color:var(--mu)">${j.waktu_dijawab?fdt(j.waktu_dijawab):'—'}</td>
       <td><button class="btn bsm bd" onclick="pakuLogout(${j.id_jawaban})">⏹ Paksa</button></td>
@@ -1409,9 +1518,9 @@ async function pakuAll(){
 // ─── LEADERBOARD ───
 async function rLB(el){
   el.innerHTML=`<div class="g g2">
-    <div class="card"><div class="ch"><div class="ct">🏆 Top 10 Siswa — Rata-rata Nilai Tertinggi</div></div>
+    <div class="card"><div class="ch"><div class="ct"><i class=\"fa-solid fa-trophy\" style=\"color:var(--wa)\"></i> Top 10 Siswa — Rata-rata Nilai Tertinggi</div></div>
       <div id="lbSiswa" class="tw"></div></div>
-    <div class="card"><div class="ch"><div class="ct">🎮 Top 10 — Math Puzzle Game</div></div>
+    <div class="card"><div class="ch"><div class="ct"><i class=\"fa-solid fa-gamepad\" style=\"color:var(--p)\"></i> Top 10 — Math Puzzle Game</div></div>
       <div id="lbGame" class="tw"></div></div>
   </div>`;
   loadLB();
@@ -1428,25 +1537,25 @@ async function loadLB(){
     const{data:nr}=await SB.from('nilai').select('id_siswa,nama_siswa,nilai');
     const mp={};(nr||[]).forEach(n=>{if(!mp[n.id_siswa])mp[n.id_siswa]={name:n.nama_siswa,vals:[],cnt:0};mp[n.id_siswa].vals.push(parseFloat(n.nilai));mp[n.id_siswa].cnt++;});
     const top=Object.values(mp).map(v=>({...v,avg:(v.vals.reduce((a,b)=>a+b,0)/v.vals.length).toFixed(1)})).sort((a,b)=>b.avg-a.avg).slice(0,10);
-    if(lbS)lbS.innerHTML=top.length?`<table><thead><tr><th>#</th><th>Siswa</th><th>Ujian</th><th>Rata-rata</th></tr></thead><tbody>${top.map((t,i)=>`<tr><td style="font-weight:800;font-size:17px">${i<3?['🥇','🥈','🥉'][i]:i+1}</td><td style="font-weight:600">${t.name}</td><td style="color:var(--mu)">${t.cnt}x</td><td><div class="nr ${parseFloat(t.avg)>=60?'nrok':'nrno'}" style="width:40px;height:40px;font-size:12px">${t.avg}</div></td></tr>`).join('')}</tbody></table>`:'<div class="empty" style="padding:18px"><p>Belum ada data nilai</p></div>';
+    if(lbS)lbS.innerHTML=top.length?`<table><thead><tr><th>#</th><th>Siswa</th><th>Ujian</th><th>Rata-rata</th></tr></thead><tbody>${top.map((t,i)=>`<tr><td style="font-weight:800;font-size:17px">${i<3?['<i class="fa-solid fa-trophy" style="color:#f59e0b"></i>','<i class="fa-solid fa-trophy" style="color:#94a3b8"></i>','<i class="fa-solid fa-trophy" style="color:#b45309"></i>'][i]:i+1}</td><td style="font-weight:600">${t.name}</td><td style="color:var(--mu)">${t.cnt}x</td><td><div class="nr ${parseFloat(t.avg)>=60?'nrok':'nrno'}" style="width:40px;height:40px;font-size:12px">${t.avg}</div></td></tr>`).join('')}</tbody></table>`:'<div class="empty" style="padding:18px"><p>Belum ada data nilai</p></div>';
     const{data:gr}=await SB.from('skor_game').select('*').eq('nama_game','math_puzzle').order('skor',{ascending:false}).limit(10);
     let nm={};
     if(gr?.length){const ids=[...new Set(gr.map(g=>g.id_siswa))];const{data:sd}=await SB.from('siswa').select('id_siswa,nama_siswa').in('id_siswa',ids);(sd||[]).forEach(s=>nm[s.id_siswa]=s.nama_siswa);}
-    if(lbG)lbG.innerHTML=(gr||[]).length?`<table><thead><tr><th>#</th><th>Siswa</th><th>Skor</th><th>Waktu</th></tr></thead><tbody>${(gr||[]).map((g,i)=>`<tr><td style="font-weight:800;font-size:17px">${i<3?['🥇','🥈','🥉'][i]:i+1}</td><td style="font-weight:600">${nm[g.id_siswa]||'—'}</td><td style="font-weight:700;color:var(--p)">${g.skor}</td><td style="font-size:11.5px;color:var(--mu)">${fdt(g.waktu)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty" style="padding:18px"><p>Belum ada data game</p></div>';
+    if(lbG)lbG.innerHTML=(gr||[]).length?`<table><thead><tr><th>#</th><th>Siswa</th><th>Skor</th><th>Waktu</th></tr></thead><tbody>${(gr||[]).map((g,i)=>`<tr><td style="font-weight:800;font-size:17px">${i<3?['<i class="fa-solid fa-trophy" style="color:#f59e0b"></i>','<i class="fa-solid fa-trophy" style="color:#94a3b8"></i>','<i class="fa-solid fa-trophy" style="color:#b45309"></i>'][i]:i+1}</td><td style="font-weight:600">${nm[g.id_siswa]||'—'}</td><td style="font-weight:700;color:var(--p)">${g.skor}</td><td style="font-size:11.5px;color:var(--mu)">${fdt(g.waktu)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty" style="padding:18px"><p>Belum ada data game</p></div>';
   }catch(e){}
 }
 
 // ─── DAFTAR HADIR ───
 async function rHadir(el){
   let soalList=demoMode?DEMO.soal:((await SB.from('soal').select('kode_soal,nama_soal,kelas,tanggal,mapel').order('id_soal',{ascending:false})).data||[]);
-  el.innerHTML=`<div class="card"><div class="ch"><div class="ct">📋 Cetak Daftar Hadir</div></div>
+  el.innerHTML=`<div class="card"><div class="ch"><div class="ct"><i class=\"fa-solid fa-clipboard-list\" style=\"color:var(--p)\"></i> Cetak Daftar Hadir</div></div>
     <div class="cb">
       <div class="fr" style="align-items:flex-end">
         <div class="fg" style="margin:0;flex:1"><label class="fl">Pilih Paket Soal</label>
           <select id="hdKode" class="fc"><option value="">— Pilih paket soal —</option>
             ${soalList.map(s=>`<option value="${s.kode_soal}">${s.kode_soal} – ${s.nama_soal}</option>`).join('')}</select></div>
-        <button class="btn bp" onclick="loadHadir()" style="margin-left:10px">📋 Generate</button>
-        <button class="btn bo" onclick="cetakHadir()" style="margin-left:8px">🖨️ Cetak</button>
+        <button class="btn bp" onclick="loadHadir()" style="margin-left:10px">Generate</button>
+        <button class="btn bo" onclick="cetakHadir()" style="margin-left:8px">Cetak</button>
       </div>
     </div>
     <div id="hadirRes" class="cb"></div>
@@ -1498,9 +1607,9 @@ function cetakHadir(){
 
 // ─── CHAT SISWA ───
 async function rChat(el){
-  el.innerHTML=`<div class="card"><div class="ch"><div class="ct">💬 Chat Siswa</div>
-    <div style="display:flex;gap:7px"><button class="btn bsm bo" onclick="loadChat()">🔄 Refresh</button>
-    <button class="btn bsm bd" onclick="delAllChat()">🗑️ Hapus Semua</button></div></div>
+  el.innerHTML=`<div class="card"><div class="ch"><div class="ct"><i class=\"fa-solid fa-comments\" style=\"color:var(--p)\"></i> Chat Siswa</div>
+    <div style="display:flex;gap:7px"><button class="btn bsm bo" onclick="loadChat()">Refresh</button>
+    <button class="btn bsm bd" onclick="delAllChat()">Hapus Semua</button></div></div>
     <div class="mbb" style="height:420px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:7px;background:var(--bg)" id="chatMsgs"></div>
     <div style="padding:13px;border-top:1px solid var(--br);display:flex;gap:8px">
       <input id="admChatIn" class="fc" placeholder="Tulis pesan sebagai admin..." style="flex:1" onkeydown="if(event.key==='Enter')sendAdmChat()">
@@ -1539,16 +1648,16 @@ async function delAllChat(){
 async function rUsers(el){
   let users=demoMode?DEMO.users:((await SB.from('admins').select('*').order('id',{ascending:true})).data||[]);
   window._users=users;
-  el.innerHTML=`<div class="card"><div class="ch"><div class="ct">👤 Manajemen User Admin</div><button class="btn bp bsm" onclick="mUser()">+ Tambah User</button></div>
+  el.innerHTML=`<div class="card"><div class="ch"><div class="ct"><i class=\"fa-solid fa-user-shield\" style=\"color:var(--p)\"></i> Manajemen User Admin</div><button class="btn bp bsm" onclick="mUser()">+ Tambah User</button></div>
     <div class="tw"><table><thead><tr><th>Username</th><th>Nama</th><th>Role</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody>
       ${users.map(u=>`<tr>
         <td><span class="mono">${u.username}</span></td>
         <td style="font-weight:600">${u.nama_admin}</td>
-        <td><span class="badge ${u.role==='admin'?'bno':'bbl'}">${u.role==='admin'?'👑 Admin':'✏️ Editor'}</span></td>
+        <td><span class="badge ${u.role==='admin'?'bno':'bbl'}">${u.role==='admin'?'<i class=\"fa-solid fa-crown\"></i> Admin':'<i class=\"fa-solid fa-pen\"></i> Editor'}</span></td>
         <td style="font-size:11.5px;color:var(--mu)">${fd(u.created_at)}</td>
         <td><div style="display:flex;gap:5px">
-          <button class="btn bsm bo" onclick="mUser(${u.id})">✏️</button>
-          <button class="btn bsm bd" onclick="delUser(${u.id})" ${u.id===adm?.id?'disabled':''}>🗑️</button>
+          <button class="btn bsm bo" onclick="mUser(${u.id})"><i class=\"fa-solid fa-pen\"></i></button>
+          <button class="btn bsm bd" onclick="delUser(${u.id})" ${u.id===adm?.id?'disabled':''}><i class=\"fa-solid fa-trash\"></i></button>
         </div></td>
       </tr>`).join('')}
     </tbody></table></div></div>`;
@@ -1564,7 +1673,7 @@ function mUser(id){
       <div class="fg"><label class="fl">Password ${id?'(kosong = tidak ubah)':'*'}</label><input id="muP" class="fc" value="${d.password||''}" placeholder="Password"></div>
       <div class="fg"><label class="fl">Role</label><select id="muR" class="fc"><option value="editor" ${d.role==='editor'?'selected':''}>Editor (bisa kelola soal)</option><option value="admin" ${d.role==='admin'?'selected':''}>Admin (akses penuh)</option></select></div>
     </div>
-    <div class="mf"><button class="btn bo" onclick="rmModal('mdUser')">Batal</button><button class="btn bp" onclick="svUser(${id||0})">💾 Simpan</button></div>
+    <div class="mf"><button class="btn bo" onclick="rmModal('mdUser')">Batal</button><button class="btn bp" onclick="svUser(${id||0})"><i class="fa-solid fa-floppy-disk"><\/i> Simpan</button></div>
   </div></div>`;
   document.body.insertAdjacentHTML('beforeend',html);
 }
@@ -1591,17 +1700,17 @@ async function delUser(id){
 async function rFaq(el){
   let faqs=demoMode?DEMO.faq:((await SB.from('faq').select('*').order('urutan')).data||[]);
   window._faq=faqs;
-  el.innerHTML=`<div class="card"><div class="ch"><div class="ct">❔ Kelola FAQ</div><button class="btn bp bsm" onclick="mFaq()">+ Tambah FAQ</button></div>
+  el.innerHTML=`<div class="card"><div class="ch"><div class="ct"><i class="fa-solid fa-circle-info" style="color:var(--p)"></i> Kelola FAQ</div><button class="btn bp bsm" onclick="mFaq()">+ Tambah FAQ</button></div>
     <div class="tw"><table><thead><tr><th>No</th><th>Pertanyaan</th><th>Jawaban</th><th>Aksi</th></tr></thead><tbody>
       ${faqs.length?faqs.map(f=>`<tr>
         <td style="font-weight:700;color:var(--mu)">${f.urutan||f.id}</td>
         <td style="font-weight:600;max-width:200px">${f.question}</td>
         <td style="max-width:300px;font-size:12.5px;color:var(--mu)">${f.answer.substring(0,80)}${f.answer.length>80?'…':''}</td>
         <td><div style="display:flex;gap:5px">
-          <button class="btn bsm bo" onclick="mFaq(${f.id})">✏️</button>
-          <button class="btn bsm bd" onclick="delFaq(${f.id})">🗑️</button>
+          <button class="btn bsm bo" onclick="mFaq(${f.id})"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn bsm bd" onclick="delFaq(${f.id})"><i class="fa-solid fa-trash"></i></button>
         </div></td>
-      </tr>`).join(''):`<tr><td colspan="4"><div class="empty"><div class="ei">❔</div><h3>Belum ada FAQ</h3></div></td></tr>`}
+      </tr>`).join(''):`<tr><td colspan="4"><div class="empty"><div class="ei"><i class="fa-solid fa-circle-info" style="font-size:40px;color:var(--mu)"></i></div><h3>Belum ada FAQ</h3></div></td></tr>`}
     </tbody></table></div></div>`;
 }
 
@@ -1614,7 +1723,7 @@ function mFaq(id){
       <div class="fg"><label class="fl">Jawaban *</label><textarea id="fqA" class="fc" style="min-height:120px" placeholder="Jawaban lengkap...">${d.answer||''}</textarea></div>
       <div class="fg"><label class="fl">Urutan (opsional)</label><input id="fqU" type="number" class="fc" value="${d.urutan||0}" min="0"></div>
     </div>
-    <div class="mf"><button class="btn bo" onclick="rmModal('mdFaq')">Batal</button><button class="btn bp" onclick="svFaq(${id||0})">💾 Simpan</button></div>
+    <div class="mf"><button class="btn bo" onclick="rmModal('mdFaq')">Batal</button><button class="btn bp" onclick="svFaq(${id||0})"><i class="fa-solid fa-floppy-disk"><\/i> Simpan</button></div>
   </div></div>`;
   document.body.insertAdjacentHTML('beforeend',html);
 }
@@ -1640,34 +1749,34 @@ async function delFaq(id){
 async function rSet(el){
   let pg=demoMode?DEMO.pengaturan:((await SB.from('pengaturan').select('*').single()).data)||{};
   el.innerHTML=`<div class="g g2">
-    <div class="card"><div class="ch"><div class="ct">⚙️ Pengaturan Umum</div></div>
+    <div class="card"><div class="ch"><div class="ct"><i class="fa-solid fa-sliders" style="color:var(--p)"></i> Pengaturan Umum</div></div>
       <div class="cb">
         <div class="fg"><label class="fl">Nama Sekolah</label><input id="stNm" class="fc" value="${pg.nama_sekolah||''}"></div>
-        <div class="fg"><label class="fl">Nama Aplikasi</label><input id="stApp" class="fc" value="${pg.nama_app||'CBT E-School'}"></div>
+        <div class="fg"><label class="fl">Nama Aplikasi</label><input id="stApp" class="fc" value="${pg.nama_app||'Emes CBT System'}"></div>
         <div class="fg"><label class="fl">Fitur Chat</label>
           <select id="stChat" class="fc"><option value="izin" ${pg.chat!=='blokir'?'selected':''}>Izinkan (Siswa bisa chat)</option><option value="blokir" ${pg.chat==='blokir'?'selected':''}>Blokir (Semua chat dinonaktifkan)</option></select></div>
         <div class="fg"><label class="fl">Login Ganda</label>
           <select id="stLg" class="fc"><option value="izin" ${pg.login_ganda!=='blokir'?'selected':''}>Izinkan (1 akun bisa login dari banyak device)</option><option value="blokir" ${pg.login_ganda==='blokir'?'selected':''}>Blokir (1 akun hanya 1 sesi aktif)</option></select></div>
         <div class="fg"><label class="fl">Tampilkan Nilai ke Siswa</label>
           <select id="stNl" class="fc"><option value="tidak" ${pg.sembunyikan_nilai!=='ya'?'selected':''}>Tampilkan langsung setelah ujian</option><option value="ya" ${pg.sembunyikan_nilai==='ya'?'selected':''}>Sembunyikan (menunggu keputusan admin)</option></select></div>
-        <button class="btn bp" onclick="svSet()">💾 Simpan Pengaturan</button>
+        <button class="btn bp" onclick="svSet()"><i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan</button>
       </div>
     </div>
-    <div class="card"><div class="ch"><div class="ct">🗄️ Manajemen Database</div></div>
+    <div class="card"><div class="ch"><div class="ct"><i class="fa-solid fa-database" style="color:var(--p)"></i> Manajemen Database</div></div>
       <div class="cb">
-        <div class="al alwa"><span>⚠️</span><div>Tindakan di bawah ini bersifat permanen dan tidak bisa dibatalkan.</div></div>
+        <div class="al alwa"><i class="fa-solid fa-triangle-exclamation"></i><div>Tindakan di bawah ini bersifat permanen dan tidak bisa dibatalkan.</div></div>
         <div class="fg"><label class="fl">Reset Data Ujian</label>
           <p class="fh" style="margin-bottom:8px">Hapus semua data jawaban_siswa dan nilai. Data siswa dan soal tetap ada.</p>
-          <button class="btn bd" onclick="resetDataUjian()">🗑️ Reset Data Ujian</button>
+          <button class="btn bd" onclick="resetDataUjian()"><i class="fa-solid fa-trash"></i> Reset Data Ujian</button>
         </div>
         <div class="dv"></div>
         <div class="fg"><label class="fl">Konfigurasi Supabase</label>
           <p class="fh" style="margin-bottom:8px">URL: ${localStorage.getItem('sb_url')||'(Mode Demo)'}</p>
-          <button class="btn bo" onclick="showConfig()">⚙️ Ubah Konfigurasi</button>
+          <button class="btn bo" onclick="showConfig()"><i class="fa-solid fa-gear"></i> Ubah Konfigurasi</button>
         </div>
         <div class="dv"></div>
         <div class="fg"><label class="fl">SQL Schema</label>
-          <button class="btn bo" onclick="showSQLGuide()">📋 Lihat SQL Setup</button>
+          <button class="btn bo" onclick="showSQLGuide()"><i class="fa-solid fa-database"></i> Lihat SQL Setup</button>
         </div>
       </div>
     </div>
@@ -1725,19 +1834,19 @@ async function rSDash(el){
     }catch(e){}
   }else{ujianAktif=DEMO.soal.length;}
   el.innerHTML=`
-    <div class="al alin" style="margin-bottom:14px"><span>👋</span><div>Selamat datang, <strong>${sis.nama_siswa}</strong>! Kelas ${sis.kelas}-${sis.rombel}</div></div>
+    <div class="al alin" style="margin-bottom:14px"><i class="fa-solid fa-hand-wave" style="color:var(--p)"></i><div>Selamat datang, <strong>${sis.nama_siswa}</strong>! Kelas ${sis.kelas}-${sis.rombel}</div></div>
     <div class="g g3" style="margin-bottom:14px">
       <div class="card stc" style="background:linear-gradient(135deg,#1d4ed8,#0ea5e9);color:#fff;border:none;cursor:pointer" onclick="snav('sujian')">
-        <div class="stl" style="color:rgba(255,255,255,.7)">Ujian Tersedia</div><div class="stv">${ujianAktif}</div><div class="sts" style="color:rgba(255,255,255,.65)">Klik untuk lihat →</div></div>
+        <div class="stl" style="color:rgba(255,255,255,.7)">Ujian Tersedia</div><div class="stv">${ujianAktif}</div><div class="sts" style="color:rgba(255,255,255,.65)">Klik untuk lihat <i class="fa-solid fa-arrow-right"></i></div></div>
       <div class="card stc" style="cursor:pointer" onclick="snav('snilai')">
         <div class="stl">Nilai Terakhir</div>
         <div class="stv">${nilaiTerakhir?parseFloat(nilaiTerakhir.nilai).toFixed(0):'—'}</div>
         <div class="sts">${nilaiTerakhir?nilaiTerakhir.kode_soal:'Belum ada ujian'}</div>
       </div>
       <div class="card stc" style="cursor:pointer;background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none" onclick="snav('sgame')">
-        <div class="stl" style="color:rgba(255,255,255,.7)">Mini Game</div><div class="stv">🎮</div><div class="sts" style="color:rgba(255,255,255,.65)">Main untuk bersenang-senang!</div></div>
+        <div class="stl" style="color:rgba(255,255,255,.7)">Mini Game</div><div class="stv"><i class="fa-solid fa-gamepad"></i></div><div class="sts" style="color:rgba(255,255,255,.65)">Main untuk bersenang-senang!</div></div>
     </div>
-    <div class="card"><div class="ch"><div class="ct">📋 Informasi Akun</div></div>
+    <div class="card"><div class="ch"><div class="ct"><i class="fa-solid fa-circle-user" style="color:var(--p)"></i> Informasi Akun</div></div>
       <div class="cb">
         <div class="ir"><span class="iil">Nama Lengkap</span><span class="iiv">${sis.nama_siswa}</span></div>
         <div class="ir"><span class="iil">Username/NIS</span><span class="iiv"><span class="mono">${sis.username}</span></span></div>
@@ -1752,20 +1861,20 @@ async function rSUjian(el){
   let soalList=demoMode?DEMO.soal:((await SB.from('soal').select('*').eq('status','Aktif').order('id_soal',{ascending:false})).data||[]);
   el.innerHTML=`<div class="g" style="gap:12px" id="ujianList"></div>`;
   const ul=$('ujianList');
-  if(!soalList.length){ul.innerHTML='<div class="empty"><div class="ei">📝</div><h3>Belum ada ujian tersedia</h3><p>Belum ada paket soal yang aktif saat ini</p></div>';return;}
+  if(!soalList.length){ul.innerHTML='<div class="empty"><div class="ei"><i class="fa-solid fa-pen-to-square" style="font-size:40px;color:var(--mu)"></i></div><h3>Belum ada ujian tersedia</h3><p>Belum ada paket soal yang aktif saat ini</p></div>';return;}
   ul.innerHTML=soalList.map(s=>`
     <div class="card"><div class="cb" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-      <div style="width:50px;height:50px;background:var(--pl);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">📝</div>
+      <div style="width:50px;height:50px;background:var(--pl);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0"><i class="fa-solid fa-pen-to-square" style="color:var(--p)"></i></div>
       <div style="flex:1">
         <div style="font-weight:700;font-size:15px">${s.nama_soal}</div>
         <div style="font-size:12.5px;color:var(--mu);margin-top:3px">${s.kode_soal} · ${s.mapel} · Kelas ${s.kelas}</div>
         <div style="display:flex;gap:8px;margin-top:7px;flex-wrap:wrap">
-          <span class="badge bgr">⏱ ${s.waktu_ujian} menit</span>
-          ${s.token?'<span class="badge bwa">🔑 Butuh Token</span>':'<span class="badge bok">✅ Tanpa Token</span>'}
-          ${s.tanggal?`<span class="badge bgr">📅 ${fd(s.tanggal)}</span>`:''}
+          <span class="badge bgr"><i class="fa-solid fa-stopwatch"></i> ${s.waktu_ujian} menit</span>
+          ${s.token?'<span class="badge bwa"><i class="fa-solid fa-key"></i> Butuh Token</span>':'<span class="badge bok"><i class="fa-solid fa-circle-check"></i> Tanpa Token</span>'}
+          ${s.tanggal?`<span class="badge bgr"><i class="fa-solid fa-calendar-days"></i> ${fd(s.tanggal)}</span>`:''}
         </div>
       </div>
-      <button class="btn bp blg" onclick="konfirmUjian(${s.id_soal})">Mulai Ujian →</button>
+      <button class="btn bp blg" onclick="konfirmUjian(${s.id_soal})">Mulai Ujian <i class="fa-solid fa-arrow-right"></i></button>
     </div></div>`).join('');
 }
 
@@ -1773,21 +1882,21 @@ async function konfirmUjian(idSoal){
   const soal=demoMode?DEMO.soal.find(s=>s.id_soal===idSoal):((await SB.from('soal').select('*').eq('id_soal',idSoal).single()).data);
   if(!soal){toast('Paket soal tidak ditemukan!','er');return;}
   document.getElementById('mdKonfirm')?.remove();
-  const html=`<div class="mo" id="mdKonfirm"><div class="md"><div class="mh"><div class="mtt">📝 Konfirmasi Ujian</div><button class="xb" onclick="rmModal('mdKonfirm')">✕</button></div>
+  const html=`<div class="mo" id="mdKonfirm"><div class="md"><div class="mh"><div class="mtt"><i class="fa-solid fa-pen-to-square" style="color:var(--p)"></i> Konfirmasi Ujian</div><button class="xb" onclick="rmModal('mdKonfirm')">✕</button></div>
     <div class="mbb">
       <div class="reshero" style="padding:18px;margin-bottom:14px">
         <div style="font-size:22px;font-weight:800">${soal.nama_soal}</div>
         <div style="font-size:13px;color:rgba(255,255,255,.75);margin-top:4px">${soal.kode_soal} · ${soal.mapel}</div>
         <div class="resgrid" style="margin-top:14px">
-          <div class="resst"><div class="ressv">⏱</div><div class="ressl">${soal.waktu_ujian} menit</div></div>
-          <div class="resst"><div class="ressv">📝</div><div class="ressl">Ujian CBT</div></div>
-          <div class="resst"><div class="ressv">${soal.tampilan_soal==='Acak'?'🔀':'📋'}</div><div class="ressl">${soal.tampilan_soal}</div></div>
+          <div class="resst"><div class="ressv"><i class="fa-solid fa-stopwatch"></i></div><div class="ressl">${soal.waktu_ujian} menit</div></div>
+          <div class="resst"><div class="ressv"><i class="fa-solid fa-pen-to-square"></i></div><div class="ressl">Ujian CBT</div></div>
+          <div class="resst"><div class="ressv"><i class="fa-solid fa-${soal.tampilan_soal==='Acak'?'shuffle':'list-ol'}"></i></div><div class="ressl">${soal.tampilan_soal}</div></div>
         </div>
       </div>
-      ${soal.token?`<div class="fg"><label class="fl">Token Ujian *</label><input id="inToken" class="fc" placeholder="Masukkan token dari guru/admin" maxlength="10"><p class="fh">Minta token kepada pengawas ujian Anda</p></div>`:'<div class="al alok"><span>✅</span><div>Ujian ini tidak membutuhkan token. Anda bisa langsung mulai.</div></div>'}
-      <div class="al alwa"><span>⚠️</span><div>Pastikan koneksi internet stabil. Timer akan berjalan setelah ujian dimulai dan tidak bisa dijeda.</div></div>
+      ${soal.token?`<div class="fg"><label class="fl">Token Ujian *</label><input id="inToken" class="fc" placeholder="Masukkan token dari guru/admin" maxlength="10"><p class="fh">Minta token kepada pengawas ujian Anda</p></div>`:'<div class="al alok"><i class="fa-solid fa-circle-check"></i><div>Ujian ini tidak membutuhkan token. Anda bisa langsung mulai.</div></div>'}
+      <div class="al alwa"><i class="fa-solid fa-triangle-exclamation"></i><div>Pastikan koneksi internet stabil. Timer akan berjalan setelah ujian dimulai dan tidak bisa dijeda.</div></div>
     </div>
-    <div class="mf"><button class="btn bo" onclick="rmModal('mdKonfirm')">Batal</button><button class="btn bp" onclick="mulaiUjian(${idSoal},'${soal.token||''}')">▶ Mulai Ujian</button></div>
+    <div class="mf"><button class="btn bo" onclick="rmModal('mdKonfirm')">Batal</button><button class="btn bp" onclick="mulaiUjian(${idSoal},'${soal.token||''}')"><i class="fa-solid fa-play"></i> Mulai Ujian</button></div>
   </div></div>`;
   document.body.insertAdjacentHTML('beforeend',html);
 }
@@ -1843,7 +1952,7 @@ function renderExam(){
           <div class="legi"><div class="legd" style="background:var(--wa)"></div>Ragu-ragu</div>
           <div class="legi"><div class="legd" style="background:#e2e8f0"></div>Belum</div>
         </div>
-        ${s.tampil_tombol_selesai?`<div style="padding:0 12px 12px"><button class="btn bp" style="width:100%" onclick="selesaiUjian()">✅ Selesai Ujian</button></div>`:''}
+        ${s.tampil_tombol_selesai?`<div style="padding:0 12px 12px"><button class="btn bp" style="width:100%" onclick="selesaiUjian()"><i class="fa-solid fa-flag-checkered"></i> Selesai Ujian</button></div>`:''}
       </div>
       <div class="exmain" id="exMain"></div>
     </div>`;
@@ -1878,7 +1987,7 @@ function renderSoal(n){
     const opts=['pilihan_1','pilihan_2','pilihan_3','pilihan_4','pilihan_5'].filter(k=>b[k]);
     const labels=['A','B','C','D','E'];
     const selArr=(jawaban||'').split(',').filter(Boolean);
-    pilihanHtml=`<div class="al alin" style="padding:8px 12px;font-size:12px;margin-bottom:10px"><span>ℹ️</span><div>Pilih SEMUA jawaban yang benar (bisa lebih dari satu)</div></div>
+    pilihanHtml=`<div class="al alin" style="padding:8px 12px;font-size:12px;margin-bottom:10px"><i class=\"fa-solid fa-circle-info\" style=\"color:var(--p)\"></i><div>Pilih SEMUA jawaban yang benar (bisa lebih dari satu)</div></div>
       <div class="pgk">${opts.map((k,i)=>`<div class="pk ${selArr.includes(k)?'sel':''}" onclick="pilihPGK(${n},'${k}')"><div class="pkcb"></div><div class="opk">${labels[i]}</div><div class="opt">${b[k]}</div></div>`).join('')}</div>`;
   }else if(tipe==='Benar/Salah'){
     const stmts=[b.pilihan_1,b.pilihan_2,b.pilihan_3,b.pilihan_4].filter(Boolean);
@@ -1915,8 +2024,8 @@ function renderSoal(n){
     <div class="exnav">
       <button class="btn bo bsm" onclick="goSoal(${Math.max(1,n-1)})" ${n<=1?'disabled':''}>← Sebelumnya</button>
       <div style="display:flex;gap:8px">
-        <button class="btn bw bsm" onclick="toggleRagu(${n})">${EX.ragu[n]?'⭐ Ragu':'☆ Tandai Ragu'}</button>
-        ${n<EX.butirs.length?`<button class="btn bp bsm" onclick="goSoal(${n+1})">Selanjutnya →</button>`:`<button class="btn bs bsm" onclick="selesaiUjian()">✅ Selesai</button>`}
+        <button class="btn bw bsm" onclick="toggleRagu(${n})">${EX.ragu[n]?'<i class="fa-solid fa-star" style="color:var(--wa)"></i> Ragu':'<i class="fa-regular fa-star"></i> Ragu'}</button>
+        ${n<EX.butirs.length?`<button class="btn bp bsm" onclick="goSoal(${n+1})">Selanjutnya →</button>`:`<button class="btn bs bsm" onclick="selesaiUjian()"><i class="fa-solid fa-flag-checkered"></i> Selesai</button>`}
       </div>
     </div>
   </div>`;
@@ -2025,29 +2134,29 @@ function showHasilUjian(nilai,benar,salah,total,hasUraian,namaSoal){
     <div style="font-size:14px;color:rgba(255,255,255,.7)">Ujian Selesai — ${namaSoal}</div>
     <div class="resscore">${parseFloat(nilai).toFixed(0)}</div>
     <div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:5px">${sis.nama_siswa}</div>
-    <span class="badge ${lulus?'bok':'bno'}" style="margin-top:10px;font-size:12.5px">${lulus?'🎉 SELAMAT! Anda Lulus':'😔 Maaf, Belum Lulus'}</span>
-    <div class="resgrid"><div class="resst"><div class="ressv">${benar}</div><div class="ressl">✅ Benar</div></div>
-      <div class="resst"><div class="ressv">${salah}</div><div class="ressl">❌ Salah</div></div>
-      <div class="resst"><div class="ressv">${total}</div><div class="ressl">📝 Total</div></div></div>
+    <span class="badge ${lulus?'bok':'bno'}" style="margin-top:10px;font-size:12.5px">${lulus?'<i class="fa-solid fa-star"></i> SELAMAT! Anda Lulus':'<i class="fa-solid fa-circle-xmark"></i> Maaf, Belum Lulus'}</span>
+    <div class="resgrid"><div class="resst"><div class="ressv">${benar}</div><div class="ressl"><i class="fa-solid fa-circle-check"></i> Benar</div></div>
+      <div class="resst"><div class="ressv">${salah}</div><div class="ressl"><i class="fa-solid fa-circle-xmark"></i> Salah</div></div>
+      <div class="resst"><div class="ressv">${total}</div><div class="ressl"><i class="fa-solid fa-list-ol"></i> Total</div></div></div>
   </div>
-  ${hasUraian?'<div class="al alwa" style="margin-top:14px"><span>⏳</span><div>Nilai Anda masih <strong>tentatif</strong> karena ada soal uraian yang perlu dikoreksi manual oleh guru.</div></div>':''}
+  ${hasUraian?'<div class="al alwa" style="margin-top:14px"><i class="fa-solid fa-hourglass-half"></i><div>Nilai Anda masih <strong>tentatif</strong> karena ada soal uraian yang perlu dikoreksi manual oleh guru.</div></div>':''}
   <div style="display:flex;gap:10px;margin-top:16px">
-    <button class="btn bp" onclick="snav('snilai')" style="flex:1">📊 Lihat Nilai Saya</button>
-    <button class="btn bo" onclick="snav('sdash')" style="flex:1">🏠 Dashboard</button>
+    <button class="btn bp" onclick="snav('snilai')" style="flex:1"><i class="fa-solid fa-chart-bar"></i> Lihat Nilai Saya</button>
+    <button class="btn bo" onclick="snav('sdash')" style="flex:1"><i class="fa-solid fa-house"></i> Dashboard</button>
   </div>`;
 }
 
 // ─── SISWA: NILAI ───
 async function rSNilai(el){
   let d=demoMode?DEMO.nilai.filter(n=>n.id_siswa===sis.id_siswa):((await SB.from('nilai').select('*').eq('id_siswa',sis.id_siswa).order('id_nilai',{ascending:false})).data||[]);
-  el.innerHTML=`<div class="card"><div class="ch"><div class="ct">📊 Riwayat Nilai Ujian Saya</div></div>
-    ${!d.length?`<div class="empty"><div class="ei">📊</div><h3>Belum ada nilai</h3><p>Ikuti ujian untuk melihat nilai Anda di sini</p><button class="btn bp" onclick="snav('sujian')">Lihat Ujian →</button></div>`:
+  el.innerHTML=`<div class="card"><div class="ch"><div class="ct"><i class="fa-solid fa-chart-bar" style="color:var(--p)"></i> Riwayat Nilai Ujian Saya</div></div>
+    ${!d.length?`<div class="empty"><div class="ei"><i class="fa-solid fa-chart-bar" style="font-size:40px;color:var(--mu)"></i></div><h3>Belum ada nilai</h3><p>Ikuti ujian untuk melihat nilai Anda di sini</p><button class="btn bp" onclick="snav('sujian')">Lihat Ujian <i class="fa-solid fa-arrow-right"></i></button></div>`:
     `<div class="tw"><table><thead><tr><th>Paket Soal</th><th>Nilai</th><th>Benar</th><th>Salah</th><th>Status</th><th>Tanggal</th></tr></thead><tbody>
       ${d.map(n=>`<tr><td><div style="font-weight:600">${n.kode_soal}</div></td>
         <td><div class="nr ${parseFloat(n.nilai)>=60?'nrok':'nrno'}" style="width:44px;height:44px;font-size:13px">${parseFloat(n.nilai).toFixed(0)}</div></td>
         <td style="color:var(--ok);font-weight:700">${n.jawaban_benar}</td>
         <td style="color:var(--er);font-weight:700">${n.jawaban_salah}</td>
-        <td>${n.status_penilaian==='perlu_dinilai'?'<span class="badge bwa">⏳ Dikoreksi</span>':'<span class="badge bok">✅ Selesai</span>'}</td>
+        <td>${n.status_penilaian==='perlu_dinilai'?'<span class="badge bwa"><i class="fa-solid fa-hourglass-half"></i> Dikoreksi</span>':'<span class="badge bok"><i class="fa-solid fa-circle-check"></i> Selesai</span>'}</td>
         <td style="font-size:11.5px;color:var(--mu)">${fdt(n.tanggal_ujian)}</td>
       </tr>`).join('')}
     </tbody></table></div>`}
@@ -2057,8 +2166,8 @@ async function rSNilai(el){
 // ─── SISWA: CHAT ───
 async function rSChat(el){
   let pg=demoMode?DEMO.pengaturan:((await SB.from('pengaturan').select('chat').single()).data)||{};
-  if(pg.chat==='blokir'){el.innerHTML='<div class="empty"><div class="ei">🔇</div><h3>Chat Dinonaktifkan</h3><p>Fitur chat saat ini diblokir oleh admin.</p></div>';return;}
-  el.innerHTML=`<div class="card"><div class="ch"><div class="ct">💬 Chat dengan Guru/Admin</div><button class="btn bsm bo" onclick="loadSChat()">🔄</button></div>
+  if(pg.chat==='blokir'){el.innerHTML='<div class="empty"><div class="ei"><i class="fa-solid fa-comment-slash" style="font-size:40px;color:var(--mu)"></i></div><h3>Chat Dinonaktifkan</h3><p>Fitur chat saat ini diblokir oleh admin.</p></div>';return;}
+  el.innerHTML=`<div class="card"><div class="ch"><div class="ct"><i class="fa-solid fa-comments" style="color:var(--p)"></i> Chat dengan Guru/Admin</div><button class="btn bsm bo" onclick="loadSChat()"><i class="fa-solid fa-rotate-right"></i></button></div>
     <div style="height:420px;overflow-y:auto;padding:13px;display:flex;flex-direction:column;gap:6px;background:var(--bg)" id="sChatMs"></div>
     <div style="padding:12px;border-top:1px solid var(--br);display:flex;gap:7px">
       <input id="sChatIn" class="fc" placeholder="Ketik pesan..." style="flex:1" onkeydown="if(event.key==='Enter')sendSChat()">
@@ -2088,8 +2197,8 @@ async function sendSChat(){
 // ─── MINI GAME ───
 async function rSGame(el){
   el.innerHTML=`<div class="g g2">
-    <div class="gamecard" onclick="mainMathPuzzle()"><div class="gicon">🧮</div><h3 style="font-weight:700;margin-bottom:6px">Math Puzzle</h3><p style="font-size:12.5px;color:var(--mu)">Jawab soal matematika secepat mungkin! Skor masuk ke leaderboard.</p></div>
-    <div class="gamecard" onclick="mainScramble()"><div class="gicon">🔤</div><h3 style="font-weight:700;margin-bottom:6px">Word Scramble</h3><p style="font-size:12.5px;color:var(--mu)">Susun huruf acak menjadi kata yang benar. Latih kosa kata!</p></div>
+    <div class="gamecard" onclick="mainMathPuzzle()"><div class="gicon"><i class="fa-solid fa-square-root-variable" style="color:var(--p)"></i></div><h3 style="font-weight:700;margin-bottom:6px">Math Puzzle</h3><p style="font-size:12.5px;color:var(--mu)">Jawab soal matematika secepat mungkin! Skor masuk ke leaderboard.</p></div>
+    <div class="gamecard" onclick="mainScramble()"><div class="gicon"><i class="fa-solid fa-spell-check" style="color:var(--ok)"></i></div><h3 style="font-weight:700;margin-bottom:6px">Word Scramble</h3><p style="font-size:12.5px;color:var(--mu)">Susun huruf acak menjadi kata yang benar. Latih kosa kata!</p></div>
   </div>`;
 }
 
@@ -2100,13 +2209,13 @@ function mainMathPuzzle(){
   $('gameScreen').innerHTML=`<div class="gbox">
     <div class="gcard">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <div><span style="font-size:22px">🧮</span> <strong>Math Puzzle</strong></div>
-        <button class="btn bo bsm" onclick="exitGame()">✕ Keluar</button>
+        <div><i class="fa-solid fa-square-root-variable" style="font-size:20px;color:var(--p)"></i> <strong>Math Puzzle</strong></div>
+        <button class="btn bo bsm" onclick="exitGame()"><i class="fa-solid fa-xmark"></i> Keluar</button>
       </div>
       <div style="display:flex;justify-content:space-between;margin-bottom:20px">
         <div style="text-align:center"><div style="font-size:11px;color:var(--mu)">SKOR</div><div style="font-size:24px;font-weight:800;color:var(--p)" id="gScore">0</div></div>
         <div style="text-align:center"><div style="font-size:11px;color:var(--mu)">STREAK</div><div style="font-size:24px;font-weight:800;color:var(--ok)" id="gStreak">0</div></div>
-        <div style="text-align:center"><div style="font-size:11px;color:var(--mu)">NYAWA</div><div style="font-size:24px;font-weight:800;color:var(--er)" id="gLives">❤️❤️❤️</div></div>
+        <div style="text-align:center"><div style="font-size:11px;color:var(--mu)">NYAWA</div><div style="font-size:24px;font-weight:800;color:var(--er)" id="gLives">♥♥♥</div></div>
       </div>
       <div id="gTimer" style="height:5px;background:var(--bg);border-radius:100px;margin-bottom:16px;overflow:hidden"><div id="gTimerB" style="height:100%;background:var(--p);border-radius:100px;width:100%;transition:width 0.1s linear"></div></div>
       <div class="qdisp" id="gQ">—</div>
@@ -2146,7 +2255,7 @@ function answerGame(val){
   document.querySelectorAll('.gab').forEach(b=>{b.disabled=true;if(parseInt(b.textContent)===ans)b.classList.add('correct');});
   if(val===ans){
     gameState.streak++;gameState.score+=10+gameState.streak*2;
-    if(feed)feed.textContent='✅ Benar! +' +(10+gameState.streak*2)+' poin';
+    if(feed)feed.textContent='✓ Benar! +' +(10+gameState.streak*2)+' poin';
     feed.style.color='var(--ok)';
   }else{wrongAnswer(true);}
   updateGameUI();setTimeout(nextQuestion,1200);
@@ -2155,7 +2264,7 @@ function answerGame(val){
 function wrongAnswer(fromClick=false){
   if(!fromClick){document.querySelectorAll('.gab').forEach(b=>{b.disabled=true;if(parseInt(b.textContent)===gameState.q.ans)b.classList.add('correct');});}
   gameState.lives--;gameState.streak=0;
-  const feed=$('gFeed');if(feed){feed.textContent=fromClick?'❌ Salah!':'⏰ Waktu habis!';feed.style.color='var(--er)';}
+  const feed=$('gFeed');if(feed){feed.textContent=fromClick?'✗ Salah!':'⏱ Waktu habis!';feed.style.color='var(--er)';}
   updateGameUI();
   if(gameState.lives<=0){setTimeout(gameOver,1000);}else{setTimeout(nextQuestion,1200);}
 }
@@ -2163,7 +2272,7 @@ function wrongAnswer(fromClick=false){
 function updateGameUI(){
   if($('gScore'))$('gScore').textContent=gameState.score;
   if($('gStreak'))$('gStreak').textContent=gameState.streak;
-  if($('gLives'))$('gLives').textContent='❤️'.repeat(Math.max(0,gameState.lives))+'🖤'.repeat(3-Math.max(0,gameState.lives));
+  if($('gLives'))$('gLives').textContent='♥'.repeat(Math.max(0,gameState.lives))+'♡'.repeat(3-Math.max(0,gameState.lives));
 }
 
 async function gameOver(){
@@ -2171,13 +2280,13 @@ async function gameOver(){
   const score=gameState.score;
   if(!demoMode&&score>0){try{await SB.from('skor_game').insert({id_siswa:sis.id_siswa,nama_game:'math_puzzle',skor:score});}catch(e){}}
   $('gameScreen').innerHTML=`<div class="gbox"><div class="gcard">
-    <div style="font-size:50px;text-align:center;margin-bottom:12px">🏁</div>
+    <div style="font-size:50px;text-align:center;margin-bottom:12px"><i class="fa-solid fa-flag-checkered" style="color:var(--p)"></i></div>
     <h2 style="text-align:center;font-size:22px;font-weight:800;margin-bottom:5px">Game Over!</h2>
     <p style="text-align:center;color:var(--mu);margin-bottom:20px">Skor akhir Anda</p>
     <div style="font-size:56px;font-weight:900;text-align:center;color:var(--p);margin-bottom:20px">${score}</div>
     <div style="display:flex;gap:10px">
-      <button class="btn bp" style="flex:1" onclick="mainMathPuzzle()">🔄 Main Lagi</button>
-      <button class="btn bo" style="flex:1" onclick="exitGame()">🏠 Keluar</button>
+      <button class="btn bp" style="flex:1" onclick="mainMathPuzzle()"><i class="fa-solid fa-rotate-right"></i> Main Lagi</button>
+      <button class="btn bo" style="flex:1" onclick="exitGame()"><i class="fa-solid fa-house"></i> Keluar</button>
     </div>
   </div></div>`;
 }
@@ -2188,10 +2297,10 @@ function exitGame(){hide('gameScreen');show('siswaPanel');snav('sgame');}
 // ─── SISWA: FAQ ───
 async function rSFaq(el){
   let faqs=demoMode?DEMO.faq:((await SB.from('faq').select('*').order('urutan')).data||[]);
-  el.innerHTML=`<div class="card"><div class="ch"><div class="ct">❔ Bantuan & FAQ</div></div>
-    ${!faqs.length?'<div class="empty"><div class="ei">❔</div><h3>Belum ada FAQ</h3></div>':
+  el.innerHTML=`<div class="card"><div class="ch"><div class="ct"><i class="fa-solid fa-circle-question" style="color:var(--p)"></i> Bantuan &amp; FAQ</div></div>
+    ${!faqs.length?'<div class="empty"><div class="ei"><i class=\"fa-solid fa-circle-info\" style=\"font-size:40px;color:var(--mu)\"></i></div><h3>Belum ada FAQ</h3></div>':
     faqs.map(f=>`<div class="cb" style="border-bottom:1px solid var(--br)">
-      <div style="font-weight:700;margin-bottom:5px;font-size:14px">❓ ${f.question}</div>
+      <div style="font-weight:700;margin-bottom:5px;font-size:14px"><i class="fa-solid fa-circle-question" style="color:var(--p)"></i> ${f.question}</div>
       <div style="font-size:13px;color:var(--mu);line-height:1.6">${f.answer}</div>
     </div>`).join('')}
   </div>`;
