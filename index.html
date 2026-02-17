@@ -139,7 +139,9 @@ tbody tr:hover td{background:#fafbff}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 .ngw{padding:0 12px;flex:1;overflow-y:auto}
 .ng{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:9px}
-.num{aspect-ratio:1;border:1.5px solid var(--br);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:600;cursor:pointer;transition:all .12s;color:var(--mu);background:#fff}
+.ng-group{margin-bottom:10px}
+.ng-group-label{font-size:9px;font-weight:700;color:rgba(0,0,0,.35);text-transform:uppercase;letter-spacing:.08em;padding:2px 0 4px;border-bottom:1px solid var(--br);margin-bottom:5px}
+.num{aspect-ratio:1;border:1.5px solid var(--br);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;cursor:pointer;transition:all .12s;color:var(--mu);background:#fff}
 .num:hover{border-color:var(--p);color:var(--p)}
 .num.cur{background:var(--p);border-color:var(--p);color:#fff}
 .num.ans{background:var(--ok);border-color:var(--ok);color:#fff}
@@ -1989,6 +1991,26 @@ async function konfirmUjian(idSoal){
   document.body.insertAdjacentHTML('beforeend',html);
 }
 
+// ─── SHUFFLE HELPERS ───
+const TIPE_ORDER=['Pilihan Ganda','Pilihan Ganda Kompleks','Benar/Salah','Menjodohkan','Uraian'];
+function shuffleArr(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function shuffleButirPerTipe(butirs){
+  const groups={};
+  butirs.forEach(b=>{if(!groups[b.tipe_soal])groups[b.tipe_soal]=[];groups[b.tipe_soal].push(b);});
+  const keys=[...TIPE_ORDER.filter(t=>groups[t]),...Object.keys(groups).filter(t=>!TIPE_ORDER.includes(t))];
+  const result=[];
+  keys.forEach(tipe=>{
+    shuffleArr(groups[tipe]).forEach(b=>{
+      const s={...b};
+      if(tipe==='Pilihan Ganda'||tipe==='Pilihan Ganda Kompleks'){
+        s._shuffledOpts=shuffleArr(['pilihan_1','pilihan_2','pilihan_3','pilihan_4','pilihan_5'].filter(k=>s[k]&&s[k].trim()!==''));
+      }
+      result.push(s);
+    });
+  });
+  return result;
+}
+
 async function mulaiUjian(idSoal, expectedToken){
   const inputToken=$('inToken')?.value.trim();
   if(expectedToken&&inputToken!==expectedToken){toast('Token salah! Minta token yang benar kepada pengawas.','er');return;}
@@ -1996,7 +2018,7 @@ async function mulaiUjian(idSoal, expectedToken){
   const soal=demoMode?DEMO.soal.find(s=>s.id_soal===idSoal):((await SB.from('soal').select('*').eq('id_soal',idSoal).single()).data);
   let butirs=demoMode?DEMO.butir.filter(b=>b.kode_soal===soal.kode_soal):((await SB.from('butir_soal').select('*').eq('kode_soal',soal.kode_soal).eq('status_soal','Aktif').order('nomer_soal')).data||[]);
   if(!butirs.length){toast('Tidak ada soal dalam paket ini!','er');return;}
-  if(soal.tampilan_soal==='Acak')butirs.sort(()=>Math.random()-.5);
+  if(soal.tampilan_soal==='Acak')butirs=shuffleButirPerTipe(butirs);
   // Cek apakah ada sesi yang belum selesai
   let existingJaw=null;
   if(!demoMode){
@@ -2050,14 +2072,20 @@ function renderExam(){
 
 function updateNumGrid(){
   const el=$('numGrid');if(!el)return;
-  el.innerHTML=EX.butirs.map((_,i)=>{
-    const n=i+1;
-    let cls='num';
-    if(n===EX.cur)cls+=' cur';
-    else if(EX.jaw[n]!==undefined&&EX.jaw[n]!=='')cls+=' ans';
-    else if(EX.ragu[n])cls+=' ragu';
-    return`<div class="${cls}" onclick="goSoal(${n})">${n}</div>`;
-  }).join('');
+  const groups={};
+  EX.butirs.forEach((b,i)=>{if(!groups[b.tipe_soal])groups[b.tipe_soal]=[];groups[b.tipe_soal].push(i+1);});
+  const keys=[...TIPE_ORDER.filter(t=>groups[t]),...Object.keys(groups).filter(t=>!TIPE_ORDER.includes(t))];
+  el.innerHTML=keys.map(tipe=>`
+    <div class="ng-group">
+      <div class="ng-group-label">${tipe}</div>
+      <div class="ng">${groups[tipe].map(n=>{
+        let cls='num';
+        if(n===EX.cur)cls+=' cur';
+        else if(EX.jaw[n]!==undefined&&EX.jaw[n]!=='')cls+=' ans';
+        else if(EX.ragu[n])cls+=' ragu';
+        return`<div class="${cls}" onclick="goSoal(${n})">${n}</div>`;
+      }).join('')}</div>
+    </div>`).join('');
 }
 
 function goSoal(n){EX.cur=n;renderSoal(n);updateNumGrid();}
@@ -2068,11 +2096,11 @@ function renderSoal(n){
   let pilihanHtml='';
   const tipe=b.tipe_soal;
   if(tipe==='Pilihan Ganda'){
-    const opts=['pilihan_1','pilihan_2','pilihan_3','pilihan_4','pilihan_5'].filter(k=>b[k]);
+    const opts=b._shuffledOpts||['pilihan_1','pilihan_2','pilihan_3','pilihan_4','pilihan_5'].filter(k=>b[k]&&b[k].trim()!=='');
     const labels=['A','B','C','D','E'];
     pilihanHtml=`<div class="opsi">${opts.map((k,i)=>`<div class="op ${jawaban===k?'sel':''}" onclick="pilihPG(${n},'${k}')"><div class="opradio"></div><div class="opk">${labels[i]}</div><div class="opt">${b[k]}</div></div>`).join('')}</div>`;
   }else if(tipe==='Pilihan Ganda Kompleks'){
-    const opts=['pilihan_1','pilihan_2','pilihan_3','pilihan_4','pilihan_5'].filter(k=>b[k]);
+    const opts=b._shuffledOpts||['pilihan_1','pilihan_2','pilihan_3','pilihan_4','pilihan_5'].filter(k=>b[k]&&b[k].trim()!=='');
     const labels=['A','B','C','D','E'];
     const selArr=(jawaban||'').split(',').filter(Boolean);
     pilihanHtml=`<div class="al alin" style="padding:8px 12px;font-size:12px;margin-bottom:10px"><i class=\"fa-solid fa-circle-info\" style=\"color:var(--p)\"></i><div>Pilih SEMUA jawaban yang benar (bisa lebih dari satu)</div></div>
@@ -2186,26 +2214,38 @@ async function selesaiUjian(){
 function hitungNilai(){
   const{butirs,jaw,soal}=EX;
   const total=butirs.length;
-  let benar=0,salah=0,nilaiUraian=0,hasUraian=false;
+  let benar=0,salah=0,hasUraian=false;
   const jawStr=Object.entries(jaw).map(([n,j])=>`[${n}:${j}]`).join('');
-  
-  butirs.forEach(b=>{
-    const n=b.nomer_soal,j=jaw[n],k=b.jawaban_benar;
+
+  // KEY = index tampilan (i+1), BUKAN nomer_soal asli
+  butirs.forEach((b,i)=>{
+    const idx=i+1;
+    const j=jaw[idx];
+    const k=b.jawaban_benar;
     if(b.tipe_soal==='Uraian'){hasUraian=true;return;}
-    if(!j){salah++;return;}
+    if(!j||j.trim()===''){salah++;return;}
     let correct=false;
-    if(b.tipe_soal==='Pilihan Ganda')correct=j===k;
-    else if(b.tipe_soal==='Pilihan Ganda Kompleks')correct=j.split(',').sort().join(',')===k.split(',').sort().join(',');
-    else if(b.tipe_soal==='Benar/Salah')correct=j===k;
-    else if(b.tipe_soal==='Menjodohkan')correct=j===k;
+    if(b.tipe_soal==='Pilihan Ganda'){
+      correct=(j===k);
+    }else if(b.tipe_soal==='Pilihan Ganda Kompleks'){
+      const jSet=j.split(',').map(x=>x.trim()).filter(Boolean).sort().join(',');
+      const kSet=k.split(',').map(x=>x.trim()).filter(Boolean).sort().join(',');
+      correct=(jSet===kSet);
+    }else if(b.tipe_soal==='Benar/Salah'){
+      correct=(j.trim()===k.trim());
+    }else if(b.tipe_soal==='Menjodohkan'){
+      const normJ=j.split('|').map(p=>p.trim()).filter(Boolean).sort().join('|');
+      const normK=k.split('|').map(p=>p.trim()).filter(Boolean).sort().join('|');
+      correct=(normJ===normK);
+    }
     if(correct)benar++;else salah++;
   });
-  
-  const nilaiPG=total>0?(benar/total)*100:0;
-  const nilaiTotal=Math.min(100,nilaiPG+nilaiUraian);
+
+  salah+=butirs.filter(b=>b.tipe_soal==='Uraian').length;
+  const nilaiTotal=total>0?Math.min(100,(benar/total)*100):0;
   const statusPenilaian=hasUraian?'perlu_dinilai':'otomatis';
-  
-  simpanNilai({id_siswa:sis.id_siswa,nama_siswa:sis.nama_siswa,kode_soal:soal.kode_soal,nilai:nilaiTotal.toFixed(2),jawaban_benar:benar,jawaban_salah:salah+(hasUraian?butirs.filter(b=>b.tipe_soal==='Uraian').length:0),total_soal:total,jawaban_siswa:jawStr,nilai_uraian:0,detail_uraian:'',status_penilaian:statusPenilaian},nilaiTotal,benar,salah,total,hasUraian);
+
+  simpanNilai({id_siswa:sis.id_siswa,nama_siswa:sis.nama_siswa,kode_soal:soal.kode_soal,nilai:nilaiTotal.toFixed(2),jawaban_benar:benar,jawaban_salah:salah,total_soal:total,jawaban_siswa:jawStr,nilai_uraian:0,detail_uraian:'',status_penilaian:statusPenilaian},nilaiTotal,benar,salah,total,hasUraian);
 }
 
 async function simpanNilai(obj,nilaiTotal,benar,salah,total,hasUraian){
