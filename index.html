@@ -10,7 +10,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
 :root{--p:#2563eb;--pd:#1d4ed8;--pl:#dbeafe;--ac:#f59e0b;--ok:#10b981;--er:#ef4444;--wa:#f59e0b;--bg:#f8fafc;--card:#fff;--br:#e2e8f0;--tx:#0f172a;--mu:#64748b;--sw:260px;--r:12px;--sh:0 1px 3px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);--sh2:0 4px 12px rgba(0,0,0,.12),0 16px 48px rgba(0,0,0,.08)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -236,14 +235,8 @@ tbody tr:hover td{background:#fafbff}
 .gab.wrong{border-color:var(--er);background:#fee2e2;color:#b91c1c}
 /* KARTU SISWA */
 .kartu{width:340px;border:2px solid #334155;border-radius:10px;padding:16px;background:#fff;font-family:'Plus Jakarta Sans',sans-serif}
-.kartu-head{display:flex;align-items:flex-start;gap:12px;border-bottom:2px solid #334155;padding-bottom:12px;margin-bottom:12px}
-.kartu-logo{width:40px;height:40px;background:var(--p);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-/* SWEETALERT2 CUSTOM */
-.swal-custom{font-family:'Plus Jakarta Sans',sans-serif!important;border-radius:14px!important}
-.swal-title{font-size:18px!important;font-weight:800!important;color:var(--tx)!important}
-.swal-text{font-size:14px!important;color:var(--mu)!important}
-.swal-confirm{padding:10px 24px!important;border-radius:8px!important;font-size:14px!important;font-weight:600!important}
-.swal-cancel{padding:10px 24px!important;border-radius:8px!important;font-size:14px!important;font-weight:600!important}
+.kartu-head{display:flex;align-items:center;gap:10px;border-bottom:2px solid #334155;padding-bottom:10px;margin-bottom:10px}
+.kartu-logo{display:flex;align-items:center;justify-content:center;flex-shrink:0}
 @media(max-width:768px){
   .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}
   .main{margin-left:0}.g4,.g3{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}
@@ -311,7 +304,7 @@ tbody tr:hover td{background:#fafbff}
   .kartu-grid{display:grid;grid-template-columns:1fr 1fr;gap:8mm;padding:10mm}
   .kartu-print{width:100%;height:48mm;border:1.5pt solid #000;border-radius:4mm;padding:3mm;page-break-inside:avoid;box-sizing:border-box}
   .kartu-print .kartu-head{border-bottom:1.5pt solid #000;padding-bottom:2mm;margin-bottom:2mm}
-  .kartu-print .kartu-logo{width:12mm;height:12mm;font-size:16pt}
+  .kartu-print .kartu-logo{width:12mm;height:12mm}
   .kartu-row{display:flex;justify-content:space-between;padding:1.5mm 0;font-size:9pt;border-bottom:0.5pt solid #ddd}
   .kartu-row:last-child{border-bottom:none}
   @page{size:A4 portrait;margin:10mm}
@@ -657,27 +650,6 @@ function toast(msg,type='in',dur=3200){
   d.className=`toast t${type}`;d.innerHTML=`<span>${icons[type]||'<i class="fa-solid fa-circle-info"></i>'}</span><span>${msg}</span>`;
   $('toasts').appendChild(d);setTimeout(()=>d.remove(),dur);
 }
-
-// SweetAlert2 Confirm Dialog Helper
-async function confirmDialog(title,text,confirmText='Ya',cancelText='Batal',icon='warning'){
-  const result=await Swal.fire({
-    title,text,icon,
-    showCancelButton:true,
-    confirmButtonText:confirmText,
-    cancelButtonText:cancelText,
-    confirmButtonColor:'#2563eb',
-    cancelButtonColor:'#64748b',
-    reverseButtons:true,
-    customClass:{
-      popup:'swal-custom',
-      title:'swal-title',
-      htmlContainer:'swal-text',
-      confirmButton:'swal-confirm',
-      cancelButton:'swal-cancel'
-    }
-  });
-  return result.isConfirmed;
-}
 function parseJ(str,sep=':'){
   if(!str)return{};const r={};
   const re=sep===':'?/\[(\d+):([^\]]*)\]/g:/\[(\d+):([^\]]*)\]/g;
@@ -914,8 +886,8 @@ async function loginSiswa(){
   setBtn('sisBtn','Masuk →');
 }
 
-async function logoutAdmin(){if(!await confirmDialog('Logout','Yakin ingin keluar dari panel admin?','Ya, Keluar'))return;adm=null;showAdminLogin();}
-async function logoutSiswa(){if(!await confirmDialog('Logout','Yakin ingin keluar?','Ya, Keluar'))return;sis=null;showSiswaLogin();}
+function logoutAdmin(){if(!confirm('Yakin ingin keluar?'))return;adm=null;showAdminLogin();}
+function logoutSiswa(){if(!confirm('Yakin ingin keluar?'))return;sis=null;showSiswaLogin();}
 
 // ═══════════════════════════ ADMIN PANEL ═══════════════════════════
 function showAdminPanel(){
@@ -1083,7 +1055,7 @@ async function svSoal(id){
 }
 
 async function dupSoal(id){
-  if(!await confirmDialog('Duplikasi Paket Soal','Duplikat paket soal ini beserta semua butir soalnya?','Ya, Duplikat','Batal','question'))return;
+  if(!confirm('Duplikat paket soal ini beserta semua butir soalnya?'))return;
   if(demoMode){toast('Mode demo: tidak bisa menduplikat','in');return;}
   try{
     const{data:orig}=await SB.from('soal').select('*').eq('id_soal',id).single();
@@ -1142,7 +1114,7 @@ function renderPilihanPreview(b){
 }
 
 async function delSoal(id){
-  if(!await confirmDialog('Hapus Paket Soal','Hapus paket soal ini? Semua butir soal dan nilai terkait akan ikut terhapus!','Ya, Hapus','Batal','error'))return;
+  if(!confirm('Hapus paket soal ini? Semua butir soal dan nilai terkait akan ikut terhapus!'))return;
   if(demoMode){toast('Mode demo','in');return;}
   const{data:s}=await SB.from('soal').select('kode_soal').eq('id_soal',id).single();
   if(s){await SB.from('butir_soal').delete().eq('kode_soal',s.kode_soal);await SB.from('nilai').delete().eq('kode_soal',s.kode_soal);}
@@ -1317,7 +1289,7 @@ async function svButir(id){
 }
 
 async function delButir(id){
-  if(!await confirmDialog('Hapus Butir Soal','Hapus butir soal ini?','Ya, Hapus','Batal','error'))return;
+  if(!confirm('Hapus butir soal ini?'))return;
   if(demoMode){toast('Mode demo','in');return;}
   await SB.from('butir_soal').delete().eq('id_soal',id);
   toast('Soal dihapus!','ok');loadButir();
@@ -1435,7 +1407,7 @@ async function simpanKoreksi(idNilai,nArr,maxPerS){
 }
 
 async function delHasil(id){
-  if(!await confirmDialog('Hapus Hasil Ujian','Hapus hasil ujian ini?','Ya, Hapus','Batal','error'))return;
+  if(!confirm('Hapus hasil ujian ini?'))return;
   if(demoMode){toast('Mode demo','in');return;}
   await SB.from('nilai').delete().eq('id_nilai',id);toast('Dihapus!','ok');loadHasil();
 }
@@ -1589,29 +1561,29 @@ async function svSiswa(id){
 
 function kartulSiswa(id){
   const s=(window._siswa||[]).find(x=>x.id_siswa===id);if(!s)return;
-  const kelasText=s.kelas?`Kelas ${s.kelas}`:'—';
   document.getElementById('mdKartu')?.remove();
   const html=`<div class="mo" id="mdKartu"><div class="md"><div class="mh"><div class="mtt"><i class="fa-solid fa-id-card"></i> Kartu Peserta — ${s.nama_siswa}</div><button class="xb" onclick="rmModal('mdKartu')">✕</button></div>
     <div class="mbb" id="kartuArea">
-      <div class="kartu" style="margin:0 auto;max-width:400px">
+      <div class="kartu" style="margin:0 auto">
         <div class="kartu-head">
-          <div style="width:60px;height:75px;border:2px solid #cbd5e1;border-radius:6px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <i class="fa-solid fa-user" style="font-size:32px;color:#94a3b8"></i>
+          <div class="kartu-logo"><img src="https://i.imgur.com/bT70O4C.png" alt="Logo" style="width:28px;height:28px;object-fit:contain" onerror="this.outerHTML='<i class=\'fa-solid fa-clipboard-list\' style=\'color:var(--p);font-size:18px\'></i>'"></div>
+          <div><div style="font-weight:800;font-size:13px">CBT E-School</div><div style="font-size:11px;color:var(--mu)">Kartu Peserta Ujian</div></div>
+        </div>
+        <div style="display:flex;gap:12px">
+          <div style="width:56px;height:80px;border:1.5px solid #94a3b8;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;color:#94a3b8;text-align:center;line-height:1.4;flex-shrink:0;background:#f8fafc">
+            <div style="font-size:16px;opacity:.4">📷</div>
+            <div>Foto</div><div>2×3</div>
           </div>
-          <div style="flex:1">
-            <div style="font-weight:800;font-size:14px;margin-bottom:2px">KARTU PESERTA UJIAN</div>
-            <div style="font-size:11px;color:var(--mu)">Emes CBT System</div>
+          <div style="flex:1;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:12.5px;align-content:start">
+            <span style="color:var(--mu)">Nama</span><span style="font-weight:700">: ${s.nama_siswa}</span>
+            <span style="color:var(--mu)">NIS</span><span style="font-weight:700">: ${s.username}</span>
+            <span style="color:var(--mu)">Kelas</span><span style="font-weight:700">: ${s.kelas} - ${s.rombel}</span>
+            <span style="color:var(--mu)">Password</span><span style="font-weight:700">: ${s.password}</span>
+            <span style="color:var(--mu)">Status</span><span style="font-weight:700">: ${s.status}</span>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px;margin-top:14px">
-          <span style="color:var(--mu);font-weight:600">Nama</span><span style="font-weight:700">: ${s.nama_siswa}</span>
-          <span style="color:var(--mu);font-weight:600">Username/NIS</span><span style="font-weight:700">: ${s.username}</span>
-          <span style="color:var(--mu);font-weight:600">Password</span><span style="font-weight:700">: ${s.password}</span>
-          <span style="color:var(--mu);font-weight:600">Kelas / Rombel</span><span style="font-weight:700">: ${kelasText} - ${s.rombel}</span>
-          <span style="color:var(--mu);font-weight:600">Status</span><span style="font-weight:700">: ${s.status}</span>
-        </div>
-        <div style="margin-top:14px;border-top:1px dashed #cbd5e1;padding-top:12px">
-          <div style="font-size:10.5px;color:var(--mu);text-align:center">Tempelkan pas foto 3x4 di kotak yang tersedia<br>Simpan kartu ini dengan baik. Password dapat direset oleh admin.</div>
+        <div style="margin-top:12px;border-top:1px dashed #ccc;padding-top:10px">
+          <div style="font-size:10px;color:var(--mu);text-align:center">Simpan kartu ini dengan baik. Password dapat direset oleh admin.</div>
         </div>
       </div>
     </div>
@@ -1623,32 +1595,25 @@ function kartulSiswa(id){
 function printKartu(){
   const content=$('kartuArea')?.innerHTML;if(!content)return;
   const w=window.open('','_blank');
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Kartu Peserta</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <style>
+  w.document.write(`<html><head><title>Kartu Peserta</title><style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Plus Jakarta Sans',sans-serif;padding:20px;background:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh}
-    .kartu{width:400px;border:2px solid #334155;border-radius:12px;padding:20px;background:#fff}
-    .kartu-head{display:flex;align-items:center;gap:12px;border-bottom:2px solid #334155;padding-bottom:12px;margin-bottom:12px}
-    @media print{
-      @page{margin:15mm}
-      body{padding:0}
-    }
+    body{font-family:'Plus Jakarta Sans',sans-serif;padding:20px}
+    .kartu{width:340px;border:2px solid #334155;border-radius:10px;padding:16px}
+    .kartu-head{display:flex;align-items:center;gap:10px;border-bottom:2px solid #334155;padding-bottom:10px;margin-bottom:10px}
+    .kartu-logo{display:flex;align-items:center;justify-content:center}
   </style></head><body>${content}</body></html>`);
-  w.document.close();
-  setTimeout(()=>w.print(),300);
+  w.document.close();w.print();
 }
 
 async function resetLogin(id){
-  if(!await confirmDialog('Reset Session','Reset session login siswa ini? Siswa harus login ulang.','Ya, Reset','Batal','warning'))return;
+  if(!confirm('Reset session login siswa ini? Siswa harus login ulang.'))return;
   if(demoMode){toast('Mode demo','in');return;}
   await SB.from('siswa').update({session_token:'',force_logout:false,page_url:''}).eq('id_siswa',id);
   toast('Session login direset!','ok');
 }
 
 async function delSiswa(id){
-  if(!await confirmDialog('Hapus Siswa','Hapus siswa ini? Semua nilai dan jawaban terkait juga akan dihapus!','Ya, Hapus','Batal','error'))return;
+  if(!confirm('Hapus siswa ini? Semua nilai dan jawaban terkait juga akan dihapus!'))return;
   if(demoMode){toast('Mode demo','in');return;}
   await SB.from('nilai').delete().eq('id_siswa',id);
   await SB.from('jawaban_siswa').delete().eq('id_siswa',id);
@@ -1664,85 +1629,114 @@ function cetakKartuSiswa(){
   const pw=window.open('','_blank');
   pw.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Kartu Peserta Ujian</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
       *{margin:0;padding:0;box-sizing:border-box}
-      body{font-family:'Plus Jakarta Sans',sans-serif;padding:10mm;background:#fff}
-      .page-header{text-align:center;margin-bottom:8mm;padding-bottom:5mm;border-bottom:2pt solid #000}
-      .page-header h1{font-size:16pt;font-weight:800;margin-bottom:2mm}
-      .page-header p{font-size:9pt;color:#64748b}
-      .kartu-grid{display:grid;grid-template-columns:1fr 1fr;gap:8mm;align-items:start}
-      .kartu-print{width:100%;border:1.5pt solid #000;border-radius:4mm;padding:4mm;box-sizing:border-box;page-break-inside:avoid;background:#fff}
-      .kartu-header{display:flex;gap:3mm;border-bottom:1.5pt solid #000;padding-bottom:3mm;margin-bottom:3mm;align-items:center}
-      .kartu-foto{width:20mm;height:25mm;border:1pt solid #cbd5e1;border-radius:2mm;background:#f1f5f9;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
-      .kartu-foto-placeholder{color:#94a3b8;font-size:28pt}
-      .kartu-info{flex:1}
-      .kartu-title{font-size:10pt;font-weight:800;margin-bottom:1mm;color:#0f172a}
-      .kartu-subtitle{font-size:7pt;color:#64748b}
-      .kartu-body{display:grid;gap:2mm}
-      .kartu-row{display:grid;grid-template-columns:45fr 55fr;gap:2mm;font-size:8.5pt;padding:1.5mm 0;border-bottom:0.5pt solid #e2e8f0}
-      .kartu-row:last-child{border-bottom:none}
-      .kartu-label{color:#64748b;font-weight:600}
-      .kartu-value{font-weight:700;color:#0f172a;text-align:right}
-      .kartu-footer{margin-top:3mm;padding-top:2mm;border-top:1pt dashed #cbd5e1;text-align:center;font-size:7pt;color:#94a3b8}
-      @page{size:A4 portrait;margin:10mm}
-      @media print{
-        body{padding:0;background:#fff}
-        .page-header{page-break-after:avoid}
-        .kartu-print{page-break-inside:avoid}
+      body{font-family:'Plus Jakarta Sans',sans-serif}
+      /* A4: 210mm x 297mm, margin 10mm each side => usable 190mm x 277mm */
+      /* 2 cols x 5 rows per page */
+      .kartu-grid{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:5mm;
+        padding:10mm;
+        width:210mm;
+        min-height:297mm;
+        box-sizing:border-box;
       }
-    </style></head><body>
-    <div class="page-header">
-      <h1><i class="fa-solid fa-id-card"></i> KARTU PESERTA UJIAN CBT</h1>
-      <p>Dicetak pada ${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})} • Total ${siswa.length} siswa</p>
-    </div>
-    <div class="kartu-grid">`);
+      /* Each card: (190mm - 5mm gap) / 2 = 92.5mm wide, (277mm - 4*5mm) / 5 = 51.4mm tall */
+      .kartu-print{
+        width:92.5mm;
+        height:51mm;
+        border:1.5pt solid #1e293b;
+        border-radius:3mm;
+        padding:3mm;
+        box-sizing:border-box;
+        page-break-inside:avoid;
+        overflow:hidden;
+        display:flex;
+        flex-direction:column;
+        justify-content:flex-start;
+      }
+      .kartu-head{
+        display:flex;
+        align-items:center;
+        gap:2mm;
+        border-bottom:1.5pt solid #1e293b;
+        padding-bottom:1.5mm;
+        margin-bottom:1.5mm;
+      }
+      .kartu-logo{
+        display:flex;align-items:center;justify-content:center;
+        flex-shrink:0;overflow:visible;
+      }
+      .kartu-title{flex:1}
+      .kartu-title h3{font-size:7pt;font-weight:800;margin-bottom:0.5mm}
+      .kartu-title p{font-size:6pt;color:#64748b}
+      /* Photo placeholder 2x3 cm (roughly 20x30mm, scaled down to fit) */
+      .kartu-photo{
+        width:14mm;height:20mm;
+        border:1pt solid #94a3b8;
+        border-radius:1mm;
+        display:flex;flex-direction:column;
+        align-items:center;justify-content:center;
+        font-size:5pt;color:#94a3b8;text-align:center;
+        flex-shrink:0;
+        background:#f8fafc;
+        line-height:1.3;
+      }
+      .kartu-body{display:flex;gap:2mm;flex:1;min-height:0}
+      .kartu-info{flex:1;display:flex;flex-direction:column;gap:0.5mm;justify-content:center}
+      .kartu-row{display:flex;justify-content:space-between;padding:0.7mm 0;font-size:7pt;border-bottom:0.3pt solid #e2e8f0}
+      .kartu-row:last-child{border-bottom:none}
+      .kartu-label{color:#64748b;flex-shrink:0;margin-right:1mm}
+      .kartu-value{font-weight:700;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:45mm}
+      @page{size:A4 portrait;margin:0}
+      @media print{
+        body{padding:0}
+        .kartu-grid{padding:10mm}
+      }
+    </style></head><body>`);
+
+  // Chunk into pages of 10 (2 cols x 5 rows)
+  const perPage=10;
+  for(let i=0;i<siswa.length;i+=perPage){
+    const page=siswa.slice(i,i+perPage);
+    pw.document.write(`<div class="kartu-grid" style="${i+perPage<siswa.length?'page-break-after:always':''}">`);
+    page.forEach(s=>{
+      pw.document.write(`
+        <div class="kartu-print">
+          <div class="kartu-head">
+            <div class="kartu-logo"><img src="https://i.imgur.com/bT70O4C.png" alt="Logo" style="width:9mm;height:9mm;object-fit:contain" onerror="this.outerHTML='<span style=\'color:var(--p);font-weight:800;font-size:10pt\'>E</span>'"></div>
+            <div class="kartu-title">
+              <h3>KARTU PESERTA UJIAN</h3>
+              <p>Emes CBT System</p>
+            </div>
+          </div>
+          <div class="kartu-body">
+            <div class="kartu-photo">
+              <div style="font-size:8pt;opacity:.4">📷</div>
+              <div>Foto</div>
+              <div>2 × 3</div>
+            </div>
+            <div class="kartu-info">
+              <div class="kartu-row"><span class="kartu-label">Nama</span><span class="kartu-value">${s.nama_siswa}</span></div>
+              <div class="kartu-row"><span class="kartu-label">NIS</span><span class="kartu-value">${s.username}</span></div>
+              <div class="kartu-row"><span class="kartu-label">Kelas</span><span class="kartu-value">${s.kelas} – ${s.rombel}</span></div>
+              <div class="kartu-row"><span class="kartu-label">Password</span><span class="kartu-value">${s.password}</span></div>
+              <div class="kartu-row"><span class="kartu-label">Status</span><span class="kartu-value">${s.status}</span></div>
+            </div>
+          </div>
+        </div>`);
+    });
+    // Fill empty slots to maintain grid alignment
+    const empty=perPage-page.length;
+    for(let j=0;j<empty;j++)pw.document.write('<div class="kartu-print" style="border-color:transparent"></div>');
+    pw.document.write('</div>');
+  }
   
-  siswa.forEach(s=>{
-    // Format nama kelas yang konsisten
-    const kelasText=s.kelas?`Kelas ${s.kelas}`:'—';
-    pw.document.write(`
-      <div class="kartu-print">
-        <div class="kartu-header">
-          <div class="kartu-foto">
-            <i class="fa-solid fa-user kartu-foto-placeholder"></i>
-          </div>
-          <div class="kartu-info">
-            <div class="kartu-title">KARTU PESERTA UJIAN</div>
-            <div class="kartu-subtitle">Emes CBT System</div>
-          </div>
-        </div>
-        <div class="kartu-body">
-          <div class="kartu-row">
-            <span class="kartu-label">Nama Peserta</span>
-            <span class="kartu-value">${s.nama_siswa}</span>
-          </div>
-          <div class="kartu-row">
-            <span class="kartu-label">No. Peserta / NIS</span>
-            <span class="kartu-value">${s.username}</span>
-          </div>
-          <div class="kartu-row">
-            <span class="kartu-label">Kelas / Rombel</span>
-            <span class="kartu-value">${kelasText} - ${s.rombel}</span>
-          </div>
-          <div class="kartu-row">
-            <span class="kartu-label">Password</span>
-            <span class="kartu-value">${s.password}</span>
-          </div>
-          <div class="kartu-row">
-            <span class="kartu-label">Status</span>
-            <span class="kartu-value">${s.status}</span>
-          </div>
-        </div>
-        <div class="kartu-footer">
-          Tempelkan pas foto 3x4 di kotak yang tersedia • Simpan kartu ini dengan baik
-        </div>
-      </div>`);
-  });
-  
-  pw.document.write('</div></body></html>');
+  pw.document.write('</body></html>');
   pw.document.close();
-  setTimeout(()=>pw.print(),500);
+  setTimeout(()=>pw.print(),600);
 }
 
 function impSiswa(){
@@ -1923,12 +1917,12 @@ async function loadMonitor(){
 }
 
 async function pakuLogout(id){
-  if(!await confirmDialog('Paksa Selesai','Paksa siswa ini selesai ujian?','Ya, Paksa','Batal','warning'))return;
+  if(!confirm('Paksa siswa ini selesai ujian?'))return;
   await SB.from('jawaban_siswa').update({status_ujian:'Selesai'}).eq('id_jawaban',id);
   toast('Siswa dipaksa selesai','ok');loadMonitor();
 }
 async function pakuAll(){
-  if(!await confirmDialog('Paksa Selesai Semua','Paksa SEMUA siswa yang sedang ujian untuk selesai?','Ya, Paksa Semua','Batal','error'))return;
+  if(!confirm('Paksa SEMUA siswa yang sedang ujian untuk selesai?'))return;
   if(demoMode)return;
   await SB.from('jawaban_siswa').update({status_ujian:'Selesai'}).eq('status_ujian','Aktif');
   toast('Semua siswa dipaksa selesai','ok');loadMonitor();
@@ -1967,15 +1961,11 @@ async function loadLB(){
 // ─── DAFTAR HADIR ───
 async function rHadir(el){
   let soalList=demoMode?DEMO.soal:((await SB.from('soal').select('kode_soal,nama_soal,kelas,tanggal,mapel').order('id_soal',{ascending:false})).data||[]);
-  
-  // Get unique kelas dan rombel dari data siswa
-  let siswaData=demoMode?DEMO.siswa:((await SB.from('siswa').select('kelas,rombel').eq('status','Aktif')).data||[]);
-  const uniqueKelas=[...new Set(siswaData.map(s=>s.kelas).filter(Boolean))].sort((a,b)=>parseInt(a)-parseInt(b));
-  const uniqueRombel=[...new Set(siswaData.map(s=>s.rombel).filter(Boolean))].sort();
-  
-  window._hadirKelas=uniqueKelas;
-  window._hadirRombel=uniqueRombel;
-  
+  // Load all siswa to build unique kelas/rombel options
+  let allSiswa=demoMode?DEMO.siswa:((await SB.from('siswa').select('kelas,rombel').eq('status','Aktif')).data||[]);
+  // Build sorted unique kelas list (numerically sorted)
+  const allKelas=[...new Set(allSiswa.map(s=>s.kelas).filter(Boolean))].sort((a,b)=>parseInt(a)-parseInt(b));
+  const allRombel=[...new Set(allSiswa.map(s=>s.rombel).filter(Boolean))].sort();
   el.innerHTML=`<div class="card"><div class="ch"><div class="ct"><i class=\"fa-solid fa-clipboard-user\" style=\"color:var(--p)\"></i> Daftar Hadir & Berita Acara</div></div>
     <div class="cb">
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr 120px 120px;gap:10px;align-items:flex-end;margin-bottom:16px">
@@ -1983,21 +1973,37 @@ async function rHadir(el){
           <select id="hdKode" class="fc"><option value="">— Pilih paket soal —</option>
             ${soalList.map(s=>`<option value="${s.kode_soal}">${s.kode_soal} – ${s.nama_soal}</option>`).join('')}</select></div>
         <div class="fg" style="margin:0"><label class="fl">Kelas</label>
-          <select id="hdKelas" class="fc"><option value="">— Pilih kelas —</option>
-            ${uniqueKelas.length?uniqueKelas.map(k=>`<option value="${k}">Kelas ${k}</option>`).join(''):'<option value="" disabled>Tidak ada data</option>'}</select></div>
+          <select id="hdKelas" class="fc" onchange="updateHadirRombel()"><option value="">— Pilih kelas —</option>
+            ${allKelas.length?allKelas.map(k=>`<option value="${k}">Kelas ${k}</option>`).join(''):
+              ['1','2','3','4','5','6','7','8','9','10','11','12'].map(k=>`<option value="${k}">Kelas ${k}</option>`).join('')}
+          </select></div>
         <div class="fg" style="margin:0"><label class="fl">Rombel</label>
           <select id="hdRombel" class="fc"><option value="">— Pilih rombel —</option>
-            ${uniqueRombel.length?uniqueRombel.map(r=>`<option value="${r}">Rombel ${r}</option>`).join(''):'<option value="" disabled>Tidak ada data</option>'}</select></div>
+            ${allRombel.length?allRombel.map(r=>`<option value="${r}">Rombel ${r}</option>`).join(''):
+              ['A','B','C','D','E','F','G'].map(r=>`<option value="${r}">Rombel ${r}</option>`).join('')}
+          </select></div>
         <button class="btn bp" onclick="loadHadir()">Generate</button>
         <div style="display:flex;gap:6px;flex-direction:column">
           <button class="btn bo bsm" onclick="cetakHadir()"><i class="fa-solid fa-print"></i> Cetak</button>
           <button class="btn bo bsm" onclick="cetakBeritaAcara()"><i class="fa-solid fa-file-contract"></i> BA</button>
         </div>
       </div>
-      ${!uniqueKelas.length||!uniqueRombel.length?'<div class="al alwa"><i class="fa-solid fa-triangle-exclamation"></i><div>Belum ada data siswa dengan kelas dan rombel. Tambahkan siswa terlebih dahulu di menu <strong>Data Siswa</strong>.</div></div>':''}
     </div>
     <div id="hadirRes" class="cb"></div>
   </div>`;
+  // Store allSiswa for dynamic rombel filtering
+  window._hadirAllSiswa=allSiswa;
+}
+
+function updateHadirRombel(){
+  const kelas=$('hdKelas')?.value;
+  const allSiswa=window._hadirAllSiswa||[];
+  const rombels=kelas?[...new Set(allSiswa.filter(s=>s.kelas===kelas).map(s=>s.rombel).filter(Boolean))].sort():
+    [...new Set(allSiswa.map(s=>s.rombel).filter(Boolean))].sort();
+  const sel=$('hdRombel');if(!sel)return;
+  const fallback=['A','B','C','D','E','F','G'];
+  const opts=rombels.length?rombels:fallback;
+  sel.innerHTML=`<option value="">— Pilih rombel —</option>${opts.map(r=>`<option value="${r}">Rombel ${r}</option>`).join('')}`;
 }
 
 async function loadHadir(){
@@ -2206,7 +2212,7 @@ async function sendAdmChat(){
 }
 
 async function delAllChat(){
-  if(!await confirmDialog('Hapus Semua Chat','Hapus semua pesan chat?','Ya, Hapus Semua','Batal','error'))return;
+  if(!confirm('Hapus semua pesan chat?'))return;
   if(demoMode){DEMO.chat=[];loadChat();return;}
   await SB.from('chat').delete().neq('id',0);toast('Semua chat dihapus!','ok');loadChat();
 }
@@ -2258,7 +2264,7 @@ async function svUser(id){
 }
 
 async function delUser(id){
-  if(!await confirmDialog('Hapus User','Hapus user admin ini?','Ya, Hapus','Batal','error'))return;
+  if(!confirm('Hapus user admin ini?'))return;
   if(demoMode){toast('Mode demo','in');return;}
   await SB.from('admins').delete().eq('id',id);toast('User dihapus!','ok');nav('users');
 }
@@ -2307,7 +2313,7 @@ async function svFaq(id){
 }
 
 async function delFaq(id){
-  if(!await confirmDialog('Hapus FAQ','Hapus FAQ ini?','Ya, Hapus','Batal','error'))return;
+  if(!confirm('Hapus FAQ ini?'))return;
   if(demoMode){toast('Mode demo','in');return;}
   await SB.from('faq').delete().eq('id',id);toast('Dihapus!','ok');nav('faq');
 }
@@ -2362,7 +2368,8 @@ async function svSet(){
 }
 
 async function resetDataUjian(){
-  if(!await confirmDialog('PERINGATAN: Reset Data Ujian','Hapus semua data jawaban dan nilai ujian? Tindakan ini tidak bisa dibatalkan!','Ya, Saya Yakin','Batal','error'))return;
+  if(!confirm('PERINGATAN: Hapus semua data jawaban dan nilai ujian? Tindakan ini tidak bisa dibatalkan!'))return;
+  if(!confirm('Yakin benar-benar ingin menghapus semua data ujian?'))return;
   if(demoMode){toast('Mode demo','in');return;}
   await SB.from('jawaban_siswa').delete().neq('id_jawaban',0);
   await SB.from('nilai').delete().neq('id_nilai',0);
@@ -2416,7 +2423,7 @@ async function rSDash(el){
       <div class="cb">
         <div class="ir"><span class="iil">Nama Lengkap</span><span class="iiv">${sis.nama_siswa}</span></div>
         <div class="ir"><span class="iil">Username/NIS</span><span class="iiv"><span class="mono">${sis.username}</span></span></div>
-        <div class="ir"><span class="iil">Kelas / Rombel</span><span class="iiv">Kelas ${sis.kelas} - ${sis.rombel}</span></div>
+        <div class="ir"><span class="iil">Kelas</span><span class="iiv">${sis.kelas} - ${sis.rombel}</span></div>
         <div class="ir"><span class="iil">Status Akun</span><span class="iiv">${bst(sis.status)}</span></div>
       </div>
     </div>`;
@@ -2785,13 +2792,8 @@ async function autoSubmit(){clearInterval(EX.autoSaveInt);await saveJawaban(true
 
 async function selesaiUjian(){
   const belum=EX.butirs.filter((_,i)=>!EX.jaw[i+1]||EX.jaw[i+1]==='').length;
-  let confirmed=false;
-  if(belum>0){
-    confirmed=await confirmDialog('Akhiri Ujian',`Masih ada ${belum} soal yang belum dijawab. Yakin ingin mengakhiri ujian?`,'Ya, Akhiri','Batal','warning');
-  }else{
-    confirmed=await confirmDialog('Akhiri Ujian','Yakin ingin mengakhiri ujian?','Ya, Akhiri','Batal','question');
-  }
-  if(!confirmed)return;
+  if(belum>0){if(!confirm(`Masih ada ${belum} soal yang belum dijawab. Yakin ingin mengakhiri ujian?`))return;}
+  else{if(!confirm('Yakin ingin mengakhiri ujian?'))return;}
   clearInterval(EX.timer);clearInterval(EX.autoSaveInt);
   document.removeEventListener('keydown',examKeyNav);
   await saveJawaban(true);hitungNilai();
