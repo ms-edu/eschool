@@ -832,7 +832,18 @@ function mSoal(id){
       <div class="fr"><div class="fg"><label class="fl">Kode Soal *</label><input id="mKode" class="fc" value="${d.kode_soal||''}" placeholder="MTK9-UAS-01"></div>
       <div class="fg"><label class="fl">Nama Soal *</label><input id="mNama" class="fc" value="${d.nama_soal||''}" placeholder="Ujian Akhir Semester Matematika"></div></div>
       <div class="fr"><div class="fg"><label class="fl">Mata Pelajaran *</label><input id="mMapel" class="fc" value="${d.mapel||''}" placeholder="Matematika"></div>
-      <div class="fg"><label class="fl">Kelas *</label><input id="mKelas" class="fc" value="${d.kelas||''}" placeholder="9"></div></div>
+      <div class="fg"><label class="fl">Kelas *</label><select id="mKelas" class="fc">
+        <option value="" disabled>— Pilih Kelas —</option>
+        <optgroup label="SD (Kelas 1–6)">
+          ${['1','2','3','4','5','6'].map(k=>`<option value="${k}" ${d.kelas===k?'selected':''}>${k}</option>`).join('')}
+        </optgroup>
+        <optgroup label="SMP (Kelas 7–9)">
+          ${['7','8','9'].map(k=>`<option value="${k}" ${d.kelas===k?'selected':''}>${k}</option>`).join('')}
+        </optgroup>
+        <optgroup label="SMA/SMK (Kelas 10–12)">
+          ${['10','11','12'].map(k=>`<option value="${k}" ${d.kelas===k?'selected':''}>${k}</option>`).join('')}
+        </optgroup>
+      </select></div></div>
       <div class="fr"><div class="fg"><label class="fl">Waktu Ujian (menit) *</label><input id="mWaktu" type="number" class="fc" value="${d.waktu_ujian||60}" min="5" max="300"></div>
       <div class="fg"><label class="fl">Tanggal Ujian</label><input id="mTgl" type="date" class="fc" value="${d.tanggal||today()}"></div></div>
       <div class="fr"><div class="fg"><label class="fl">Token Ujian</label><input id="mToken" class="fc" value="${d.token||''}" placeholder="Kosong = tanpa token" maxlength="10"><p class="fh">Kode yang harus dimasukkan siswa sebelum ujian</p></div>
@@ -928,7 +939,7 @@ async function delSoal(id){
 async function rButir(el){
   let soalList=demoMode?DEMO.soal:((await SB.from('soal').select('id_soal,kode_soal,nama_soal').order('id_soal',{ascending:false})).data||[]);
   window._soalListB=soalList;
-  el.innerHTML=`<div class="card"><div class="ch"><div class="ct"><i class=\"fa-solid fa-circle-question\" style=\"color:var(--p)\"></i> Butir Soal</div><button class="btn bp bsm" onclick="mButir()">+ Tambah Soal</button></div>
+  el.innerHTML=`<div class="card"><div class="ch"><div class="ct"><i class=\"fa-solid fa-circle-question\" style=\"color:var(--p)\"></i> Butir Soal</div><div style="display:flex;gap:7px"><button class="btn bo bsm" onclick="impButir()"><i class=\"fa-solid fa-file-excel\"></i> Import Excel</button><button class="btn bp bsm" onclick="mButir()">+ Tambah Soal</button></div></div>
     <div class="cb" style="padding:12px"><div class="sbar">
       <select id="ftBKode" class="fc" style="width:220px" onchange="loadButir()"><option value="">Semua Paket Soal</option>
         ${soalList.map(s=>`<option value="${s.kode_soal}">${s.kode_soal} – ${s.nama_soal}</option>`).join('')}</select>
@@ -1294,7 +1305,7 @@ async function rSiswa(el){
     <div class="cb" style="padding:12px"><div class="sbar">
       <div class="siw" style="flex:1"><input type="text" id="srSiswa" class="fc si" placeholder="Cari nama atau username..." oninput="ftSiswa()"></div>
       <select id="ftKls" class="fc" style="width:110px" onchange="ftSiswa()"><option value="">Semua Kelas</option>
-        ${['7','8','9','10','11','12'].map(k=>`<option value="${k}">Kelas ${k}</option>`).join('')}</select>
+        <optgroup label="SD (1–6)">${['1','2','3','4','5','6'].map(k=>`<option value="${k}">Kelas ${k}</option>`).join('')}</optgroup><optgroup label="SMP (7–9)">${['7','8','9'].map(k=>`<option value="${k}">Kelas ${k}</option>`).join('')}</optgroup><optgroup label="SMA/SMK (10–12)">${['10','11','12'].map(k=>`<option value="${k}">Kelas ${k}</option>`).join('')}</optgroup></select>
       <select id="ftRbl" class="fc" style="width:110px" onchange="ftSiswa()"><option value="">Semua Rombel</option>
         ${['A','B','C','D','E','F','G'].map(r=>`<option value="${r}">Rombel ${r}</option>`).join('')}</select>
     </div></div>
@@ -1336,7 +1347,7 @@ function mSiswa(id){
       <div class="fg"><label class="fl">Nama Lengkap *</label><input id="msN" class="fc" value="${d.nama_siswa||''}" placeholder="Nama lengkap siswa"></div>
       <div class="fr"><div class="fg"><label class="fl">Username/NIS *</label><input id="msU" class="fc" value="${d.username||''}" placeholder="Nomor induk siswa"></div>
       <div class="fg"><label class="fl">Password *</label><input id="msP" class="fc" value="${d.password||''}" placeholder="${id?'Kosong = tidak ubah':'Password baru'}"></div></div>
-      <div class="fr3"><div class="fg"><label class="fl">Kelas *</label><select id="msK" class="fc">${['7','8','9','10','11','12'].map(k=>`<option value="${k}" ${d.kelas===k?'selected':''}>${k}</option>`).join('')}</select></div>
+      <div class="fr3"><div class="fg"><label class="fl">Kelas *</label><select id="msK" class="fc"><option value="" disabled ${!d.kelas?'selected':''}>— Pilih Kelas —</option><optgroup label="SD (1–6)">${['1','2','3','4','5','6'].map(k=>`<option value="${k}" ${d.kelas===k?'selected':''}>${k}</option>`).join('')}</optgroup><optgroup label="SMP (7–9)">${['7','8','9'].map(k=>`<option value="${k}" ${d.kelas===k?'selected':''}>${k}</option>`).join('')}</optgroup><optgroup label="SMA/SMK (10–12)">${['10','11','12'].map(k=>`<option value="${k}" ${d.kelas===k?'selected':''}>${k}</option>`).join('')}</optgroup></select></div>
       <div class="fg"><label class="fl">Rombel *</label><select id="msR" class="fc">${['A','B','C','D','E','F','G'].map(r=>`<option value="${r}" ${d.rombel===r?'selected':''}>${r}</option>`).join('')}</select></div>
       <div class="fg"><label class="fl">Status</label><select id="msSt" class="fc"><option value="Aktif" ${d.status!=='Nonaktif'?'selected':''}>Aktif</option><option value="Nonaktif" ${d.status==='Nonaktif'?'selected':''}>Nonaktif</option></select></div></div>
     </div>
@@ -1459,6 +1470,87 @@ function expSiswa(){
   const ws=XLSX.utils.json_to_sheet(d.map(s=>({'Nama Siswa':s.nama_siswa,'Username/NIS':s.username,'Password':s.password,'Kelas':s.kelas,'Rombel':s.rombel,'Status':s.status})));
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Data Siswa');
   XLSX.writeFile(wb,'data-siswa-'+today()+'.xlsx');toast('File Excel diunduh!','ok');
+}
+
+// ─── IMPORT BUTIR SOAL ───
+function impButir(){
+  document.getElementById('mdImpButir')?.remove();
+  const kodeOpts=(window._soalListB||[]).map(s=>`<option value="${s.kode_soal}">${s.kode_soal} – ${s.nama_soal}</option>`).join('');
+  const html=`<div class="mo" id="mdImpButir"><div class="md mdlg"><div class="mh"><div class="mtt"><i class="fa-solid fa-file-excel" style="color:var(--ok)"></i> Import Butir Soal dari Excel</div><button class="xb" onclick="rmModal('mdImpButir')">✕</button></div>
+    <div class="mbb">
+      <div class="al alin" style="margin-bottom:12px"><i class="fa-solid fa-circle-info" style="color:var(--p)"></i><div>
+        Format kolom Excel yang dibutuhkan:<br>
+        <strong>nomer_soal, pertanyaan, tipe_soal, pilihan_1, pilihan_2, pilihan_3, pilihan_4, pilihan_5, jawaban_benar</strong><br>
+        <span style="font-size:11.5px;color:var(--mu)">Kolom tipe_soal: Pilihan Ganda / Pilihan Ganda Kompleks / Benar/Salah / Uraian / Menjodohkan</span>
+      </div></div>
+      <div class="fg"><label class="fl">Masukkan ke Paket Soal *</label>
+        <select id="ibKode" class="fc">${kodeOpts||'<option value="">— Tidak ada paket soal —</option>'}</select></div>
+      <div class="fg"><label class="fl">Pilih File Excel (.xlsx, .xls, .csv)</label>
+        <input id="ibFile" type="file" class="fc" accept=".xlsx,.xls,.csv"></div>
+      <div id="ibPrev"></div>
+      <div class="fg" style="margin-top:8px">
+        <a href="#" onclick="dlTemplateButir(event)" style="font-size:12.5px;color:var(--p);font-weight:600"><i class="fa-solid fa-download"></i> Unduh Template Excel</a>
+      </div>
+    </div>
+    <div class="mf"><button class="btn bo" onclick="rmModal('mdImpButir')">Batal</button><button class="btn bp" onclick="doImpButir()" id="ibBtn"><i class="fa-solid fa-file-import"></i> Import</button></div>
+  </div></div>`;
+  document.body.insertAdjacentHTML('beforeend',html);
+  $('ibFile').addEventListener('change',e=>{
+    const f=e.target.files[0];if(!f)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const wb=XLSX.read(ev.target.result,{type:'binary'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws);
+      window._ibData=rows;
+      if(!rows.length){$('ibPrev').innerHTML='<div class="al aler">File kosong atau format tidak dikenali.</div>';return;}
+      $('ibPrev').innerHTML=`<div class="al alok"><i class="fa-solid fa-circle-check" style="color:var(--ok)"></i><div><strong>${rows.length} soal</strong> ditemukan. Kolom: ${Object.keys(rows[0]).join(', ')}</div></div>
+        <div class="tw" style="max-height:160px;overflow-y:auto"><table><thead><tr><th>No</th><th>Tipe</th><th>Pertanyaan</th><th>Kunci</th></tr></thead><tbody>
+        ${rows.slice(0,5).map((r,i)=>`<tr><td>${r.nomer_soal||i+1}</td><td><span class="badge bbl" style="font-size:10px">${r.tipe_soal||'PG'}</span></td><td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${String(r.pertanyaan||'').substring(0,60)}</td><td style="font-size:11px">${r.jawaban_benar||''}</td></tr>`).join('')}
+        </tbody></table></div>
+        ${rows.length>5?`<p style="font-size:11.5px;color:var(--mu);text-align:center;margin-top:6px">… dan ${rows.length-5} soal lainnya</p>`:''}`;
+    };reader.readAsBinaryString(f);
+  });
+}
+
+function dlTemplateButir(e){
+  e.preventDefault();
+  const template=[
+    {nomer_soal:1,pertanyaan:'Contoh soal pilihan ganda?',tipe_soal:'Pilihan Ganda',pilihan_1:'Jawaban A',pilihan_2:'Jawaban B',pilihan_3:'Jawaban C',pilihan_4:'Jawaban D',pilihan_5:'',jawaban_benar:'pilihan_1'},
+    {nomer_soal:2,pertanyaan:'Contoh soal benar salah — 2+2=4?',tipe_soal:'Benar/Salah',pilihan_1:'2+2=4',pilihan_2:'3+3=7',pilihan_3:'',pilihan_4:'',pilihan_5:'',jawaban_benar:'Benar|Salah'},
+    {nomer_soal:3,pertanyaan:'Jelaskan konsep fotosintesis!',tipe_soal:'Uraian',pilihan_1:'',pilihan_2:'',pilihan_3:'',pilihan_4:'',pilihan_5:'',jawaban_benar:'Proses pembuatan makanan oleh tumbuhan menggunakan cahaya matahari'},
+  ];
+  const ws=XLSX.utils.json_to_sheet(template);
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Template Soal');
+  XLSX.writeFile(wb,'template-butir-soal.xlsx');toast('Template diunduh!','ok');
+}
+
+async function doImpButir(){
+  const d=window._ibData;const kode=$('ibKode')?.value;
+  if(!d?.length){toast('Pilih file terlebih dahulu!','er');return;}
+  if(!kode){toast('Pilih paket soal tujuan!','er');return;}
+  if(demoMode){toast('Mode demo: data tidak tersimpan ke database','in');rmModal('mdImpButir');return;}
+  setBtn('ibBtn','<span class="spin"></span> Mengimport...');
+  let ok=0,fail=0;
+  for(const r of d){
+    try{
+      await SB.from('butir_soal').insert({
+        kode_soal:kode,
+        nomer_soal:parseInt(r.nomer_soal)||ok+1,
+        pertanyaan:String(r.pertanyaan||''),
+        tipe_soal:String(r.tipe_soal||'Pilihan Ganda'),
+        pilihan_1:String(r.pilihan_1||''),
+        pilihan_2:String(r.pilihan_2||''),
+        pilihan_3:String(r.pilihan_3||''),
+        pilihan_4:String(r.pilihan_4||''),
+        pilihan_5:String(r.pilihan_5||''),
+        jawaban_benar:String(r.jawaban_benar||''),
+        status_soal:'Aktif'
+      });ok++;
+    }catch(e){fail++;}
+  }
+  toast(`Import selesai: ${ok} soal berhasil${fail?', '+fail+' gagal':''}!`,'ok');
+  rmModal('mdImpButir');loadButir();
 }
 
 // ─── MONITOR ───
