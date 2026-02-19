@@ -3163,120 +3163,258 @@ async function loadHadir(){
 }
 
 function cetakHadir(){
-  const content=$('hadirPrint')?.innerHTML;
-  if(!content){toast('Generate daftar hadir dahulu!','er');return;}
-  const w=window.open('','_blank');
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Daftar Hadir</title>
+  const rawData=window._hadirData;
+  if(!rawData){toast('Generate daftar hadir dahulu!','er');return;}
+  const {soal,siswa,kelas,rombel}=rawData;
+  const tglUjian=new Date(soal.tanggal);
+  const hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][tglUjian.getDay()];
+
+  // Bangun HTML cetak sendiri agar bisa dikontrol penuh — portrait, tabel kompak
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Daftar Hadir Ujian</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
       *{margin:0;padding:0;box-sizing:border-box}
-      body{font-family:'Plus Jakarta Sans',sans-serif;padding:20mm;font-size:11pt}
-      @page{size:A4 landscape;margin:15mm}
+      body{font-family:'Plus Jakarta Sans',sans-serif;font-size:10pt;line-height:1.4;color:#000}
+      @page{size:A4 portrait;margin:15mm 15mm 15mm 15mm}
       @media print{body{padding:0}}
-    </style></head><body>${content}</body></html>`);
+      /* KOP */
+      .kop{display:flex;align-items:center;gap:10px;border-bottom:3pt solid #000;padding-bottom:8px;margin-bottom:10px}
+      .kop img{width:18mm;height:18mm;object-fit:contain;flex-shrink:0}
+      .kop-teks{flex:1;text-align:center}
+      .kop-teks .k-nama{font-size:13pt;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+      .kop-teks .k-sub{font-size:9pt;font-weight:600;color:#222}
+      .kop-teks .k-alamat{font-size:8pt;color:#444;margin-top:1px}
+      /* JUDUL */
+      .judul{text-align:center;margin:8px 0 6px}
+      .judul h2{font-size:12pt;font-weight:800;text-transform:uppercase;letter-spacing:.06em;text-decoration:underline;text-underline-offset:2pt}
+      .judul p{font-size:9pt;color:#333;margin-top:2px}
+      /* META 2 KOLOM */
+      .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;margin-bottom:10px;border:1pt solid #000}
+      .meta-row{display:flex;font-size:8.5pt;padding:2.5px 6px;border-bottom:.5pt solid #bbb}
+      .meta-row:nth-child(even){background:#f5f5f5}
+      .meta-grid .meta-row:last-child,.meta-grid .meta-row:nth-last-child(2){border-bottom:none}
+      .meta-lbl{font-weight:700;width:88px;flex-shrink:0}
+      .meta-sep{margin:0 4px;color:#888}
+      /* TABEL HADIR */
+      table{width:100%;border-collapse:collapse;font-size:9pt;margin-top:8px}
+      thead th{background:#e8e8e8;border:1pt solid #000;padding:5px 6px;font-weight:700;text-align:center;font-size:8.5pt;letter-spacing:.03em}
+      tbody td{border:.8pt solid #555;padding:5px 6px;vertical-align:middle}
+      tbody tr:nth-child(even) td{background:#fafafa}
+      .td-no{text-align:center;width:22px;font-weight:700;color:#555}
+      .td-ttd{width:85px;height:22px}
+      .td-ket{width:70px}
+      /* TTD */
+      .ttd-row{display:grid;grid-template-columns:1fr 1fr;gap:0 20px;margin-top:22px}
+      .ttd-box{text-align:center}
+      .ttd-box .ttd-role{font-size:9pt;font-weight:600;margin-bottom:18mm}
+      .ttd-box .ttd-garis{border-top:1pt solid #000;margin:0 10mm 3px;padding-top:3px}
+      .ttd-box .ttd-nama{font-size:9pt}
+    </style>
+  </head><body>
+    <div class="kop">
+      <img src="https://i.imgur.com/bT70O4C.png" alt="Logo" onerror="this.style.display='none'">
+      <div class="kop-teks">
+        <div class="k-nama">Daftar Hadir Ujian</div>
+        <div class="k-sub">${soal.nama_soal||'—'}</div>
+        <div class="k-alamat">Kelas ${kelas} – Rombel ${rombel} &nbsp;|&nbsp; ${soal.mapel||'—'} &nbsp;|&nbsp; ${hari}, ${fd(soal.tanggal)}</div>
+      </div>
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta-row"><span class="meta-lbl">Kode Soal</span><span class="meta-sep">:</span><span>${soal.kode_soal||'—'}</span></div>
+      <div class="meta-row"><span class="meta-lbl">Kelas / Rombel</span><span class="meta-sep">:</span><span>${kelas} / ${rombel}</span></div>
+      <div class="meta-row"><span class="meta-lbl">Mata Pelajaran</span><span class="meta-sep">:</span><span>${soal.mapel||'—'}</span></div>
+      <div class="meta-row"><span class="meta-lbl">Hari, Tanggal</span><span class="meta-sep">:</span><span>${hari}, ${fd(soal.tanggal)}</span></div>
+      <div class="meta-row"><span class="meta-lbl">Waktu Ujian</span><span class="meta-sep">:</span><span>${soal.waktu_ujian} menit</span></div>
+      <div class="meta-row"><span class="meta-lbl">Jumlah Peserta</span><span class="meta-sep">:</span><span>${siswa.length} siswa</span></div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:24px">No</th>
+          <th>Nama Siswa</th>
+          <th style="width:80px">NIS / Username</th>
+          <th style="width:90px">Tanda Tangan</th>
+          <th style="width:70px">Keterangan</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${siswa.map((s,i)=>`<tr>
+          <td class="td-no">${i+1}</td>
+          <td>${s.nama_siswa}</td>
+          <td style="text-align:center;font-size:8.5pt">${s.username}</td>
+          <td class="td-ttd"></td>
+          <td class="td-ket"></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+
+    <div class="ttd-row">
+      <div class="ttd-box">
+        <div class="ttd-role">Ketua Kelas,</div>
+        <div class="ttd-garis"></div>
+        <div class="ttd-nama">( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )</div>
+      </div>
+      <div class="ttd-box">
+        <div class="ttd-role">Pengawas Ruang,</div>
+        <div class="ttd-garis"></div>
+        <div class="ttd-nama">( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )</div>
+      </div>
+    </div>
+  </body></html>`;
+
+  const w=window.open('','_blank');
+  w.document.write(html);
   w.document.close();
-  setTimeout(()=>w.print(),500);
+  setTimeout(()=>w.print(),600);
 }
 
 function cetakBeritaAcara(){
   const data=window._hadirData;
   if(!data){toast('Generate daftar hadir dahulu!','er');return;}
-  
+
   const {soal,siswa,kelas,rombel}=data;
   const tglUjian=new Date(soal.tanggal);
   const hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][tglUjian.getDay()];
-  
+  const nowStr=new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
   const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Berita Acara Ujian</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
       *{margin:0;padding:0;box-sizing:border-box}
-      body{font-family:'Plus Jakarta Sans',sans-serif;padding:25mm;font-size:11pt;line-height:1.6}
-      .header{text-align:center;margin-bottom:25px;border-bottom:3px solid #000;padding-bottom:15px}
-      .title{font-size:16pt;font-weight:800;margin-bottom:8px}
-      .subtitle{font-size:12pt;font-weight:600}
-      .content{margin:20px 0}
-      .row{display:flex;margin-bottom:8px}
-      .label{width:180px;font-weight:600}
-      .value{flex:1}
-      .section{margin:25px 0}
-      .section-title{font-weight:700;font-size:12pt;margin-bottom:12px;border-bottom:1px solid #ccc;padding-bottom:4px}
-      table{width:100%;border-collapse:collapse;margin:15px 0}
-      td,th{border:1px solid #000;padding:8px;text-align:left}
-      th{background:#f0f0f0;font-weight:700}
-      .signature{margin-top:40px;display:flex;justify-content:space-around}
-      .sig-box{text-align:center;width:200px}
-      .sig-label{margin-bottom:70px}
-      .sig-name{border-top:1px solid #000;padding-top:5px}
-      @page{size:A4 portrait;margin:20mm}
+      body{font-family:'Plus Jakarta Sans',sans-serif;font-size:10pt;line-height:1.5;color:#000}
+      @page{size:A4 portrait;margin:15mm 15mm 15mm 15mm}
       @media print{body{padding:0}}
-    </style></head><body>
-    <div class="header">
-      <div class="title">BERITA ACARA PELAKSANAAN UJIAN</div>
-      <div class="subtitle">Kelas ${kelas} - Rombel ${rombel}</div>
+
+      /* ── KOP ── */
+      .kop{display:flex;align-items:center;gap:10px;border-bottom:3pt solid #000;padding-bottom:8px;margin-bottom:10px}
+      .kop img{width:18mm;height:18mm;object-fit:contain;flex-shrink:0}
+      .kop-teks{flex:1;text-align:center}
+      .kop-teks .k-nama{font-size:13pt;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+      .kop-teks .k-sub{font-size:9pt;font-weight:600;color:#222}
+
+      /* ── JUDUL ── */
+      .judul{text-align:center;margin:8px 0 10px}
+      .judul h2{font-size:12pt;font-weight:800;text-transform:uppercase;letter-spacing:.06em;text-decoration:underline;text-underline-offset:2pt}
+      .judul p{font-size:9pt;color:#333;margin-top:2px}
+
+      /* ── IDENTITAS GRID 2 KOLOM ── */
+      .id-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1pt solid #000;margin-bottom:12px}
+      .id-row{display:flex;align-items:baseline;padding:3px 7px;font-size:8.5pt;border-bottom:.5pt solid #ccc}
+      .id-row:last-child{border-bottom:none}
+      /* Pasangan kolom kiri & kanan berbagi border bawah */
+      .id-left{border-right:.5pt solid #ccc}
+      .id-row:nth-child(odd){background:#f7f7f7}
+      .id-lbl{font-weight:700;width:90px;flex-shrink:0}
+      .id-sep{margin:0 3px;color:#888;flex-shrink:0}
+      .id-val{flex:1}
+
+      /* ── SEKSI ── */
+      .sec{margin-bottom:10px}
+      .sec-title{font-weight:800;font-size:9.5pt;text-transform:uppercase;letter-spacing:.05em;
+                 border-bottom:1.5pt solid #000;padding-bottom:2px;margin-bottom:6px;color:#000}
+
+      /* ── TABEL ── */
+      table{width:100%;border-collapse:collapse;font-size:9pt}
+      thead th{background:#e0e0e0;border:1pt solid #000;padding:4px 6px;font-weight:700;text-align:center;font-size:8.5pt}
+      tbody td{border:.8pt solid #555;padding:4px 6px;vertical-align:middle}
+      tbody tr:nth-child(even) td{background:#fafafa}
+
+      /* ── CATATAN ── */
+      .catatan-box{border:1pt solid #000;padding:7px 9px;min-height:70px;font-size:9pt}
+      .catatan-hint{font-size:8pt;color:#888;font-style:italic;margin-bottom:6px}
+      .catatan-line{border-bottom:.5pt solid #bbb;min-height:16px;margin-bottom:4px}
+
+      /* ── TTD 3 KOLOM ── */
+      .ttd-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 12px;margin-top:16px}
+      .ttd-box{text-align:center}
+      .ttd-role{font-size:9pt;font-weight:600;margin-bottom:16mm;line-height:1.3}
+      .ttd-garis{border-top:1pt solid #000;margin:0 8mm 2px;padding-top:3px}
+      .ttd-nama{font-size:8.5pt}
+    </style>
+  </head><body>
+
+    <!-- KOP -->
+    <div class="kop">
+      <img src="https://i.imgur.com/bT70O4C.png" alt="Logo" onerror="this.style.display='none'">
+      <div class="kop-teks">
+        <div class="k-nama">Berita Acara Pelaksanaan Ujian</div>
+        <div class="k-sub">Sistem Ujian Berbasis Komputer (CBT)</div>
+      </div>
     </div>
-    
-    <div class="content">
-      <div class="row"><div class="label">Nama Ujian</div><div class="value">: ${soal.nama_soal}</div></div>
-      <div class="row"><div class="label">Kode Soal</div><div class="value">: ${soal.kode_soal}</div></div>
-      <div class="row"><div class="label">Mata Pelajaran</div><div class="value">: ${soal.mapel}</div></div>
-      <div class="row"><div class="label">Kelas / Rombel</div><div class="value">: ${kelas} / ${rombel}</div></div>
-      <div class="row"><div class="label">Hari, Tanggal</div><div class="value">: ${hari}, ${fd(soal.tanggal)}</div></div>
-      <div class="row"><div class="label">Waktu Ujian</div><div class="value">: ${soal.waktu_ujian} menit</div></div>
-      <div class="row"><div class="label">Jumlah Peserta</div><div class="value">: ${siswa.length} siswa</div></div>
+
+    <!-- IDENTITAS — grid 2 kolom, 4 baris = 8 field -->
+    <div class="id-grid">
+      <div class="id-row id-left"><span class="id-lbl">Nama Ujian</span><span class="id-sep">:</span><span class="id-val">${soal.nama_soal||'—'}</span></div>
+      <div class="id-row">       <span class="id-lbl">Kode Soal</span><span class="id-sep">:</span><span class="id-val">${soal.kode_soal||'—'}</span></div>
+      <div class="id-row id-left"><span class="id-lbl">Mata Pelajaran</span><span class="id-sep">:</span><span class="id-val">${soal.mapel||'—'}</span></div>
+      <div class="id-row">       <span class="id-lbl">Kelas / Rombel</span><span class="id-sep">:</span><span class="id-val">${kelas} / ${rombel}</span></div>
+      <div class="id-row id-left"><span class="id-lbl">Hari, Tanggal</span><span class="id-sep">:</span><span class="id-val">${hari}, ${fd(soal.tanggal)}</span></div>
+      <div class="id-row">       <span class="id-lbl">Waktu Ujian</span><span class="id-sep">:</span><span class="id-val">${soal.waktu_ujian} menit</span></div>
+      <div class="id-row id-left"><span class="id-lbl">Ruang Ujian</span><span class="id-sep">:</span><span class="id-val">……………………………</span></div>
+      <div class="id-row">       <span class="id-lbl">Jml Peserta</span><span class="id-sep">:</span><span class="id-val">${siswa.length} siswa terdaftar</span></div>
     </div>
-    
-    <div class="section">
-      <div class="section-title">REKAPITULASI KEHADIRAN</div>
+
+    <!-- REKAPITULASI KEHADIRAN -->
+    <div class="sec">
+      <div class="sec-title">Rekapitulasi Kehadiran</div>
       <table>
-        <tr><td style="width:50%">Jumlah Peserta Seharusnya</td><td style="text-align:center;font-weight:700">${siswa.length} siswa</td></tr>
-        <tr><td>Jumlah Peserta Hadir</td><td style="text-align:center">………… siswa</td></tr>
-        <tr><td>Jumlah Peserta Tidak Hadir</td><td style="text-align:center">………… siswa</td></tr>
+        <thead><tr><th>Keterangan</th><th style="width:30%">Jumlah</th><th style="width:30%">Nama / Keterangan</th></tr></thead>
+        <tbody>
+          <tr><td>Peserta Terdaftar</td><td style="text-align:center;font-weight:700">${siswa.length} siswa</td><td></td></tr>
+          <tr><td>Peserta Hadir</td><td style="text-align:center">………… siswa</td><td></td></tr>
+          <tr><td>Peserta Tidak Hadir</td><td style="text-align:center">………… siswa</td><td style="font-size:8pt;color:#888">Sakit / Izin / Alpha</td></tr>
+        </tbody>
       </table>
     </div>
-    
-    <div class="section">
-      <div class="section-title">CATATAN PELAKSANAAN</div>
-      <div style="border:1px solid #000;min-height:100px;padding:10px">
-        <p style="font-size:10pt;color:#666;font-style:italic">
-          (Catatan: kendala teknis, keterlambatan, siswa yang keluar masuk ruangan, atau kejadian penting lainnya)
-        </p>
-        <div style="margin-top:15px">
-          ……………………………………………………………………………………………………………………………………<br>
-          ……………………………………………………………………………………………………………………………………<br>
-          ……………………………………………………………………………………………………………………………………<br>
-        </div>
+
+    <!-- CATATAN PELAKSANAAN -->
+    <div class="sec">
+      <div class="sec-title">Catatan Pelaksanaan</div>
+      <div class="catatan-box">
+        <div class="catatan-hint">(Kendala teknis, keterlambatan, siswa keluar-masuk, kejadian penting, dsb.)</div>
+        <div class="catatan-line"></div>
+        <div class="catatan-line"></div>
+        <div class="catatan-line"></div>
       </div>
     </div>
-    
-    <div class="section">
-      <div class="section-title">KESIMPULAN</div>
-      <p>Ujian telah dilaksanakan dengan [ ] Lancar / [ ] Ada Kendala (coret yang tidak perlu)</p>
+
+    <!-- KESIMPULAN -->
+    <div class="sec" style="margin-bottom:4px">
+      <div class="sec-title">Kesimpulan</div>
+      <p style="font-size:9pt">Ujian telah dilaksanakan dengan &nbsp;&nbsp;
+        <strong>[ &nbsp;] Lancar</strong> &nbsp;&nbsp;/&nbsp;&nbsp;
+        <strong>[ &nbsp;] Ada Kendala</strong> &nbsp;&nbsp;(coret yang tidak perlu)</p>
     </div>
-    
-    <div class="signature">
-      <div class="sig-box">
-        <div class="sig-label">Pengawas Ruang 1</div>
-        <div class="sig-name">( ……………………… )</div>
+
+    <!-- TANDA TANGAN — 3 kolom: Pengawas 1, Pengawas 2, Koordinator -->
+    <div class="ttd-row">
+      <div class="ttd-box">
+        <div class="ttd-role">Pengawas Ruang 1,</div>
+        <div class="ttd-garis"></div>
+        <div class="ttd-nama">( ………………………… )</div>
       </div>
-      <div class="sig-box">
-        <div class="sig-label">Pengawas Ruang 2</div>
-        <div class="sig-name">( ……………………… )</div>
+      <div class="ttd-box">
+        <div class="ttd-role">Pengawas Ruang 2,</div>
+        <div class="ttd-garis"></div>
+        <div class="ttd-nama">( ………………………… )</div>
+      </div>
+      <div class="ttd-box">
+        <div class="ttd-role">Koordinator Pelaksana,</div>
+        <div class="ttd-garis"></div>
+        <div class="ttd-nama">( ………………………… )</div>
       </div>
     </div>
-    
-    <div style="margin-top:30px;text-align:center">
-      <div style="margin-bottom:70px">Koordinator Pelaksana Ujian,</div>
-      <div style="display:inline-block;border-top:1px solid #000;padding-top:5px;width:220px">
-        ( ……………………… )
-      </div>
-    </div>
+
   </body></html>`;
-  
+
   const w=window.open('','_blank');
   w.document.write(html);
   w.document.close();
-  setTimeout(()=>w.print(),500);
+  setTimeout(()=>w.print(),600);
 }
+
 
 // ─── CHAT SISWA ───
 async function rChat(el){
