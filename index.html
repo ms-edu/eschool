@@ -749,7 +749,16 @@ const DEMO={
     {id:2,username:'guru1',nama_admin:'Pak Ahmad (Guru)',role:'guru',password:'guru1',created_at:new Date().toISOString()},
     {id:3,username:'proktor1',nama_admin:'Bu Sari (Proktor)',role:'proktor',password:'proktor1',created_at:new Date().toISOString()},
   ],
-  pengaturan:{nama_sekolah:'SMP Contoh',nama_app:'CBT E-School',chat:'izin',login_ganda:'izin',sembunyikan_nilai:'tidak',berita_acara:'tidak'},
+  pengaturan:{
+    nama_sekolah:'MIN Singkawang',
+    nama_app:'CBT E-School',
+    alamat_sekolah:'Jl. Pendidikan No.1, Kec. Singkawang Tengah, Kota Singkawang, Kalimantan Barat 79122',
+    nama_kepsek:'H. Ahmad Fauzi, S.Pd., M.M.',
+    nip_kepsek:'196504151990031004',
+    logo_sekolah:'',
+    kop_custom:'',
+    chat:'izin',login_ganda:'izin',sembunyikan_nilai:'tidak',berita_acara:'tidak'
+  },
   skor_game:[]
 };
 
@@ -899,11 +908,24 @@ create table if not exists pengaturan (
   id bigint primary key generated always as identity,
   nama_sekolah text default 'Sekolah',
   nama_app text default 'CBT E-School',
+  alamat_sekolah text default '',
+  nama_kepsek text default '',
+  nip_kepsek text default '',
+  logo_sekolah text default '',
+  kop_custom text default '',
   chat text default 'izin',
   login_ganda text default 'izin',
   sembunyikan_nilai text default 'tidak',
   berita_acara text default 'tidak'
 );
+
+-- ─── MIGRASI: tambah kolom baru jika belum ada ───
+-- Jalankan perintah ini jika tabel pengaturan sudah ada sebelumnya:
+-- alter table pengaturan add column if not exists alamat_sekolah text default '';
+-- alter table pengaturan add column if not exists nama_kepsek text default '';
+-- alter table pengaturan add column if not exists nip_kepsek text default '';
+-- alter table pengaturan add column if not exists logo_sekolah text default '';
+-- alter table pengaturan add column if not exists kop_custom text default '';
 
 -- Insert default admin (password: admin)
 insert into admins (username, password, nama_admin, role)
@@ -911,8 +933,8 @@ values ('admin', 'admin', 'Administrator', 'admin')
 on conflict (username) do nothing;
 
 -- Insert default settings
-insert into pengaturan (nama_sekolah, nama_app, chat, login_ganda, sembunyikan_nilai)
-values ('SMP Negeri 1', 'CBT E-School', 'izin', 'izin', 'tidak')
+insert into pengaturan (nama_sekolah, nama_app, alamat_sekolah, nama_kepsek, nip_kepsek, chat, login_ganda, sembunyikan_nilai)
+values ('MIN Singkawang', 'CBT E-School', 'Jl. Pendidikan No.1, Singkawang', '', '', 'izin', 'izin', 'tidak')
 on conflict do nothing;
 
 -- Enable Row Level Security (optional tapi disarankan)
@@ -3162,12 +3184,21 @@ async function loadHadir(){
   toast('Daftar hadir berhasil dibuat!','ok');
 }
 
-function cetakHadir(){
+async function cetakHadir(){
   const rawData=window._hadirData;
   if(!rawData){toast('Generate daftar hadir dahulu!','er');return;}
   const {soal,siswa,kelas,rombel}=rawData;
   const tglUjian=new Date(soal.tanggal);
   const hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][tglUjian.getDay()];
+
+  // Ambil data identitas sekolah dari pengaturan
+  const pg=demoMode?DEMO.pengaturan:((await SB.from('pengaturan').select('*').single()).data||{});
+  const logoSrc   = pg.kop_custom||pg.logo_sekolah||'';
+  const namaSkl   = pg.nama_sekolah||soal.nama_sekolah||'NAMA SEKOLAH';
+  const alamatSkl = pg.alamat_sekolah||'';
+  const namaKS    = pg.nama_kepsek||'';
+  const nipKS     = pg.nip_kepsek||'';
+  const useKopImg = !!pg.kop_custom;
 
   // Bangun HTML cetak sendiri agar bisa dikontrol penuh — portrait, tabel kompak
   const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Daftar Hadir Ujian</title>
@@ -3211,13 +3242,19 @@ function cetakHadir(){
       .ttd-box .ttd-nama{font-size:9pt}
     </style>
   </head><body>
-    <div class="kop">
-      <img src="https://i.imgur.com/bT70O4C.png" alt="Logo" onerror="this.style.display='none'">
-      <div class="kop-teks">
-        <div class="k-nama">Daftar Hadir Ujian</div>
-        <div class="k-sub">${soal.nama_soal||'—'}</div>
-        <div class="k-alamat">Kelas ${kelas} – Rombel ${rombel} &nbsp;|&nbsp; ${soal.mapel||'—'} &nbsp;|&nbsp; ${hari}, ${fd(soal.tanggal)}</div>
-      </div>
+    ${useKopImg
+      ? `<div style="border-bottom:2.5pt solid #000;padding-bottom:6px;margin-bottom:8px"><img src="${pg.kop_custom}" style="width:100%;max-height:75px;object-fit:contain;display:block"></div>`
+      : `<div class="kop">
+           ${logoSrc ? `<img src="${logoSrc}" alt="Logo" onerror="this.style.display='none'">` : ''}
+           <div class="kop-teks">
+             <div class="k-nama">${namaSkl}</div>
+             ${alamatSkl ? `<div class="k-sub" style="font-size:8pt">${alamatSkl}</div>` : ''}
+           </div>
+         </div>`
+    }
+    <div style="text-align:center;margin:6px 0 8px;border-bottom:1pt solid #ccc;padding-bottom:6px">
+      <div style="font-size:11pt;font-weight:800;text-transform:uppercase;letter-spacing:.06em;text-decoration:underline;text-underline-offset:2pt">Daftar Hadir Ujian</div>
+      <div style="font-size:9pt;color:#444;margin-top:2px">${soal.nama_soal||'—'} &nbsp;·&nbsp; Kelas ${kelas} / ${rombel} &nbsp;·&nbsp; ${hari}, ${fd(soal.tanggal)}</div>
     </div>
 
     <div class="meta-grid">
@@ -3250,16 +3287,23 @@ function cetakHadir(){
       </tbody>
     </table>
 
-    <div class="ttd-row">
+    <div class="ttd-row" style="grid-template-columns:1fr 1fr 1fr;margin-top:16px">
       <div class="ttd-box">
         <div class="ttd-role">Ketua Kelas,</div>
         <div class="ttd-garis"></div>
-        <div class="ttd-nama">( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )</div>
+        <div class="ttd-nama">( ………………………… )</div>
       </div>
       <div class="ttd-box">
         <div class="ttd-role">Pengawas Ruang,</div>
         <div class="ttd-garis"></div>
-        <div class="ttd-nama">( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )</div>
+        <div class="ttd-nama">( ………………………… )</div>
+      </div>
+      <div class="ttd-box">
+        <div class="ttd-role" style="margin-bottom:0">Mengetahui,<br>Kepala Sekolah</div>
+        <div style="height:16mm"></div>
+        <div class="ttd-garis"></div>
+        <div class="ttd-nama" style="font-weight:700">${namaKS||'……………………………………'}</div>
+        <div class="ttd-nama" style="font-size:8pt;margin-top:2px">NIP. ${nipKS||'………………………………'}</div>
       </div>
     </div>
   </body></html>`;
@@ -3270,7 +3314,7 @@ function cetakHadir(){
   setTimeout(()=>w.print(),600);
 }
 
-function cetakBeritaAcara(){
+async function cetakBeritaAcara(){
   const data=window._hadirData;
   if(!data){toast('Generate daftar hadir dahulu!','er');return;}
 
@@ -3278,6 +3322,15 @@ function cetakBeritaAcara(){
   const tglUjian=new Date(soal.tanggal);
   const hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][tglUjian.getDay()];
   const nowStr=new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  // Ambil identitas sekolah dari pengaturan
+  const pg=demoMode?DEMO.pengaturan:((await SB.from('pengaturan').select('*').single()).data||{});
+  const logoSrc   = pg.kop_custom||pg.logo_sekolah||'';
+  const namaSkl   = pg.nama_sekolah||'NAMA SEKOLAH';
+  const alamatSkl = pg.alamat_sekolah||'';
+  const namaKS    = pg.nama_kepsek||'';
+  const nipKS     = pg.nip_kepsek||'';
+  const useKopImg = !!pg.kop_custom;
 
   const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Berita Acara Ujian</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -3335,13 +3388,20 @@ function cetakBeritaAcara(){
     </style>
   </head><body>
 
-    <!-- KOP -->
-    <div class="kop">
-      <img src="https://i.imgur.com/bT70O4C.png" alt="Logo" onerror="this.style.display='none'">
-      <div class="kop-teks">
-        <div class="k-nama">Berita Acara Pelaksanaan Ujian</div>
-        <div class="k-sub">Sistem Ujian Berbasis Komputer (CBT)</div>
-      </div>
+    <!-- KOP DINAMIS -->
+    ${useKopImg
+      ? `<div style="border-bottom:2.5pt solid #000;padding-bottom:6px;margin-bottom:8px"><img src="${pg.kop_custom}" style="width:100%;max-height:75px;object-fit:contain;display:block"></div>`
+      : `<div class="kop">
+           ${logoSrc ? `<img src="${logoSrc}" alt="Logo" onerror="this.style.display='none'">` : ''}
+           <div class="kop-teks">
+             <div class="k-nama">${namaSkl}</div>
+             ${alamatSkl ? `<div class="k-sub" style="font-size:8pt">${alamatSkl}</div>` : ''}
+           </div>
+         </div>`
+    }
+    <div style="text-align:center;margin:4px 0 8px">
+      <div style="font-size:11pt;font-weight:800;text-transform:uppercase;letter-spacing:.06em;text-decoration:underline;text-underline-offset:2pt">Berita Acara Pelaksanaan Ujian</div>
+      <div style="font-size:8.5pt;color:#444;margin-top:1px">Sistem Ujian Berbasis Komputer (CBT)</div>
     </div>
 
     <!-- IDENTITAS — grid 2 kolom, 4 baris = 8 field -->
@@ -3401,9 +3461,11 @@ function cetakBeritaAcara(){
         <div class="ttd-nama">( ………………………… )</div>
       </div>
       <div class="ttd-box">
-        <div class="ttd-role">Koordinator Pelaksana,</div>
+        <div class="ttd-role" style="margin-bottom:0">Mengetahui,<br>Kepala Sekolah</div>
+        <div style="height:16mm"></div>
         <div class="ttd-garis"></div>
-        <div class="ttd-nama">( ………………………… )</div>
+        <div class="ttd-nama" style="font-weight:700">${namaKS||'………………………………………'}</div>
+        <div class="ttd-nama" style="font-size:8pt;margin-top:2px">NIP. ${nipKS||'………………………………'}</div>
       </div>
     </div>
 
@@ -3564,21 +3626,148 @@ async function delFaq(id){
 // ─── PENGATURAN ───
 async function rSet(el){
   let pg=demoMode?DEMO.pengaturan:((await SB.from('pengaturan').select('*').single()).data)||{};
-  el.innerHTML=`<div class="g g2">
-    <div class="card"><div class="ch"><div class="ct"><i class="fa-solid fa-sliders" style="color:var(--p)"></i> Pengaturan Umum</div></div>
+
+  // Fungsi render preview KOP
+  function renderKopPreview(){
+    const nm  = $('stNm')?.value||'NAMA SEKOLAH';
+    const al  = $('stAl')?.value||'';
+    const ks  = $('stKs')?.value||'';
+    const nip = $('stNip')?.value||'';
+    const logo= window._logoB64||pg.logo_sekolah||'';
+    const kop = window._kopB64||pg.kop_custom||'';
+    const prev= $('kopPreview');
+    if(!prev)return;
+
+    if(kop){
+      // Mode kop custom — tampilkan gambar kop saja
+      prev.innerHTML=`<img src="${kop}" style="width:100%;max-height:90px;object-fit:contain;display:block">`;
+    }else{
+      // Mode generate otomatis
+      prev.innerHTML=`<div style="display:flex;align-items:center;gap:10px;border-bottom:2.5pt solid #000;padding-bottom:8px">
+        ${logo?`<img src="${logo}" style="width:52px;height:52px;object-fit:contain;flex-shrink:0">`:
+               `<div style="width:52px;height:52px;border:1px dashed #bbb;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:9pt;flex-shrink:0">Logo</div>`}
+        <div style="flex:1;text-align:center">
+          <div style="font-size:13pt;font-weight:800;text-transform:uppercase;letter-spacing:.04em">${nm}</div>
+          ${al?`<div style="font-size:8.5pt;color:#333;margin-top:2px">${al}</div>`:''}
+        </div>
+      </div>
+      ${ks?`<div style="font-size:8pt;color:#555;margin-top:5px">Kepala Sekolah: <b>${ks}</b>${nip?` &nbsp;|&nbsp; NIP: ${nip}`:''}</div>`:''}`;
+    }
+  }
+
+  el.innerHTML=`
+  <!-- CSS tambahan khusus halaman pengaturan -->
+  <style>
+    .set-section{margin-bottom:18px}
+    .set-section:last-child{margin-bottom:0}
+    .kop-prev{background:#f9f9f9;border:1px solid #e0e0e0;border-radius:8px;padding:14px;min-height:70px;margin-top:8px}
+    .upload-area{border:1.5px dashed #c0c0c0;border-radius:8px;padding:14px;text-align:center;cursor:pointer;transition:border-color .15s;background:#fafafa;margin-top:6px}
+    .upload-area:hover{border-color:var(--p);background:#f0fdf4}
+    .upload-area .ua-icon{font-size:22px;color:#bbb;margin-bottom:5px}
+    .upload-area .ua-lbl{font-size:11.5px;color:#888}
+    .upload-area .ua-lbl b{color:var(--p)}
+    .img-thumb{width:60px;height:60px;object-fit:contain;border:1px solid #e0e0e0;border-radius:6px;background:#fff;padding:3px}
+    .img-thumb-kop{width:100%;max-height:70px;object-fit:contain;border:1px solid #e0e0e0;border-radius:6px;background:#fff;padding:3px}
+    .tag-info{display:inline-flex;align-items:center;gap:5px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:5px;padding:3px 8px;font-size:10.5px;color:#166534;margin-top:5px}
+  </style>
+
+  <div class="g g2">
+    <!-- ════ KARTU KIRI: IDENTITAS SEKOLAH ════ -->
+    <div class="card" style="grid-column:1/3">
+      <div class="ch"><div class="ct"><i class="fa-solid fa-school" style="color:var(--p)"></i> Identitas Sekolah</div>
+        <span style="font-size:10.5px;color:var(--mu)">Digunakan untuk kop dokumen, daftar hadir, dan berita acara</span>
+      </div>
       <div class="cb">
-        <div class="fg"><label class="fl">Nama Sekolah</label><input id="stNm" class="fc" value="${pg.nama_sekolah||''}"></div>
-        <div class="fg"><label class="fl">Nama Aplikasi</label><input id="stApp" class="fc" value="${pg.nama_app||'Emes CBT System'}"></div>
-        <div class="fg"><label class="fl">Fitur Chat</label>
-          <select id="stChat" class="fc"><option value="izin" ${pg.chat!=='blokir'?'selected':''}>Izinkan (Siswa bisa chat)</option><option value="blokir" ${pg.chat==='blokir'?'selected':''}>Blokir (Semua chat dinonaktifkan)</option></select></div>
-        <div class="fg"><label class="fl">Login Ganda</label>
-          <select id="stLg" class="fc"><option value="izin" ${pg.login_ganda!=='blokir'?'selected':''}>Izinkan (1 akun bisa login dari banyak device)</option><option value="blokir" ${pg.login_ganda==='blokir'?'selected':''}>Blokir (1 akun hanya 1 sesi aktif)</option></select></div>
-        <div class="fg"><label class="fl">Tampilkan Nilai ke Siswa</label>
-          <select id="stNl" class="fc"><option value="tidak" ${pg.sembunyikan_nilai!=='ya'?'selected':''}>Tampilkan langsung setelah ujian</option><option value="ya" ${pg.sembunyikan_nilai==='ya'?'selected':''}>Sembunyikan (menunggu keputusan admin)</option></select></div>
-        <button class="btn bp" onclick="svSet()"><i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan</button>
+        <div class="g g2" style="align-items:start">
+
+          <!-- Kolom kiri: field teks -->
+          <div>
+            <div class="set-section">
+              <div class="fg"><label class="fl">Nama Sekolah <span style="color:#e53e3e">*</span></label>
+                <input id="stNm" class="fc" placeholder="Contoh: MIN Singkawang" value="${pg.nama_sekolah||''}" oninput="renderKopPreviewExt()">
+              </div>
+            </div>
+            <div class="set-section">
+              <div class="fg"><label class="fl">Alamat Sekolah Lengkap</label>
+                <textarea id="stAl" class="fc" rows="2" placeholder="Jl. Pendidikan No.1, Kec. ..., Kota ..., Prov. ..., Kode Pos" style="resize:vertical" oninput="renderKopPreviewExt()">${pg.alamat_sekolah||''}</textarea>
+                <span class="fh">Tampil di bawah nama sekolah pada kop dokumen</span>
+              </div>
+            </div>
+            <div class="set-section">
+              <div class="g g2">
+                <div class="fg"><label class="fl">Nama Kepala Sekolah</label>
+                  <input id="stKs" class="fc" placeholder="Nama lengkap + gelar" value="${pg.nama_kepsek||''}" oninput="renderKopPreviewExt()">
+                </div>
+                <div class="fg"><label class="fl">NIP Kepala Sekolah</label>
+                  <input id="stNip" class="fc" placeholder="18 digit NIP" value="${pg.nip_kepsek||''}" oninput="renderKopPreviewExt()">
+                  <span class="fh">Untuk tanda tangan pengesahan dokumen</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Kolom kanan: upload logo + preview kop -->
+          <div>
+            <!-- Upload Logo -->
+            <div class="set-section">
+              <label class="fl">Logo Sekolah</label>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
+                <img id="logoThumb" class="img-thumb" src="${pg.logo_sekolah||''}"
+                  style="display:${pg.logo_sekolah?'block':'none'}"
+                  onerror="this.style.display='none'">
+                <div style="flex:1">
+                  <div class="upload-area" onclick="$('inputLogo').click()">
+                    <div class="ua-icon"><i class="fa-solid fa-image"></i></div>
+                    <div class="ua-lbl"><b>Klik untuk upload</b> logo sekolah<br><span style="font-size:9.5px">PNG/JPG, maks 200KB — dipakai di kop dokumen</span></div>
+                  </div>
+                  <input type="file" id="inputLogo" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
+                  ${pg.logo_sekolah?`<div class="tag-info"><i class="fa-solid fa-check-circle"></i> Logo tersimpan</div>`:''}
+                </div>
+              </div>
+            </div>
+
+            <!-- Upload KOP Custom -->
+            <div class="set-section">
+              <label class="fl">KOP Surat Custom <span style="font-size:9.5px;color:var(--mu);font-weight:400">(opsional — mengganti kop otomatis)</span></label>
+              ${pg.kop_custom?`<div style="margin:6px 0"><img class="img-thumb-kop" src="${pg.kop_custom}" alt="KOP Custom"></div>`:''}
+              <div class="upload-area" onclick="$('inputKop').click()">
+                <div class="ua-icon"><i class="fa-solid fa-file-image"></i></div>
+                <div class="ua-lbl"><b>Klik untuk upload</b> gambar KOP surat<br><span style="font-size:9.5px">PNG/JPG landscape, maks 500KB — ukuran kepala surat A4</span></div>
+              </div>
+              <input type="file" id="inputKop" accept="image/*" style="display:none" onchange="handleKopUpload(event)">
+              ${pg.kop_custom?`<div class="tag-info"><i class="fa-solid fa-check-circle"></i> KOP custom tersimpan — akan dipakai di cetak dokumen</div>`:'<span class="fh" style="margin-top:4px;display:block">Jika tidak diupload, kop akan dibuat otomatis dari data di atas</span>'}
+            </div>
+          </div>
+        </div>
+
+        <!-- PREVIEW KOP -->
+        <div class="dv" style="margin:8px 0"></div>
+        <label class="fl" style="margin-bottom:4px"><i class="fa-solid fa-eye" style="color:var(--p)"></i> Preview Kop Dokumen</label>
+        <div class="kop-prev" id="kopPreview"></div>
       </div>
     </div>
-    <div class="card"><div class="ch"><div class="ct"><i class="fa-solid fa-database" style="color:var(--p)"></i> Manajemen Database</div></div>
+
+    <!-- ════ KARTU KIRI BAWAH: PENGATURAN SISTEM ════ -->
+    <div class="card">
+      <div class="ch"><div class="ct"><i class="fa-solid fa-sliders" style="color:var(--p)"></i> Pengaturan Sistem</div></div>
+      <div class="cb">
+        <div class="fg"><label class="fl">Fitur Chat</label>
+          <select id="stChat" class="fc"><option value="izin" ${pg.chat!=='blokir'?'selected':''}>Izinkan (Siswa bisa chat)</option><option value="blokir" ${pg.chat==='blokir'?'selected':''}>Blokir (Semua chat dinonaktifkan)</option></select>
+        </div>
+        <div class="fg"><label class="fl">Login Ganda</label>
+          <select id="stLg" class="fc"><option value="izin" ${pg.login_ganda!=='blokir'?'selected':''}>Izinkan (1 akun bisa login dari banyak device)</option><option value="blokir" ${pg.login_ganda==='blokir'?'selected':''}>Blokir (1 akun hanya 1 sesi aktif)</option></select>
+        </div>
+        <div class="fg"><label class="fl">Tampilkan Nilai ke Siswa</label>
+          <select id="stNl" class="fc"><option value="tidak" ${pg.sembunyikan_nilai!=='ya'?'selected':''}>Tampilkan langsung setelah ujian</option><option value="ya" ${pg.sembunyikan_nilai==='ya'?'selected':''}>Sembunyikan (menunggu keputusan admin)</option></select>
+        </div>
+        <div class="dv"></div>
+        <button class="btn bp" style="width:100%" onclick="svSet()"><i class="fa-solid fa-floppy-disk"></i> Simpan Semua Pengaturan</button>
+      </div>
+    </div>
+
+    <!-- ════ KARTU KANAN BAWAH: MANAJEMEN DATABASE ════ -->
+    <div class="card">
+      <div class="ch"><div class="ct"><i class="fa-solid fa-database" style="color:var(--p)"></i> Manajemen Database</div></div>
       <div class="cb">
         <div class="al alwa"><i class="fa-solid fa-triangle-exclamation"></i><div>Tindakan di bawah ini bersifat permanen dan tidak bisa dibatalkan.</div></div>
         <div class="fg"><label class="fl">Reset Data Ujian</label>
@@ -3597,16 +3786,84 @@ async function rSet(el){
       </div>
     </div>
   </div>`;
+
+  // Simpan referensi ke renderKopPreview di luar scope agar bisa dipanggil inline
+  window.renderKopPreviewExt = renderKopPreview;
+  window._logoB64 = null;
+  window._kopB64  = null;
+
+  // Render preview setelah DOM siap
+  setTimeout(renderKopPreview, 50);
 }
 
+// ── Handler upload logo ──
+function handleLogoUpload(e){
+  const file=e.target.files[0];if(!file)return;
+  if(file.size>250000){toast('Logo terlalu besar (maks 200KB)','er');return;}
+  const r=new FileReader();
+  r.onload=ev=>{
+    window._logoB64=ev.target.result;
+    const thumb=$('logoThumb');
+    if(thumb){thumb.src=ev.target.result;thumb.style.display='block';}
+    window.renderKopPreviewExt?.();
+    toast('Logo siap disimpan','ok');
+  };
+  r.readAsDataURL(file);
+}
+
+// ── Handler upload KOP custom ──
+function handleKopUpload(e){
+  const file=e.target.files[0];if(!file)return;
+  if(file.size>600000){toast('File KOP terlalu besar (maks 500KB)','er');return;}
+  const r=new FileReader();
+  r.onload=ev=>{
+    window._kopB64=ev.target.result;
+    window.renderKopPreviewExt?.();
+    toast('KOP custom siap disimpan','ok');
+  };
+  r.readAsDataURL(file);
+}
 async function svSet(){
-  const o={nama_sekolah:$('stNm').value.trim(),nama_app:$('stApp').value.trim(),chat:$('stChat').value,login_ganda:$('stLg').value,sembunyikan_nilai:$('stNl').value};
-  if(demoMode){DEMO.pengaturan={...DEMO.pengaturan,...o};toast('Pengaturan tersimpan (mode demo)','ok');return;}
+  const nm  = $('stNm')?.value.trim()||'';
+  const al  = $('stAl')?.value.trim()||'';
+  const ks  = $('stKs')?.value.trim()||'';
+  const nip = $('stNip')?.value.trim()||'';
+
+  if(!nm){toast('Nama sekolah wajib diisi!','er');$('stNm')?.focus();return;}
+
+  const o={
+    nama_sekolah  : nm,
+    alamat_sekolah: al,
+    nama_kepsek   : ks,
+    nip_kepsek    : nip,
+    logo_sekolah  : window._logoB64 || ($('stNm') ? (demoMode?DEMO.pengaturan.logo_sekolah:'') : ''),
+    kop_custom    : window._kopB64  || ($('stNm') ? (demoMode?DEMO.pengaturan.kop_custom:'')  : ''),
+    chat          : $('stChat')?.value||'izin',
+    login_ganda   : $('stLg')?.value||'izin',
+    sembunyikan_nilai: $('stNl')?.value||'tidak',
+  };
+
+  // Pertahankan nilai lama jika tidak ada upload baru
+  if(!window._logoB64 && !demoMode){
+    const old = await SB.from('pengaturan').select('logo_sekolah,kop_custom').single();
+    if(old.data){
+      if(!window._logoB64) o.logo_sekolah = old.data.logo_sekolah||'';
+      if(!window._kopB64)  o.kop_custom   = old.data.kop_custom||'';
+    }
+  }
+  if(demoMode){
+    DEMO.pengaturan={...DEMO.pengaturan,...o};
+    // Reset upload state
+    window._logoB64=null;window._kopB64=null;
+    toast('Pengaturan tersimpan (mode demo)','ok');
+    return;
+  }
   try{
     const{data:existing}=await SB.from('pengaturan').select('id').single();
-    if(existing)await SB.from('pengaturan').update(o).eq('id',existing.id);
-    else await SB.from('pengaturan').insert(o);
-    toast('Pengaturan disimpan!','ok');
+    if(existing) await SB.from('pengaturan').update(o).eq('id',existing.id);
+    else         await SB.from('pengaturan').insert(o);
+    window._logoB64=null;window._kopB64=null;
+    toast('Pengaturan berhasil disimpan!','ok');
   }catch(e){toast('Error: '+e.message,'er');}
 }
 
