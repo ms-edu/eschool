@@ -31,11 +31,37 @@ img{max-width:100%;height:auto}
 .sbicon{width:36px;height:36px;background:none;border-radius:0;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:visible}
 .sbicon img{width:36px;height:36px;object-fit:contain;filter:brightness(0) invert(1)}
 .sbrole{font-size:10px;color:rgba(255,255,255,.38);margin-top:3px;text-transform:uppercase;letter-spacing:.08em}
-.sbnav{flex:1;padding:12px 8px;overflow-y:auto}
-.sbsec{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.25);padding:3px 8px;margin:10px 0 3px}
-.ni{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;color:rgba(255,255,255,.55);font-size:12.5px;font-weight:500;cursor:pointer;transition:all .12s;margin-bottom:1px;border:none;background:none;width:100%;text-align:left}
-.ni:hover{background:rgba(255,255,255,.07);color:#fff}.ni.active{background:var(--p);color:#fff}
-.ni .ic{font-size:14px;flex-shrink:0;width:16px;text-align:center}
+.sbnav{flex:1;padding:10px 0;overflow-y:auto}
+/* ── ACCORDION MENU ── */
+/* Menu utama (group header) */
+.smg{margin-bottom:2px}
+.smg-hd{display:flex;align-items:center;gap:9px;padding:9px 14px;color:rgba(255,255,255,.60);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;border:none;background:none;width:100%;text-align:left;position:relative;letter-spacing:.01em}
+.smg-hd:hover{background:rgba(255,255,255,.07);color:#fff}
+.smg-hd.open{background:rgba(255,255,255,.06);color:#fff}
+.smg-hd .smg-ic{font-size:14px;flex-shrink:0;width:18px;text-align:center}
+.smg-hd .smg-lbl{flex:1}
+.smg-hd .smg-arr{font-size:10px;color:rgba(255,255,255,.3);transition:transform .2s;margin-left:auto;flex-shrink:0}
+.smg-hd.open .smg-arr{transform:rotate(90deg);color:rgba(255,255,255,.6)}
+/* Active indicator kiri pada group header */
+.smg-hd.has-active{color:#fff}
+.smg-hd.has-active .smg-ic{color:var(--ok)}
+.smg-hd.has-active::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:3px;border-radius:0 3px 3px 0;background:var(--ok)}
+/* Sub-menu container */
+.smg-body{overflow:hidden;max-height:0;transition:max-height .22s ease}
+.smg-body.open{max-height:400px}
+/* Sub-menu item */
+.ni{display:flex;align-items:center;gap:9px;padding:7px 14px 7px 38px;border-radius:0;color:rgba(255,255,255,.50);font-size:12px;font-weight:500;cursor:pointer;transition:all .12s;margin:0;border:none;background:none;width:100%;text-align:left;position:relative}
+.ni:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.9)}
+.ni.active{color:#fff;background:rgba(5,150,105,.25)}
+.ni.active::before{content:'';position:absolute;left:24px;top:50%;transform:translateY(-50%);width:5px;height:5px;border-radius:50%;background:var(--ok)}
+.ni .ic{font-size:12px;flex-shrink:0;width:14px;text-align:center;opacity:.7}
+.ni.active .ic{opacity:1}
+/* Single item group (no chevron, no indent) */
+.smg.single .smg-hd{cursor:pointer}
+.smg.single .ni{padding:0;display:none}
+.smg.single .smg-hd.ni-single{padding:9px 14px;font-size:12.5px;font-weight:600}
+.smg.single .smg-hd.ni-single.active{background:var(--p);color:#fff;border-radius:7px}
+.smg.single .smg-hd.ni-single.active::before{display:none}
 /* FOOTER */
 .app-footer{text-align:center;font-size:11px;color:rgba(255,255,255,.28);padding:10px 12px;border-top:1px solid rgba(255,255,255,.08);letter-spacing:.02em}
 .app-footer-main{text-align:center;font-size:11.5px;color:var(--mu);padding:14px 20px;border-top:1px solid var(--br);background:#fff;margin-top:auto}
@@ -1022,49 +1048,146 @@ function getRoleColor(){
   return'#6366f1';
 }
 
+// ── ACCORDION SIDEBAR DEFINITION ──
+// Setiap group = menu utama (accordion header)
+// items = sub-menu yang tampil saat di-expand
+// icon & label pada group = ikon & label tombol accordion-nya
 const SIDEBAR_DEF=[
-  {sec:'Utama',items:[
-    {p:'dash',icon:'fa-gauge-high',label:'Dashboard'},
-  ]},
-  {sec:'Soal & Penilaian',items:[
-    {p:'soal',   icon:'fa-folder-open',       label:'Paket Soal'},
-    {p:'butir',  icon:'fa-circle-question',   label:'Butir Soal'},
-    {p:'hasil',  icon:'fa-chart-line',        label:'Hasil Ujian'},
-    {p:'analisa',icon:'fa-microscope',        label:'Analisa Per-butir'},
-  ]},
-  {sec:'Pengawasan Ujian',items:[
-    {p:'monitor',icon:'fa-display',           label:'Monitor Ujian'},
-    {p:'lb',     icon:'fa-trophy',            label:'Leaderboard'},
-    {p:'hadir',  icon:'fa-clipboard-user',    label:'Daftar Hadir'},
-  ]},
-  {sec:'Manajemen',items:[
-    {p:'siswa',  icon:'fa-users',             label:'Data Siswa'},
-  ]},
-  {sec:'Komunikasi',items:[
-    {p:'chat',   icon:'fa-comments',          label:'Chat Siswa'},
-  ]},
-  {sec:'Sistem',items:[
-    {p:'users',  icon:'fa-user-shield',       label:'Manajemen User'},
-    {p:'faq',    icon:'fa-circle-info',       label:'FAQ'},
-    {p:'set',    icon:'fa-sliders',           label:'Pengaturan'},
-  ]},
+  {
+    id:'utama', icon:'fa-gauge-high', label:'Dashboard',
+    single:true,  // hanya 1 item → langsung navigasi, tanpa accordion
+    items:[{p:'dash',icon:'fa-gauge-high',label:'Dashboard'}]
+  },
+  {
+    id:'soal', icon:'fa-folder-open', label:'Soal & Penilaian',
+    items:[
+      {p:'soal',   icon:'fa-folder-open',     label:'Paket Soal'},
+      {p:'butir',  icon:'fa-circle-question', label:'Butir Soal'},
+      {p:'hasil',  icon:'fa-chart-line',      label:'Hasil Ujian'},
+      {p:'analisa',icon:'fa-microscope',      label:'Analisa Per-butir'},
+    ]
+  },
+  {
+    id:'pengawasan', icon:'fa-shield-halved', label:'Pengawasan Ujian',
+    items:[
+      {p:'monitor',icon:'fa-display',         label:'Monitor Ujian'},
+      {p:'lb',     icon:'fa-trophy',          label:'Leaderboard'},
+      {p:'hadir',  icon:'fa-clipboard-user',  label:'Daftar Hadir'},
+    ]
+  },
+  {
+    id:'pengguna', icon:'fa-users-gear', label:'Manajemen Pengguna',
+    items:[
+      {p:'siswa',  icon:'fa-users',           label:'Data Siswa'},
+      {p:'users',  icon:'fa-user-shield',     label:'Manajemen User'},
+    ]
+  },
+  {
+    id:'komunikasi', icon:'fa-comments', label:'Komunikasi',
+    single:true,
+    items:[{p:'chat',icon:'fa-comments',label:'Chat Siswa'}]
+  },
+  {
+    id:'sistem', icon:'fa-sliders', label:'Sistem',
+    items:[
+      {p:'faq',  icon:'fa-circle-info', label:'FAQ'},
+      {p:'set',  icon:'fa-sliders',     label:'Pengaturan'},
+    ]
+  },
 ];
+
+// Accordion state: id group yang sedang open
+let _sbOpen=null;
 
 function buildSidebarNav(){
   const nav=$('admSBNav');if(!nav)return;
   let html='';
-  SIDEBAR_DEF.forEach(({sec,items})=>{
-    const vis=items.filter(i=>canAccess(i.p));
+
+  SIDEBAR_DEF.forEach(grp=>{
+    const vis=grp.items.filter(i=>canAccess(i.p));
     if(!vis.length)return;
-    html+=`<div class="sbsec">${sec}</div>`;
-    vis.forEach(i=>{
-      html+=`<button class="ni" data-p="${i.p}" onclick="nav('${i.p}')"><span class="ic"><i class="fa-solid ${i.icon}"></i></span>${i.label}</button>`;
-    });
+
+    const isSingle=grp.single&&vis.length===1;
+
+    if(isSingle){
+      // Tombol langsung — tidak ada accordion, langsung navigasi
+      const item=vis[0];
+      html+=`<div class="smg single" data-gid="${grp.id}">
+        <button class="smg-hd ni-single" data-p="${item.p}" onclick="nav('${item.p}')">
+          <span class="smg-ic"><i class="fa-solid ${grp.icon}"></i></span>
+          <span class="smg-lbl">${grp.label}</span>
+        </button>
+      </div>`;
+    }else{
+      // Accordion group
+      html+=`<div class="smg" data-gid="${grp.id}">
+        <button class="smg-hd" onclick="toggleSbGroup('${grp.id}')">
+          <span class="smg-ic"><i class="fa-solid ${grp.icon}"></i></span>
+          <span class="smg-lbl">${grp.label}</span>
+          <i class="fa-solid fa-chevron-right smg-arr"></i>
+        </button>
+        <div class="smg-body" id="smgb_${grp.id}">
+          ${vis.map(i=>`<button class="ni" data-p="${i.p}" onclick="nav('${i.p}')"><span class="ic"><i class="fa-solid ${i.icon}"></i></span>${i.label}</button>`).join('')}
+        </div>
+      </div>`;
+    }
   });
+
   nav.innerHTML=html;
-  // Update label role di header sidebar
   const roleEl=$('admSBRole');
   if(roleEl)roleEl.textContent=getRoleLabel()+' Panel';
+}
+
+function toggleSbGroup(gid){
+  // Tutup semua group dulu
+  document.querySelectorAll('#admSBNav .smg:not(.single)').forEach(g=>{
+    const id=g.dataset.gid;
+    const hd=g.querySelector('.smg-hd');
+    const bd=g.querySelector('.smg-body');
+    if(id!==gid){
+      if(hd)hd.classList.remove('open');
+      if(bd)bd.classList.remove('open');
+    }
+  });
+  // Toggle yang dipilih
+  const grp=document.querySelector(`#admSBNav .smg[data-gid="${gid}"]`);
+  if(!grp)return;
+  const hd=grp.querySelector('.smg-hd');
+  const bd=grp.querySelector('.smg-body');
+  const isOpen=hd&&hd.classList.contains('open');
+  if(hd)hd.classList.toggle('open',!isOpen);
+  if(bd)bd.classList.toggle('open',!isOpen);
+  _sbOpen=isOpen?null:gid;
+}
+
+function activateSbItem(p){
+  // Hapus semua active state
+  document.querySelectorAll('#admSBNav .ni').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('#admSBNav .smg-hd').forEach(n=>n.classList.remove('active','has-active'));
+
+  // Set active pada item
+  const ni=document.querySelector(`#admSBNav [data-p="${p}"]`);
+  if(!ni)return;
+  ni.classList.add('active');
+
+  // Jika item ada di dalam accordion, auto-expand group-nya dan tandai header
+  const grp=ni.closest('.smg');
+  if(!grp)return;
+  const gid=grp.dataset.gid;
+
+  if(!grp.classList.contains('single')){
+    // Tutup semua group lain dulu
+    document.querySelectorAll('#admSBNav .smg:not(.single)').forEach(g=>{
+      if(g.dataset.gid!==gid){
+        g.querySelector('.smg-hd')?.classList.remove('open');
+        g.querySelector('.smg-body')?.classList.remove('open');
+      }
+    });
+    // Buka group ini
+    grp.querySelector('.smg-hd')?.classList.add('open','has-active');
+    grp.querySelector('.smg-body')?.classList.add('open');
+    _sbOpen=gid;
+  }
 }
 
 // ═══════════════════════════ ADMIN PANEL ═══════════════════════════
@@ -1082,16 +1205,16 @@ function showAdminPanel(){
 const PGNM={dash:'Dashboard',soal:'Paket Soal',butir:'Butir Soal',hasil:'Hasil Ujian',analisa:'Analisa Per-butir',siswa:'Data Siswa',monitor:'Monitor Ujian',lb:'Leaderboard',hadir:'Daftar Hadir',chat:'Chat Siswa',users:'Manajemen User',faq:'FAQ',set:'Pengaturan'};
 
 function nav(p){
-  // RBAC guard: jika tidak punya akses, redirect ke halaman pertama yang boleh
+  // RBAC guard
   if(!canAccess(p)){
     const allowed=ROLE_PAGES[getRole()]||['dash'];
     p=allowed[0];
   }
-  document.querySelectorAll('#adminPanel .ni').forEach(n=>n.classList.remove('active'));
-  const ni=document.querySelector(`#adminPanel .ni[data-p="${p}"]`);if(ni)ni.classList.add('active');
   $('admPT').textContent=PGNM[p]||p;
   const el=$('admBody');
   el.innerHTML=`<div style="display:flex;align-items:center;gap:9px;padding:20px;color:var(--mu)"><div class="spin"></div> Memuat...</div>`;
+  // Update sidebar accordion active state
+  activateSbItem(p);
   const fns={dash:rDash,soal:rSoal,butir:rButir,hasil:rHasil,analisa:rAnalisa,siswa:rSiswa,monitor:rMonitor,lb:rLB,hadir:rHadir,chat:rChat,users:rUsers,faq:rFaq,set:rSet};
   if(fns[p])fns[p](el);
 }
