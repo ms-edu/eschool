@@ -17,7 +17,7 @@
 <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
 <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 <style>
-:root{--p:#2563eb;--pd:#1d4ed8;--pl:#dbeafe;--ac:#f59e0b;--ok:#10b981;--er:#ef4444;--wa:#f59e0b;--bg:#f8fafc;--card:#fff;--br:#e2e8f0;--tx:#0f172a;--mu:#64748b;--sw:260px;--r:12px;--sh:0 1px 3px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);--sh2:0 4px 12px rgba(0,0,0,.12),0 16px 48px rgba(0,0,0,.08)}
+:root{--p:#059669;--pd:#047857;--pl:#d1fae5;--ac:#f59e0b;--ok:#10b981;--er:#ef4444;--wa:#f59e0b;--bg:#f8fafc;--card:#fff;--br:#e2e8f0;--tx:#0f172a;--mu:#64748b;--sw:260px;--r:12px;--sh:0 1px 3px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);--sh2:0 4px 12px rgba(0,0,0,.12),0 16px 48px rgba(0,0,0,.08)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
@@ -25,7 +25,7 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 img{max-width:100%;height:auto}
 ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
 .app{display:flex;min-height:100vh}
-.sidebar{width:var(--sw);background:#0f172a;color:#fff;position:fixed;left:0;top:0;bottom:0;z-index:100;display:flex;flex-direction:column;transition:transform .25s;overflow:hidden}
+.sidebar{width:var(--sw);background:linear-gradient(180deg,#022c22 0%,#064e3b 100%);color:#fff;position:fixed;left:0;top:0;bottom:0;z-index:100;display:flex;flex-direction:column;transition:transform .25s;overflow:hidden}
 .sbh{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
 .sblogo{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:800}
 .sbicon{width:36px;height:36px;background:none;border-radius:0;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:visible}
@@ -73,7 +73,7 @@ img{max-width:100%;height:auto}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .fg{margin-bottom:13px}.fl{display:block;font-size:12.5px;font-weight:600;margin-bottom:4px}
 .fc{width:100%;padding:8px 11px;border:1.5px solid var(--br);border-radius:7px;font-size:13px;transition:border-color .12s;background:#fff;color:var(--tx)}
-.fc:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.fc:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 3px rgba(5,150,105,.1)}
 .fc.err{border-color:var(--er)}
 .fh{font-size:11px;color:var(--mu);margin-top:3px}
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:13px}.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px}
@@ -105,12 +105,12 @@ tbody tr:hover td{background:#fafbff}
 .alok{background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d}
 .aler{background:#fff1f2;border:1px solid #fecdd3;color:#be123c}
 .alwa{background:#fffbeb;border:1px solid #fde68a;color:#b45309}
-.alin{background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8}
+.alin{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46}
 .toasts{position:fixed;bottom:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:6px;pointer-events:none}
 .toast{background:#fff;border:1px solid var(--br);border-radius:10px;padding:10px 14px;box-shadow:var(--sh2);display:flex;align-items:center;gap:8px;min-width:260px;pointer-events:all;animation:tsin .2s ease;font-size:12.5px}
 @keyframes tsin{from{opacity:0;transform:translateX(10px)}}
 .tok{border-left:3px solid var(--ok)}.ter{border-left:3px solid var(--er)}.tin{border-left:3px solid var(--p)}.twa{border-left:3px solid var(--wa)}
-.spin{width:18px;height:18px;border:2px solid rgba(37,99,235,.2);border-top-color:var(--p);border-radius:50%;animation:sp .7s linear infinite;display:inline-block}
+.spin{width:18px;height:18px;border:2px solid rgba(5,150,105,.2);border-top-color:var(--p);border-radius:50%;animation:sp .7s linear infinite;display:inline-block}
 @keyframes sp{to{transform:rotate(360deg)}}
 .ov{position:fixed;inset:0;background:#fff;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}
 /* LOGIN */
@@ -130,7 +130,7 @@ tbody tr:hover td{background:#fafbff}
 .swl{text-align:center;margin-top:16px;font-size:12.5px;color:var(--mu)}
 .swl a{color:var(--p);font-weight:600;cursor:pointer}.swl a:hover{text-decoration:underline}
 /* CONFIG */
-.cfg{min-height:100vh;background:linear-gradient(135deg,#0f172a,#1e3a8a);display:flex;align-items:center;justify-content:center;padding:20px}
+.cfg{min-height:100vh;background:linear-gradient(135deg,#0f172a,#064e3b);display:flex;align-items:center;justify-content:center;padding:20px}
 .cfgcard{background:#fff;border-radius:18px;padding:34px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25)}
 /* EXAM */
 .exl{display:flex;height:100vh;overflow:hidden}
@@ -190,7 +190,7 @@ tbody tr:hover td{background:#fafbff}
 .jsel{flex:1}
 .exnav{display:flex;gap:9px;justify-content:space-between;align-items:center;margin-top:16px;max-width:720px;margin-left:auto;margin-right:auto}
 /* RESULT */
-.reshero{background:linear-gradient(135deg,#1e3a8a,#1d4ed8);color:#fff;border-radius:13px;padding:28px 22px;text-align:center;margin-bottom:18px}
+.reshero{background:linear-gradient(135deg,#064e3b,#059669);color:#fff;border-radius:13px;padding:28px 22px;text-align:center;margin-bottom:18px}
 .resscore{font-size:68px;font-weight:900;line-height:1}
 .resgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:18px}
 .resst{background:rgba(255,255,255,.12);border-radius:8px;padding:10px}
@@ -231,7 +231,7 @@ tbody tr:hover td{background:#fafbff}
 .gamecard:hover{transform:translateY(-4px);box-shadow:var(--sh2);border-color:var(--p)}
 .gicon{font-size:44px;margin-bottom:10px}
 /* MATH GAME */
-.gbox{min-height:100vh;background:linear-gradient(135deg,#1e3a8a,#1d4ed8);display:flex;align-items:center;justify-content:center;padding:20px}
+.gbox{min-height:100vh;background:linear-gradient(135deg,#064e3b,#059669);display:flex;align-items:center;justify-content:center;padding:20px}
 .gcard{background:#fff;border-radius:18px;padding:36px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);text-align:center}
 .qdisp{font-size:36px;font-weight:800;margin:20px 0;color:var(--tx)}
 .gans{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
@@ -297,7 +297,7 @@ tbody tr:hover td{background:#fafbff}
 }
 /* ─── QUILL EDITOR CUSTOM STYLES ─── */
 .ql-editor-wrap{border:1.5px solid var(--br);border-radius:7px;overflow:hidden;background:#fff;transition:border-color .12s}
-.ql-editor-wrap:focus-within{border-color:var(--p);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.ql-editor-wrap:focus-within{border-color:var(--p);box-shadow:0 0 0 3px rgba(5,150,105,.1)}
 .ql-editor-wrap .ql-toolbar{border:none;border-bottom:1px solid var(--br);padding:6px 8px;background:#f8fafc}
 .ql-editor-wrap .ql-container{border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px}
 .ql-editor-wrap .ql-editor{min-height:90px;padding:10px 12px;line-height:1.6;color:var(--tx)}
@@ -311,7 +311,7 @@ tbody tr:hover td{background:#fafbff}
 .ql-editor-wrap .ql-toolbar .ql-active{background:var(--pl)!important;color:var(--p)!important}
 /* KaTeX formula display */
 .ql-editor .katex{font-size:1em}
-.ql-formula{background:#f0f4ff;border-radius:4px;padding:1px 6px;border:1px solid #c7d7ff}
+.ql-formula{background:#ecfdf5;border-radius:4px;padding:1px 6px;border:1px solid #6ee7b7}
 /* Quill resize image */
 .ql-editor-wrap .img-drag-handle{display:none}
 /* Image upload progress */
@@ -321,8 +321,28 @@ tbody tr:hover td{background:#fafbff}
 .ql-opsi-wrap .ql-toolbar{padding:4px 6px}
 .ql-opsi-wrap .ql-toolbar .ql-formats{margin-right:6px}
 .ql-opsi-wrap .ql-editor{min-height:52px;padding:7px 10px;font-size:13px}
-/* Formula button */
-.ql-formula-btn{
+/* ─── OPSI JAWABAN GRID 2 KOLOM ─── */
+.opsi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:stretch}
+.opsi-grid-item{display:flex;flex-direction:column;min-width:0}
+.opsi-grid-item .ql-opsi-wrap{flex:1;display:flex;flex-direction:column}
+.opsi-grid-item .ql-opsi-wrap .ql-editor-wrap{flex:1;display:flex;flex-direction:column}
+.opsi-grid-item .ql-opsi-wrap .ql-editor-wrap .ql-container{flex:1}
+.opsi-grid-item .ql-opsi-wrap .ql-editor-wrap .ql-editor{min-height:60px}
+/* Opsi ke-5 (E) bentang full width jika jumlah ganjil */
+.opsi-grid-item.span-full{grid-column:1/-1}
+/* Label badge opsi */
+.opsi-label{display:flex;align-items:center;gap:6px;margin-bottom:5px;font-size:12px;font-weight:700;color:var(--tx)}
+.opsi-badge{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;flex-shrink:0;color:#fff}
+.opsi-badge.primary{background:var(--p)}
+.opsi-badge.muted{background:#cbd5e1;color:#475569}
+/* Benar/salah grid sama: 2 kolom */
+.bs-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:stretch}
+.bs-grid-item{display:flex;flex-direction:column;min-width:0}
+.bs-grid-item .ql-opsi-wrap{flex:1;display:flex;flex-direction:column}
+.bs-grid-item .ql-opsi-wrap .ql-editor-wrap{flex:1;display:flex;flex-direction:column}
+.bs-grid-item .ql-opsi-wrap .ql-editor-wrap .ql-container{flex:1}
+.bs-grid-item .ql-opsi-wrap .ql-editor-wrap .ql-editor{min-height:60px}
+.bs-badge{width:24px;height:24px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;flex-shrink:0}
   background:none;border:none;cursor:pointer;color:#444;padding:2px 5px;
   border-radius:4px;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;
   line-height:1;display:inline-flex;align-items:center
@@ -360,7 +380,7 @@ tbody tr:hover td{background:#fafbff}
 <div id="appWrap" class="hidden">
 <!-- LOGIN ADMIN -->
 <div id="loginAdmin" class="lw hidden">
-  <div class="la" style="background:linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#0284c7 100%)">
+  <div class="la" style="background:linear-gradient(135deg,#064e3b 0%,#059669 60%,#10b981 100%)">
     <div class="laart">
       <div style="margin-bottom:20px"><img src="https://i.imgur.com/bT70O4C.png" alt="Emes CBT System" style="width:80px;height:80px;object-fit:contain;filter:brightness(0) invert(1);opacity:.92" onerror="this.outerHTML='<i class=\'fa-solid fa-laptop-code\' style=\'font-size:64px;color:#fff;opacity:.9\'></i>'"></div>
       <h1>Emes CBT System</h1>
@@ -595,8 +615,8 @@ function updateOfflineIndicator(){
     const pending=EX.pendingSync.length;
     if(pending>0){
       ind.innerHTML=`<i class="fa-solid fa-sync"></i> Syncing ${pending}...`;
-      ind.style.background='#dbeafe';
-      ind.style.color='#1d4ed8';
+      ind.style.background='#d1fae5';
+      ind.style.color='#065f46';
       ind.style.display='inline-flex';
     }else{
       ind.style.display='none';
@@ -999,7 +1019,7 @@ async function buildCharts(rNilai){
     }catch(e){}
   }
   if(!lb.length){lb=['Jan','Feb','Mar','Apr','Mei','Jun'];dt=[0,0,0,0,0,0];}
-  const c1=$('cBulan');if(c1)new Chart(c1,{type:'bar',data:{labels:lb,datasets:[{label:'Jumlah Ujian',data:dt,backgroundColor:'rgba(37,99,235,.75)',borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+  const c1=$('cBulan');if(c1)new Chart(c1,{type:'bar',data:{labels:lb,datasets:[{label:'Jumlah Ujian',data:dt,backgroundColor:'rgba(5,150,105,.75)',borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
   // Soal avg
   let sl=[],sd=[];
   if(!demoMode){try{const{data:rows}=await SB.from('nilai').select('kode_soal,nilai');
@@ -1374,19 +1394,159 @@ function _quillInsertImage(quill, file, containerId) {
 }
 
 function _quillPickFormula(quill) {
-  const formula = prompt(
-    'Masukkan rumus LaTeX / KaTeX:\n\n' +
-    'Contoh sederhana:  a^2 + b^2 = c^2\n' +
-    'Pecahan:           \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}\n' +
-    'Sigma:             \\sum_{i=1}^{n} i\n' +
-    'Integral:          \\int_0^\\infty e^{-x} dx'
-  );
-  if (!formula || !formula.trim()) return;
-  let range = quill.getSelection();
-  if (!range) range = { index: quill.getLength() - 1, length: 0 };
-  quill.insertEmbed(range.index, 'formula', formula.trim(), 'user');
+  // Simpan referensi quill instance dan range sebelum modal dibuka
+  const savedRange = quill.getSelection() || { index: quill.getLength() - 1, length: 0 };
+  window._formulaTargetQuill = quill;
+  window._formulaTargetRange = savedRange;
+
+  // Hapus modal lama jika ada
+  document.getElementById('mdFormula')?.remove();
+
+  // Template shortcut rumus umum
+  const shortcuts = [
+    { label: 'Pecahan', val: '\\frac{a}{b}' },
+    { label: 'Akar', val: '\\sqrt{x}' },
+    { label: 'Akar ke-n', val: '\\sqrt[n]{x}' },
+    { label: 'Pangkat', val: 'x^{n}' },
+    { label: 'Subscript', val: 'x_{n}' },
+    { label: 'Sigma Σ', val: '\\sum_{i=1}^{n} i' },
+    { label: 'Integral ∫', val: '\\int_{a}^{b} f(x)\\,dx' },
+    { label: 'Limit', val: '\\lim_{x \\to \\infty}' },
+    { label: 'Turunan', val: '\\frac{dy}{dx}' },
+    { label: 'Pi π', val: '\\pi' },
+    { label: 'Infinity ∞', val: '\\infty' },
+    { label: 'ABC kuadrat', val: 'x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}' },
+  ];
+
+  const html = `<div class="mo" id="mdFormula" style="z-index:500">
+    <div class="md" style="max-width:560px">
+      <div class="mh">
+        <div class="mtt">
+          <span style="background:var(--pl);color:var(--pd);padding:2px 10px;border-radius:6px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px">
+            <i class="fa-solid fa-square-root-variable"></i> Sisipkan Rumus Matematika
+          </span>
+        </div>
+        <button class="xb" onclick="document.getElementById('mdFormula').remove()">✕</button>
+      </div>
+      <div class="mbb" style="padding:16px 20px">
+
+        <!-- Shortcut chips -->
+        <div style="margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px">Template cepat</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px">
+            ${shortcuts.map(s=>`<button onclick="insertFormulaShortcut(${JSON.stringify(s.val)})"
+              style="background:var(--bg);border:1.5px solid var(--br);border-radius:6px;padding:3px 9px;font-size:11.5px;cursor:pointer;font-family:'JetBrains Mono',monospace;color:var(--tx);transition:all .1s"
+              onmouseover="this.style.borderColor='var(--p)';this.style.color='var(--pd)'"
+              onmouseout="this.style.borderColor='var(--br)';this.style.color='var(--tx)'"
+            >${s.label}</button>`).join('')}
+          </div>
+        </div>
+
+        <!-- Input rumus -->
+        <div class="fg" style="margin-bottom:10px">
+          <label class="fl">Rumus LaTeX / KaTeX</label>
+          <textarea id="fmlInput" class="fc" rows="3"
+            style="font-family:'JetBrains Mono',monospace;font-size:12.5px;resize:vertical;min-height:72px"
+            placeholder="Contoh: \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}"
+            oninput="renderFormulaPreview()"
+          ></textarea>
+          <div class="fh"><i class="fa-solid fa-circle-info"></i> Ketik LaTeX di atas — preview muncul otomatis di bawah</div>
+        </div>
+
+        <!-- Preview -->
+        <div style="border:1.5px solid var(--br);border-radius:8px;overflow:hidden">
+          <div style="background:var(--bg);padding:6px 12px;font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--br)">
+            <i class="fa-solid fa-eye" style="color:var(--p)"></i> Preview
+          </div>
+          <div id="fmlPreview" style="padding:16px 20px;text-align:center;min-height:60px;display:flex;align-items:center;justify-content:center;font-size:18px;background:#fff">
+            <span style="color:#94a3b8;font-size:13px;font-style:italic">Preview rumus akan muncul di sini...</span>
+          </div>
+          <div id="fmlError" style="display:none;padding:8px 12px;background:#fff1f2;color:#be123c;font-size:11.5px;border-top:1px solid #fecdd3">
+            <i class="fa-solid fa-triangle-exclamation"></i> <span id="fmlErrorMsg"></span>
+          </div>
+        </div>
+
+      </div>
+      <div class="mf">
+        <button class="btn bo" onclick="document.getElementById('mdFormula').remove()"><i class="fa-solid fa-xmark"></i> Batal</button>
+        <button class="btn bp" onclick="confirmInsertFormula()"><i class="fa-solid fa-check"></i> Sisipkan Rumus</button>
+      </div>
+    </div>
+  </div>`;
+
+  document.body.insertAdjacentHTML('beforeend', html);
+
+  // Fokus ke textarea setelah render
+  setTimeout(()=>{ document.getElementById('fmlInput')?.focus(); }, 60);
+}
+
+function insertFormulaShortcut(val) {
+  const inp = document.getElementById('fmlInput');
+  if (!inp) return;
+  // Sisipkan di posisi cursor atau tambahkan di akhir
+  const start = inp.selectionStart;
+  const end = inp.selectionEnd;
+  const cur = inp.value;
+  inp.value = cur.substring(0, start) + val + cur.substring(end);
+  inp.selectionStart = inp.selectionEnd = start + val.length;
+  inp.focus();
+  renderFormulaPreview();
+}
+
+function renderFormulaPreview() {
+  const inp = document.getElementById('fmlInput');
+  const preview = document.getElementById('fmlPreview');
+  const errBox = document.getElementById('fmlError');
+  const errMsg = document.getElementById('fmlErrorMsg');
+  if (!inp || !preview) return;
+
+  const formula = inp.value.trim();
+  if (!formula) {
+    preview.innerHTML = '<span style="color:#94a3b8;font-size:13px;font-style:italic">Preview rumus akan muncul di sini...</span>';
+    if (errBox) errBox.style.display = 'none';
+    return;
+  }
+
+  try {
+    const rendered = katex.renderToString(formula, {
+      throwOnError: true,
+      displayMode: true,
+      output: 'html'
+    });
+    preview.innerHTML = rendered;
+    if (errBox) errBox.style.display = 'none';
+  } catch(e) {
+    preview.innerHTML = '<span style="color:#94a3b8;font-size:13px;font-style:italic">Rumus tidak valid...</span>';
+    if (errBox) errBox.style.display = 'block';
+    if (errMsg) errMsg.textContent = e.message.replace(/^KaTeX parse error:\s*/i, '');
+  }
+}
+
+function confirmInsertFormula() {
+  const inp = document.getElementById('fmlInput');
+  if (!inp) return;
+  const formula = inp.value.trim();
+  if (!formula) { return; }
+
+  // Validasi dulu
+  try {
+    katex.renderToString(formula, { throwOnError: true });
+  } catch(e) {
+    document.getElementById('fmlError').style.display = 'block';
+    document.getElementById('fmlErrorMsg').textContent = 'Perbaiki rumus sebelum menyisipkan: ' + e.message.replace(/^KaTeX parse error:\s*/i, '');
+    return;
+  }
+
+  const quill = window._formulaTargetQuill;
+  let range = window._formulaTargetRange || { index: 0, length: 0 };
+  if (!quill) { document.getElementById('mdFormula')?.remove(); return; }
+
+  quill.insertEmbed(range.index, 'formula', formula, 'user');
   quill.insertText(range.index + 1, ' ', 'user');
   quill.setSelection(range.index + 2, 0, 'user');
+  quill.focus();
+
+  document.getElementById('mdFormula')?.remove();
 }
 
 function getQuillHTML(id) {
@@ -1480,25 +1640,32 @@ function upBTipe(d){
     const labels=['A','B','C','D','E'];
     const isPG=t==='Pilihan Ganda';
     area.innerHTML=`
-      <div style="margin-bottom:10px;padding:12px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
-        <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">
-          <i class="fa-solid fa-list-ul" style="color:var(--p)"></i> Opsi Jawaban ${isPG?'(pilih 1 benar)':'(bisa lebih dari 1)'}
-          <span style="font-size:10px;font-weight:400;margin-left:6px;color:var(--mu)">— mendukung gambar &amp; rumus KaTeX</span>
+      <div style="margin-bottom:10px;padding:14px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em">
+            <i class="fa-solid fa-list-ul" style="color:var(--p)"></i>
+            Opsi Jawaban &mdash; ${isPG?'pilih <b style="color:var(--p)">1</b> benar':'bisa lebih dari 1'}
+          </div>
+          <span style="font-size:10.5px;color:var(--mu);background:#fff;border:1px solid var(--br);padding:2px 8px;border-radius:100px;flex-shrink:0">
+            <i class="fa-solid fa-image" style="color:var(--p)"></i> gambar &amp; KaTeX
+          </span>
         </div>
-        ${labels.map((l,i)=>`
-        <div class="fg" style="margin-bottom:12px">
-          <label class="fl" style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
-            <span style="width:22px;height:22px;border-radius:50%;background:${i<2?'var(--p)':'var(--br)'};color:${i<2?'#fff':'var(--mu)'};display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">${l}</span>
-            Pilihan ${l}${i<2?' <span style="color:var(--er)">*</span>':' <span style="color:var(--mu);font-weight:400">(opsional)</span>'}
-          </label>
-          <div id="qop_bP${i+1}" class="ql-opsi-wrap"></div>
-        </div>`).join('')}
+        <div class="opsi-grid">
+          ${labels.map((l,i)=>`
+          <div class="opsi-grid-item${i===4?' span-full':''}">
+            <div class="opsi-label">
+              <span class="opsi-badge ${i<2?'primary':'muted'}">${l}</span>
+              <span>Pilihan ${l}</span>
+              ${i<2?'<span style="color:var(--er);font-size:11px">*</span>':'<span style="color:var(--mu);font-weight:400;font-size:11px">(opsional)</span>'}
+            </div>
+            <div id="qop_bP${i+1}" class="ql-opsi-wrap"></div>
+          </div>`).join('')}
+        </div>
       </div>`;
     hint.innerHTML=isPG
       ?'<i class="fa-solid fa-circle-info"></i> Format kunci: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">pilihan_1</code> (masukkan angka pilihan yang benar)'
       :'<i class="fa-solid fa-circle-info"></i> Format kunci: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">pilihan_1,pilihan_3</code> (pisahkan dengan koma, bisa lebih dari satu)';
     if(kunciWrap)kunciWrap.style.display='';
-    // Init Quill editors for each option
     setTimeout(()=>{
       labels.forEach((l,i)=>{
         createQuillEditor(`qop_bP${i+1}`,{
@@ -1512,19 +1679,26 @@ function upBTipe(d){
 
   }else if(t==='Benar/Salah'){
     area.innerHTML=`
-      <div style="margin-bottom:10px;padding:12px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
-        <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">
-          <i class="fa-solid fa-toggle-on" style="color:var(--ok)"></i> Pernyataan Benar/Salah
-          <span style="font-size:10px;font-weight:400;margin-left:6px;color:var(--mu)">— mendukung gambar &amp; rumus KaTeX</span>
+      <div style="margin-bottom:10px;padding:14px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em">
+            <i class="fa-solid fa-toggle-on" style="color:var(--ok)"></i> Pernyataan Benar / Salah
+          </div>
+          <span style="font-size:10.5px;color:var(--mu);background:#fff;border:1px solid var(--br);padding:2px 8px;border-radius:100px;flex-shrink:0">
+            <i class="fa-solid fa-image" style="color:var(--p)"></i> gambar &amp; KaTeX
+          </span>
         </div>
-        ${[1,2,3,4].map(i=>`
-        <div class="fg" style="margin-bottom:12px">
-          <label class="fl" style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
-            <span style="width:22px;height:22px;border-radius:4px;background:${i<3?'var(--ok)':'var(--br)'};color:${i<3?'#fff':'var(--mu)'};display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">${i}</span>
-            Pernyataan ${i}${i<2?' <span style="color:var(--er)">*</span>':' <span style="color:var(--mu);font-weight:400">(opsional)</span>'}
-          </label>
-          <div id="qop_bP${i}bs" class="ql-opsi-wrap"></div>
-        </div>`).join('')}
+        <div class="bs-grid">
+          ${[1,2,3,4].map(i=>`
+          <div class="bs-grid-item">
+            <div class="opsi-label">
+              <span class="bs-badge" style="background:${i<=2?'var(--ok)':'#cbd5e1'};color:${i<=2?'#fff':'#475569'}">${i}</span>
+              <span>Pernyataan ${i}</span>
+              ${i<=2?'<span style="color:var(--er);font-size:11px">*</span>':'<span style="color:var(--mu);font-weight:400;font-size:11px">(opsional)</span>'}
+            </div>
+            <div id="qop_bP${i}bs" class="ql-opsi-wrap"></div>
+          </div>`).join('')}
+        </div>
       </div>`;
     hint.innerHTML='<i class="fa-solid fa-circle-info"></i> Format kunci: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">Benar|Salah|Benar</code> (sesuai urutan pernyataan, pisah dengan | pipe)';
     if(kunciWrap)kunciWrap.style.display='';
@@ -1805,7 +1979,7 @@ async function loadAnalisa(){
   </div>`;
   const jData=Object.entries(jenis).filter(([,v])=>v>0);
   const ca=$('anlChart');
-  if(ca)new Chart(ca,{type:'doughnut',data:{labels:jData.map(x=>x[0]),datasets:[{data:jData.map(x=>x[1]),backgroundColor:['#2563eb','#10b981','#f59e0b','#ef4444','#8b5cf6'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11}}}}}});
+  if(ca)new Chart(ca,{type:'doughnut',data:{labels:jData.map(x=>x[0]),datasets:[{data:jData.map(x=>x[1]),backgroundColor:['#059669','#10b981','#f59e0b','#ef4444','#8b5cf6'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11}}}}}});
 }
 
 // ─── DATA SISWA ───
@@ -2200,7 +2374,7 @@ async function doImpButir(){
 // ─── MONITOR ───
 async function rMonitor(el){
   el.innerHTML=`<div class="g g3" style="margin-bottom:14px">
-    <div class="card stc" style="background:linear-gradient(135deg,#1d4ed8,#0ea5e9);color:#fff;border:none">
+    <div class="card stc" style="background:linear-gradient(135deg,#047857,#059669);color:#fff;border:none">
       <div class="stl" style="color:rgba(255,255,255,.65)">Sedang Ujian</div><div class="stv" id="monAkt">—</div><div class="sts" style="color:rgba(255,255,255,.6)">Aktif sekarang</div></div>
     <div class="card stc" style="background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none">
       <div class="stl" style="color:rgba(255,255,255,.65)">Selesai</div><div class="stv" id="monSel">—</div><div class="sts" style="color:rgba(255,255,255,.6)">Submit ujian</div></div>
@@ -2732,7 +2906,7 @@ async function rSDash(el){
   el.innerHTML=`
     <div class="al alin" style="margin-bottom:14px"><i class="fa-solid fa-hand-wave" style="color:var(--p)"></i><div>Selamat datang, <strong>${sis.nama_siswa}</strong>! Kelas ${sis.kelas}-${sis.rombel}</div></div>
     <div class="g g3" style="margin-bottom:14px">
-      <div class="card stc" style="background:linear-gradient(135deg,#1d4ed8,#0ea5e9);color:#fff;border:none;cursor:pointer" onclick="snav('sujian')">
+      <div class="card stc" style="background:linear-gradient(135deg,#047857,#059669);color:#fff;border:none;cursor:pointer" onclick="snav('sujian')">
         <div class="stl" style="color:rgba(255,255,255,.7)">Ujian Tersedia</div><div class="stv">${ujianAktif}</div><div class="sts" style="color:rgba(255,255,255,.65)">Klik untuk lihat <i class="fa-solid fa-arrow-right"></i></div></div>
       <div class="card stc" style="cursor:pointer" onclick="snav('snilai')">
         <div class="stl">Nilai Terakhir</div>
