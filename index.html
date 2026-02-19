@@ -1393,101 +1393,119 @@ function _quillInsertImage(quill, file, containerId) {
   reader.readAsDataURL(file);
 }
 
+// Shortcuts rumus — disimpan di window agar bisa diakses via JS tanpa passing string lewat HTML
+window._fmlShortcuts = [
+  { label: 'Pecahan',      val: '\\frac{a}{b}' },
+  { label: 'Akar \u221a',       val: '\\sqrt{x}' },
+  { label: 'Akar ke-n',    val: '\\sqrt[n]{x}' },
+  { label: 'Pangkat',      val: 'x^{n}' },
+  { label: 'Subscript',    val: 'x_{n}' },
+  { label: 'Sigma \u03a3',      val: '\\sum_{i=1}^{n} i' },
+  { label: 'Integral \u222b',   val: '\\int_{a}^{b} f(x)\\,dx' },
+  { label: 'Limit',        val: '\\lim_{x \\to \\infty}' },
+  { label: 'Turunan dy/dx',val: '\\frac{dy}{dx}' },
+  { label: 'Log',          val: '\\log_{a}{b}' },
+  { label: 'Sin/Cos',      val: '\\sin^2\\theta + \\cos^2\\theta = 1' },
+  { label: 'Pi \u03c0',        val: '\\pi' },
+  { label: 'Tak Hingga \u221e', val: '\\infty' },
+  { label: 'Rumus ABC',    val: 'x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}' },
+  { label: 'Vektor',       val: '\\vec{v}' },
+  { label: 'Matriks 2\u00d72',  val: '\\begin{pmatrix} a & b \\\\\\\\ c & d \\end{pmatrix}' },
+];
+
 function _quillPickFormula(quill) {
-  // Simpan referensi quill instance dan range sebelum modal dibuka
-  const savedRange = quill.getSelection() || { index: quill.getLength() - 1, length: 0 };
+  var savedRange = quill.getSelection() || { index: quill.getLength() - 1, length: 0 };
   window._formulaTargetQuill = quill;
   window._formulaTargetRange = savedRange;
+  document.getElementById('mdFormula') && document.getElementById('mdFormula').remove();
 
-  // Hapus modal lama jika ada
-  document.getElementById('mdFormula')?.remove();
+  var modalHtml = '<div class="mo" id="mdFormula" style="z-index:500">'
+    + '<div class="md" style="max-width:580px">'
+    + '<div class="mh">'
+    + '<div class="mtt"><span style="background:var(--pl);color:var(--pd);padding:2px 10px;border-radius:6px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px">'
+    + '<i class="fa-solid fa-square-root-variable"></i> Sisipkan Rumus Matematika</span></div>'
+    + '<button class="xb" onclick="document.getElementById('mdFormula').remove()">✕</button>'
+    + '</div>'
+    + '<div class="mbb" style="padding:16px 20px">'
+    + '<div style="margin-bottom:12px">'
+    + '<div style="font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px">'
+    + '<i class="fa-solid fa-bolt" style="color:var(--p)"></i> Template cepat — klik untuk masukkan ke input'
+    + '</div>'
+    + '<div id="fmlChips" style="display:flex;flex-wrap:wrap;gap:5px"></div>'
+    + '</div>'
+    + '<div class="fg" style="margin-bottom:10px">'
+    + '<label class="fl">Rumus LaTeX / KaTeX</label>'
+    + '<textarea id="fmlInput" class="fc" rows="3" style="font-family:'JetBrains Mono',monospace;font-size:12.5px;resize:vertical;min-height:72px" placeholder="Contoh: \\frac{a}{b}" oninput="renderFormulaPreview()"></textarea>'
+    + '<div class="fh"><i class="fa-solid fa-circle-info"></i> Ketik LaTeX di atas — preview muncul otomatis di bawah</div>'
+    + '</div>'
+    + '<div style="border:1.5px solid var(--br);border-radius:8px;overflow:hidden">'
+    + '<div style="background:var(--bg);padding:6px 12px;font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--br)">'
+    + '<i class="fa-solid fa-eye" style="color:var(--p)"></i> Preview'
+    + '</div>'
+    + '<div id="fmlPreview" style="padding:16px 20px;text-align:center;min-height:60px;display:flex;align-items:center;justify-content:center;font-size:18px;background:#fff">'
+    + '<span style="color:#94a3b8;font-size:13px;font-style:italic">Preview rumus akan muncul di sini...</span>'
+    + '</div>'
+    + '<div id="fmlError" style="display:none;padding:8px 12px;background:#fff1f2;color:#be123c;font-size:11.5px;border-top:1px solid #fecdd3">'
+    + '<i class="fa-solid fa-triangle-exclamation"></i> <span id="fmlErrorMsg"></span>'
+    + '</div>'
+    + '</div>'
+    + '</div>'
+    + '<div class="mf">'
+    + '<button class="btn bo" onclick="document.getElementById('mdFormula').remove()"><i class="fa-solid fa-xmark"></i> Batal</button>'
+    + '<button class="btn bp" onclick="confirmInsertFormula()"><i class="fa-solid fa-check"></i> Sisipkan Rumus</button>'
+    + '</div>'
+    + '</div></div>';
 
-  // Template shortcut rumus umum
-  const shortcuts = [
-    { label: 'Pecahan', val: '\\frac{a}{b}' },
-    { label: 'Akar', val: '\\sqrt{x}' },
-    { label: 'Akar ke-n', val: '\\sqrt[n]{x}' },
-    { label: 'Pangkat', val: 'x^{n}' },
-    { label: 'Subscript', val: 'x_{n}' },
-    { label: 'Sigma Σ', val: '\\sum_{i=1}^{n} i' },
-    { label: 'Integral ∫', val: '\\int_{a}^{b} f(x)\\,dx' },
-    { label: 'Limit', val: '\\lim_{x \\to \\infty}' },
-    { label: 'Turunan', val: '\\frac{dy}{dx}' },
-    { label: 'Pi π', val: '\\pi' },
-    { label: 'Infinity ∞', val: '\\infty' },
-    { label: 'ABC kuadrat', val: 'x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}' },
-  ];
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-  const html = `<div class="mo" id="mdFormula" style="z-index:500">
-    <div class="md" style="max-width:560px">
-      <div class="mh">
-        <div class="mtt">
-          <span style="background:var(--pl);color:var(--pd);padding:2px 10px;border-radius:6px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px">
-            <i class="fa-solid fa-square-root-variable"></i> Sisipkan Rumus Matematika
-          </span>
-        </div>
-        <button class="xb" onclick="document.getElementById('mdFormula').remove()">✕</button>
-      </div>
-      <div class="mbb" style="padding:16px 20px">
+  // Render chips via DOM API — TIDAK pakai innerHTML+onclick agar backslash LaTeX tidak rusak
+  var chipsEl = document.getElementById('fmlChips');
+  if (chipsEl) {
+    window._fmlShortcuts.forEach(function(s, idx) {
+      var btn = document.createElement('button');
+      btn.textContent = s.label;
+      btn.setAttribute('type', 'button');
+      btn.style.cssText = 'background:var(--bg);border:1.5px solid var(--br);border-radius:6px;padding:4px 10px;font-size:11.5px;cursor:pointer;font-family:\'JetBrains Mono\',monospace;color:var(--tx);transition:all .12s;line-height:1.5';
+      btn.addEventListener('mouseenter', function() {
+        this.style.borderColor = 'var(--p)';
+        this.style.color = 'var(--pd)';
+        this.style.background = 'var(--pl)';
+      });
+      btn.addEventListener('mouseleave', function() {
+        this.style.borderColor = 'var(--br)';
+        this.style.color = 'var(--tx)';
+        this.style.background = 'var(--bg)';
+      });
+      // Closure pakai idx untuk ambil val dari global array — AMAN, tidak ada string di HTML
+      btn.addEventListener('click', (function(i) {
+        return function() {
+          var inp = document.getElementById('fmlInput');
+          if (!inp) return;
+          var val = window._fmlShortcuts[i].val;
+          var start = inp.selectionStart;
+          var end = inp.selectionEnd;
+          inp.value = inp.value.substring(0, start) + val + inp.value.substring(end);
+          inp.selectionStart = inp.selectionEnd = start + val.length;
+          inp.focus();
+          renderFormulaPreview();
+        };
+      })(idx));
+      chipsEl.appendChild(btn);
+    });
+  }
 
-        <!-- Shortcut chips -->
-        <div style="margin-bottom:12px">
-          <div style="font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px">Template cepat</div>
-          <div style="display:flex;flex-wrap:wrap;gap:5px">
-            ${shortcuts.map(s=>`<button onclick="insertFormulaShortcut(${JSON.stringify(s.val)})"
-              style="background:var(--bg);border:1.5px solid var(--br);border-radius:6px;padding:3px 9px;font-size:11.5px;cursor:pointer;font-family:'JetBrains Mono',monospace;color:var(--tx);transition:all .1s"
-              onmouseover="this.style.borderColor='var(--p)';this.style.color='var(--pd)'"
-              onmouseout="this.style.borderColor='var(--br)';this.style.color='var(--tx)'"
-            >${s.label}</button>`).join('')}
-          </div>
-        </div>
-
-        <!-- Input rumus -->
-        <div class="fg" style="margin-bottom:10px">
-          <label class="fl">Rumus LaTeX / KaTeX</label>
-          <textarea id="fmlInput" class="fc" rows="3"
-            style="font-family:'JetBrains Mono',monospace;font-size:12.5px;resize:vertical;min-height:72px"
-            placeholder="Contoh: \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}"
-            oninput="renderFormulaPreview()"
-          ></textarea>
-          <div class="fh"><i class="fa-solid fa-circle-info"></i> Ketik LaTeX di atas — preview muncul otomatis di bawah</div>
-        </div>
-
-        <!-- Preview -->
-        <div style="border:1.5px solid var(--br);border-radius:8px;overflow:hidden">
-          <div style="background:var(--bg);padding:6px 12px;font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--br)">
-            <i class="fa-solid fa-eye" style="color:var(--p)"></i> Preview
-          </div>
-          <div id="fmlPreview" style="padding:16px 20px;text-align:center;min-height:60px;display:flex;align-items:center;justify-content:center;font-size:18px;background:#fff">
-            <span style="color:#94a3b8;font-size:13px;font-style:italic">Preview rumus akan muncul di sini...</span>
-          </div>
-          <div id="fmlError" style="display:none;padding:8px 12px;background:#fff1f2;color:#be123c;font-size:11.5px;border-top:1px solid #fecdd3">
-            <i class="fa-solid fa-triangle-exclamation"></i> <span id="fmlErrorMsg"></span>
-          </div>
-        </div>
-
-      </div>
-      <div class="mf">
-        <button class="btn bo" onclick="document.getElementById('mdFormula').remove()"><i class="fa-solid fa-xmark"></i> Batal</button>
-        <button class="btn bp" onclick="confirmInsertFormula()"><i class="fa-solid fa-check"></i> Sisipkan Rumus</button>
-      </div>
-    </div>
-  </div>`;
-
-  document.body.insertAdjacentHTML('beforeend', html);
-
-  // Fokus ke textarea setelah render
-  setTimeout(()=>{ document.getElementById('fmlInput')?.focus(); }, 60);
+  setTimeout(function() {
+    var inp = document.getElementById('fmlInput');
+    if (inp) inp.focus();
+  }, 60);
 }
 
 function insertFormulaShortcut(val) {
-  const inp = document.getElementById('fmlInput');
+  var inp = document.getElementById('fmlInput');
   if (!inp) return;
-  // Sisipkan di posisi cursor atau tambahkan di akhir
-  const start = inp.selectionStart;
-  const end = inp.selectionEnd;
-  const cur = inp.value;
-  inp.value = cur.substring(0, start) + val + cur.substring(end);
+  var start = inp.selectionStart;
+  var end = inp.selectionEnd;
+  inp.value = inp.value.substring(0, start) + val + inp.value.substring(end);
   inp.selectionStart = inp.selectionEnd = start + val.length;
   inp.focus();
   renderFormulaPreview();
