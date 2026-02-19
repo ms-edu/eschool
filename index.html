@@ -10,6 +10,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- KaTeX MUST load before Quill so formula blot works -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<!-- Quill Editor (Snow theme) -->
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 <style>
 :root{--p:#2563eb;--pd:#1d4ed8;--pl:#dbeafe;--ac:#f59e0b;--ok:#10b981;--er:#ef4444;--wa:#f59e0b;--bg:#f8fafc;--card:#fff;--br:#e2e8f0;--tx:#0f172a;--mu:#64748b;--sw:260px;--r:12px;--sh:0 1px 3px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);--sh2:0 4px 12px rgba(0,0,0,.12),0 16px 48px rgba(0,0,0,.08)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -289,6 +295,40 @@ tbody tr:hover td{background:#fafbff}
   .sbar{flex-direction:column}
   .siw{min-width:100%;flex:none}
 }
+/* ─── QUILL EDITOR CUSTOM STYLES ─── */
+.ql-editor-wrap{border:1.5px solid var(--br);border-radius:7px;overflow:hidden;background:#fff;transition:border-color .12s}
+.ql-editor-wrap:focus-within{border-color:var(--p);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.ql-editor-wrap .ql-toolbar{border:none;border-bottom:1px solid var(--br);padding:6px 8px;background:#f8fafc}
+.ql-editor-wrap .ql-container{border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px}
+.ql-editor-wrap .ql-editor{min-height:90px;padding:10px 12px;line-height:1.6;color:var(--tx)}
+.ql-editor-wrap .ql-editor p{margin:0 0 4px}
+.ql-editor-wrap .ql-editor img{max-width:100%;border-radius:6px;margin:4px 0;cursor:pointer}
+.ql-editor-wrap .ql-editor img:hover{outline:2px solid var(--p)}
+.ql-editor-wrap.ql-sm .ql-editor{min-height:64px}
+.ql-editor-wrap.ql-lg .ql-editor{min-height:140px}
+.ql-editor-wrap .ql-toolbar button{border-radius:4px;padding:2px 4px}
+.ql-editor-wrap .ql-toolbar button:hover{background:var(--pl)!important}
+.ql-editor-wrap .ql-toolbar .ql-active{background:var(--pl)!important;color:var(--p)!important}
+/* KaTeX formula display */
+.ql-editor .katex{font-size:1em}
+.ql-formula{background:#f0f4ff;border-radius:4px;padding:1px 6px;border:1px solid #c7d7ff}
+/* Quill resize image */
+.ql-editor-wrap .img-drag-handle{display:none}
+/* Image upload progress */
+.qimg-prog{font-size:11px;color:var(--p);padding:3px 8px;display:none;align-items:center;gap:5px}
+.qimg-prog.show{display:flex}
+/* Compact toolbar icons for option editors */
+.ql-opsi-wrap .ql-toolbar{padding:4px 6px}
+.ql-opsi-wrap .ql-toolbar .ql-formats{margin-right:6px}
+.ql-opsi-wrap .ql-editor{min-height:52px;padding:7px 10px;font-size:13px}
+/* Formula button */
+.ql-formula-btn{
+  background:none;border:none;cursor:pointer;color:#444;padding:2px 5px;
+  border-radius:4px;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;
+  line-height:1;display:inline-flex;align-items:center
+}
+.ql-formula-btn:hover{background:var(--pl);color:var(--p)}
+
 /* PRINT STYLES */
 @media print{
   body{background:#fff;font-size:11pt}
@@ -1164,26 +1204,262 @@ function ftButir(){
   </tr>`).join('');
 }
 
+// ─── QUILL EDITOR REGISTRY ───
+window._quillEditors = {}; // registry: {id: Quill instance}
+
+// Register formula blot dengan KaTeX — dipanggil sekali saat page load
+function initQuillFormula() {
+  if (!window.katex || !window.Quill) return;
+  // Quill 1.3.7 sudah punya FormulaBlot built-in, tapi butuh window.katex
+  // Tidak perlu register ulang, cukup pastikan katex ada di window
+}
+
+function createQuillEditor(containerId, options={}) {
+  const {value='', size='', placeholder='', toolbarType='full'} = options;
+  const wrap = document.getElementById(containerId);
+  if (!wrap) return null;
+
+  // Bersihkan isi lama
+  wrap.innerHTML = '';
+
+  // Buat struktur: toolbar-div lalu editor-div, keduanya di dalam wrap
+  const wrapDiv = document.createElement('div');
+  wrapDiv.className = 'ql-editor-wrap' + (size ? ' ql-' + size : '');
+
+  const tbDiv = document.createElement('div');
+  tbDiv.id = containerId + '_tb';
+
+  const edDiv = document.createElement('div');
+  edDiv.id = containerId + '_ed';
+
+  const progDiv = document.createElement('div');
+  progDiv.className = 'qimg-prog';
+  progDiv.id = containerId + '_prog';
+  progDiv.innerHTML = '<div class="spin" style="width:12px;height:12px;border-width:2px"></div> Memuat gambar...';
+
+  wrapDiv.appendChild(tbDiv);
+  wrapDiv.appendChild(edDiv);
+  wrapDiv.appendChild(progDiv);
+  wrap.appendChild(wrapDiv);
+
+  const tbFull = [
+    [{ header: [1, 2, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ color: [] }, { background: [] }],
+    [{ script: 'sub' }, { script: 'super' }],
+    ['blockquote'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['link', 'image', 'formula'],
+    ['clean']
+  ];
+  const tbCompact = [
+    ['bold', 'italic', 'underline'],
+    [{ script: 'sub' }, { script: 'super' }],
+    ['image', 'formula'],
+    ['clean']
+  ];
+
+  const q = new Quill(edDiv, {
+    modules: {
+      toolbar: {
+        container: toolbarType === 'compact' ? tbCompact : tbFull,
+        handlers: {
+          image: function() { _quillPickImage(this.quill, containerId); },
+          formula: function() { _quillPickFormula(this.quill); }
+        }
+      }
+    },
+    placeholder: placeholder || 'Ketik di sini...',
+    theme: 'snow'
+  });
+
+  // Quill renders toolbar ke dalam edDiv's parent — pindahkan ke tbDiv
+  // Quill otomatis membuat .ql-toolbar sebagai previousSibling dari .ql-container
+  // Kita pakai tbDiv sebagai #container untuk toolbar via selector
+  // Cara yang benar: re-render toolbar ke tbDiv
+  const generatedTb = wrapDiv.querySelector('.ql-toolbar');
+  if (generatedTb && generatedTb.parentNode === wrapDiv) {
+    wrapDiv.insertBefore(generatedTb, wrapDiv.firstChild);
+  }
+
+  // Set konten awal
+  if (value && value.trim()) {
+    q.clipboard.dangerouslyPasteHTML(value);
+    q.setSelection(null); // deselect
+  }
+
+  // ── PASTE IMAGE HANDLER ──
+  // Harus dipasang di .ql-editor (contenteditable), bukan container
+  const qlEditorEl = wrapDiv.querySelector('.ql-editor');
+  if (qlEditorEl) {
+    qlEditorEl.addEventListener('paste', function(e) {
+      const items = e.clipboardData && e.clipboardData.items;
+      if (!items) return;
+      let hasImage = false;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') === 0) {
+          hasImage = true;
+          e.preventDefault();
+          e.stopPropagation();
+          const file = items[i].getAsFile();
+          _quillInsertImage(q, file, containerId);
+          break; // satu gambar per paste
+        }
+      }
+      // Jika bukan gambar, biarkan Quill handle paste teks normal
+    }, true); // capture phase agar jalan sebelum Quill handler
+
+    // ── DRAG & DROP IMAGE HANDLER ──
+    qlEditorEl.addEventListener('dragover', function(e) {
+      if (e.dataTransfer && e.dataTransfer.types) {
+        for (let i = 0; i < e.dataTransfer.types.length; i++) {
+          if (e.dataTransfer.types[i] === 'Files') {
+            e.preventDefault();
+            qlEditorEl.style.outline = '2px dashed var(--p)';
+            break;
+          }
+        }
+      }
+    });
+    qlEditorEl.addEventListener('dragleave', function() {
+      qlEditorEl.style.outline = '';
+    });
+    qlEditorEl.addEventListener('drop', function(e) {
+      qlEditorEl.style.outline = '';
+      const files = e.dataTransfer && e.dataTransfer.files;
+      if (!files || !files.length) return;
+      for (let i = 0; i < files.length; i++) {
+        if (files[i].type.indexOf('image') === 0) {
+          e.preventDefault();
+          e.stopPropagation();
+          _quillInsertImage(q, files[i], containerId);
+          break;
+        }
+      }
+    });
+  }
+
+  window._quillEditors[containerId] = q;
+  return q;
+}
+
+function _quillPickImage(quill, containerId) {
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = 'image/*';
+  inp.style.display = 'none';
+  document.body.appendChild(inp);
+  inp.onchange = function() {
+    if (inp.files && inp.files[0]) {
+      _quillInsertImage(quill, inp.files[0], containerId);
+    }
+    document.body.removeChild(inp);
+  };
+  inp.click();
+}
+
+function _quillInsertImage(quill, file, containerId) {
+  const prog = document.getElementById(containerId + '_prog');
+  if (prog) prog.classList.add('show');
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    // Dapatkan posisi cursor saat ini (atau akhir dokumen)
+    let range = quill.getSelection();
+    if (!range) range = { index: quill.getLength() - 1, length: 0 };
+    quill.insertEmbed(range.index, 'image', ev.target.result, 'user');
+    quill.setSelection(range.index + 1, 0, 'user');
+    if (prog) prog.classList.remove('show');
+  };
+  reader.readAsDataURL(file);
+}
+
+function _quillPickFormula(quill) {
+  const formula = prompt(
+    'Masukkan rumus LaTeX / KaTeX:\n\n' +
+    'Contoh sederhana:  a^2 + b^2 = c^2\n' +
+    'Pecahan:           \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}\n' +
+    'Sigma:             \\sum_{i=1}^{n} i\n' +
+    'Integral:          \\int_0^\\infty e^{-x} dx'
+  );
+  if (!formula || !formula.trim()) return;
+  let range = quill.getSelection();
+  if (!range) range = { index: quill.getLength() - 1, length: 0 };
+  quill.insertEmbed(range.index, 'formula', formula.trim(), 'user');
+  quill.insertText(range.index + 1, ' ', 'user');
+  quill.setSelection(range.index + 2, 0, 'user');
+}
+
+function getQuillHTML(id) {
+  const q = window._quillEditors[id];
+  if (!q) {
+    // Fallback: coba ambil dari DOM langsung
+    const el = document.getElementById(id);
+    if (!el) return '';
+    const ed = el.querySelector('.ql-editor');
+    return ed ? ed.innerHTML : '';
+  }
+  const html = q.root.innerHTML;
+  if (!html || html === '<p><br></p>' || html.trim() === '') return '';
+  return html;
+}
+
 function mButir(id){
   const d=id?(window._butir||[]).find(b=>b.id_soal===id)||{}:{};
   document.getElementById('mdButir')?.remove();
+  // Destroy semua Quill instance lama agar tidak ada konflik
+  Object.keys(window._quillEditors).forEach(k=>{
+    try { window._quillEditors[k] = null; } catch(e){}
+    delete window._quillEditors[k];
+  });
   const kodeOpts=(window._soalListB||[]).map(s=>`<option value="${s.kode_soal}" ${d.kode_soal===s.kode_soal?'selected':''}>${s.kode_soal}</option>`).join('');
   const tipeOpts=['Pilihan Ganda','Pilihan Ganda Kompleks','Benar/Salah','Uraian','Menjodohkan'].map(t=>`<option ${d.tipe_soal===t?'selected':''}>${t}</option>`).join('');
-  const html=`<div class="mo" id="mdButir"><div class="md mdxl"><div class="mh"><div class="mtt"><i class="fa-solid fa-pen-to-square" style="color:var(--p)"></i> ${id?'Edit':'Tambah'} Butir Soal</div><button class="xb" onclick="rmModal('mdButir')">✕</button></div>
-    <div class="mbb">
-      <div class="fr"><div class="fg"><label class="fl">Kode Paket Soal *</label><select id="bKode" class="fc">${kodeOpts}</select></div>
-      <div class="fg"><label class="fl">Nomor Soal *</label><input id="bNo" type="number" class="fc" value="${d.nomer_soal||1}" min="1"></div></div>
-      <div class="fr"><div class="fg"><label class="fl">Tipe Soal *</label><select id="bTipe" class="fc" onchange="upBTipe()">${tipeOpts}</select></div>
-      <div class="fg"><label class="fl">Status Soal</label><select id="bSt" class="fc"><option value="Aktif" ${d.status_soal!=='Nonaktif'?'selected':''}>Aktif</option><option value="Nonaktif" ${d.status_soal==='Nonaktif'?'selected':''}>Nonaktif</option></select></div></div>
-      <div class="fg"><label class="fl">Pertanyaan *</label><textarea id="bQ" class="fc" style="min-height:100px" placeholder="Ketik pertanyaan... (mendukung tag HTML sederhana: &lt;b&gt;, &lt;i&gt;, &lt;img&gt;)">${d.pertanyaan||''}</textarea></div>
-      <div id="bOpsi"></div>
-      <div class="fg" id="bKunciWrap"><label class="fl">Kunci Jawaban *</label><input id="bKunci" class="fc" value="${d.jawaban_benar||''}" placeholder="Format sesuai tipe soal">
-      <div id="bKHint" class="fh" style="margin-top:4px"></div></div>
+  const html=`<div class="mo" id="mdButir"><div class="md mdxl"><div class="mh">
+    <div class="mtt"><i class="fa-solid fa-pen-to-square" style="color:var(--p)"></i> ${id?'Edit':'Tambah'} Butir Soal
+      <span style="font-size:10.5px;background:var(--pl);color:var(--pd);padding:2px 8px;border-radius:100px;margin-left:8px;font-weight:600">
+        <i class="fa-solid fa-image"></i> Rich Editor + KaTeX
+      </span>
     </div>
-    <div class="mf"><button class="btn bo" onclick="rmModal('mdButir')"><i class="fa-solid fa-xmark"></i> Batal</button><button class="btn bp" onclick="svButir(${id||0})"><i class="fa-solid fa-floppy-disk"></i> Simpan</button></div>
+    <button class="xb" onclick="rmModal('mdButir')">✕</button></div>
+    <div class="mbb">
+      <div class="fr">
+        <div class="fg"><label class="fl">Kode Paket Soal *</label><select id="bKode" class="fc">${kodeOpts}</select></div>
+        <div class="fg"><label class="fl">Nomor Soal *</label><input id="bNo" type="number" class="fc" value="${d.nomer_soal||1}" min="1"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Tipe Soal *</label><select id="bTipe" class="fc" onchange="upBTipe()">${tipeOpts}</select></div>
+        <div class="fg"><label class="fl">Status Soal</label><select id="bSt" class="fc"><option value="Aktif" ${d.status_soal!=='Nonaktif'?'selected':''}>Aktif</option><option value="Nonaktif" ${d.status_soal==='Nonaktif'?'selected':''}>Nonaktif</option></select></div>
+      </div>
+      <div class="fg">
+        <label class="fl">Pertanyaan *
+          <span style="font-size:10.5px;font-weight:400;color:var(--mu);margin-left:6px">
+            <i class="fa-solid fa-circle-info"></i> Mendukung rich text, gambar (paste/drag/upload), dan rumus matematika KaTeX
+          </span>
+        </label>
+        <div id="qeditor_pertanyaan"></div>
+      </div>
+      <div id="bOpsi"></div>
+      <div class="fg" id="bKunciWrap">
+        <label class="fl">Kunci Jawaban *</label>
+        <input id="bKunci" class="fc" value="${d.jawaban_benar||''}" placeholder="Format sesuai tipe soal">
+        <div id="bKHint" class="fh" style="margin-top:4px"></div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn bo" onclick="rmModal('mdButir')"><i class="fa-solid fa-xmark"></i> Batal</button>
+      <button class="btn bp" onclick="svButir(${id||0})"><i class="fa-solid fa-floppy-disk"></i> Simpan</button>
+    </div>
   </div></div>`;
   document.body.insertAdjacentHTML('beforeend',html);
-  upBTipe(d);
+  // Initialize Quill for pertanyaan after DOM is ready
+  setTimeout(()=>{
+    createQuillEditor('qeditor_pertanyaan', {
+      value: d.pertanyaan||'',
+      size: 'lg',
+      placeholder: 'Ketik pertanyaan di sini... Anda dapat paste gambar, drag & drop gambar, upload gambar, atau sisipkan rumus KaTeX dengan tombol Σ',
+      toolbarType: 'full'
+    });
+    upBTipe(d);
+  }, 50);
 }
 
 function upBTipe(d){
@@ -1191,48 +1467,78 @@ function upBTipe(d){
   const area=$('bOpsi');if(!area)return;
   const hint=$('bKHint');if(!hint)return;
   const kunciWrap=$('bKunciWrap');
+
+  // Bersihkan quill instances opsi lama
+  Object.keys(window._quillEditors).forEach(k=>{
+    if (k.startsWith('qop_')) {
+      try { window._quillEditors[k] = null; } catch(e){}
+      delete window._quillEditors[k];
+    }
+  });
+
   if(t==='Pilihan Ganda'||t==='Pilihan Ganda Kompleks'){
     const labels=['A','B','C','D','E'];
     const isPG=t==='Pilihan Ganda';
     area.innerHTML=`
-      <div style="margin-bottom:10px;padding:10px 12px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
-        <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">
+      <div style="margin-bottom:10px;padding:12px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
+        <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">
           <i class="fa-solid fa-list-ul" style="color:var(--p)"></i> Opsi Jawaban ${isPG?'(pilih 1 benar)':'(bisa lebih dari 1)'}
+          <span style="font-size:10px;font-weight:400;margin-left:6px;color:var(--mu)">— mendukung gambar &amp; rumus KaTeX</span>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          ${labels.map((l,i)=>`
-          <div class="fg" style="margin:0">
-            <label class="fl" style="display:flex;align-items:center;gap:6px">
-              <span style="width:20px;height:20px;border-radius:50%;background:${i<2?'var(--p)':'var(--br)'};color:${i<2?'#fff':'var(--mu)'};display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">${l}</span>
-              Pilihan ${l}${i<2?' <span style="color:var(--er)">*</span>':' <span style="color:var(--mu);font-weight:400">(opsional)</span>'}
-            </label>
-            <input id="bP${i+1}" class="fc" value="${d['pilihan_'+(i+1)]||''}" placeholder="Ketik pilihan ${l}...">
-          </div>`).join('')}
-        </div>
+        ${labels.map((l,i)=>`
+        <div class="fg" style="margin-bottom:12px">
+          <label class="fl" style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+            <span style="width:22px;height:22px;border-radius:50%;background:${i<2?'var(--p)':'var(--br)'};color:${i<2?'#fff':'var(--mu)'};display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">${l}</span>
+            Pilihan ${l}${i<2?' <span style="color:var(--er)">*</span>':' <span style="color:var(--mu);font-weight:400">(opsional)</span>'}
+          </label>
+          <div id="qop_bP${i+1}" class="ql-opsi-wrap"></div>
+        </div>`).join('')}
       </div>`;
     hint.innerHTML=isPG
       ?'<i class="fa-solid fa-circle-info"></i> Format kunci: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">pilihan_1</code> (masukkan angka pilihan yang benar)'
       :'<i class="fa-solid fa-circle-info"></i> Format kunci: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">pilihan_1,pilihan_3</code> (pisahkan dengan koma, bisa lebih dari satu)';
     if(kunciWrap)kunciWrap.style.display='';
+    // Init Quill editors for each option
+    setTimeout(()=>{
+      labels.forEach((l,i)=>{
+        createQuillEditor(`qop_bP${i+1}`,{
+          value: d['pilihan_'+(i+1)]||'',
+          size: 'sm',
+          placeholder: `Pilihan ${l}...`,
+          toolbarType: 'compact'
+        });
+      });
+    },50);
+
   }else if(t==='Benar/Salah'){
     area.innerHTML=`
-      <div style="margin-bottom:10px;padding:10px 12px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
-        <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">
+      <div style="margin-bottom:10px;padding:12px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
+        <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">
           <i class="fa-solid fa-toggle-on" style="color:var(--ok)"></i> Pernyataan Benar/Salah
+          <span style="font-size:10px;font-weight:400;margin-left:6px;color:var(--mu)">— mendukung gambar &amp; rumus KaTeX</span>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          ${[1,2,3,4].map(i=>`
-          <div class="fg" style="margin:0">
-            <label class="fl" style="display:flex;align-items:center;gap:6px">
-              <span style="width:20px;height:20px;border-radius:4px;background:${i<3?'var(--ok)':'var(--br)'};color:${i<3?'#fff':'var(--mu)'};display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">${i}</span>
-              Pernyataan ${i}${i<2?' <span style="color:var(--er)">*</span>':' <span style="color:var(--mu);font-weight:400">(opsional)</span>'}
-            </label>
-            <input id="bP${i}" class="fc" value="${d['pilihan_'+i]||''}" placeholder="Ketik pernyataan ${i}...">
-          </div>`).join('')}
-        </div>
+        ${[1,2,3,4].map(i=>`
+        <div class="fg" style="margin-bottom:12px">
+          <label class="fl" style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+            <span style="width:22px;height:22px;border-radius:4px;background:${i<3?'var(--ok)':'var(--br)'};color:${i<3?'#fff':'var(--mu)'};display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">${i}</span>
+            Pernyataan ${i}${i<2?' <span style="color:var(--er)">*</span>':' <span style="color:var(--mu);font-weight:400">(opsional)</span>'}
+          </label>
+          <div id="qop_bP${i}bs" class="ql-opsi-wrap"></div>
+        </div>`).join('')}
       </div>`;
     hint.innerHTML='<i class="fa-solid fa-circle-info"></i> Format kunci: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">Benar|Salah|Benar</code> (sesuai urutan pernyataan, pisah dengan | pipe)';
     if(kunciWrap)kunciWrap.style.display='';
+    setTimeout(()=>{
+      [1,2,3,4].forEach(i=>{
+        createQuillEditor(`qop_bP${i}bs`,{
+          value: d['pilihan_'+i]||'',
+          size: 'sm',
+          placeholder: `Pernyataan ${i}...`,
+          toolbarType: 'compact'
+        });
+      });
+    },50);
+
   }else if(t==='Uraian'){
     area.innerHTML=`
       <div style="margin-bottom:10px;padding:10px 12px;background:#fffbeb;border-radius:8px;border:1px solid #fde68a">
@@ -1243,29 +1549,26 @@ function upBTipe(d){
       </div>`;
     hint.innerHTML='<i class="fa-solid fa-circle-info"></i> Isi kunci sebagai referensi koreksi, tidak digunakan untuk penilaian otomatis';
     if(kunciWrap)kunciWrap.style.display='';
+
   }else if(t==='Menjodohkan'){
     area.innerHTML=`
-      <div style="margin-bottom:10px;padding:10px 12px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
-        <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">
+      <div style="margin-bottom:10px;padding:12px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
+        <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">
           <i class="fa-solid fa-arrows-left-right" style="color:var(--p)"></i> Pasangan Menjodohkan
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          ${[1,2,3].map(i=>`
-          <div class="fg" style="margin:0;grid-column:span 2">
-            <label class="fl" style="display:flex;align-items:center;gap:6px;color:var(--mu)">
-              <i class="fa-solid fa-link" style="color:var(--p);font-size:11px"></i> Pasangan ${i}${i===1?' <span style="color:var(--er)">*</span>':''}
-              <span style="font-size:10.5px;color:var(--mu);font-weight:400">— format: <code style="background:#f1f5f9;padding:1px 4px;border-radius:3px">Kiri${i}:Kanan${i}</code></span>
-            </label>
-            <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center">
-              <input id="bMatchL${i}" class="fc" value="${(d.jawaban_benar||'').split('|')[i-1]?.split(':')[0]||''}" placeholder="Kolom kiri ${i}">
-              <i class="fa-solid fa-arrow-right" style="color:var(--mu)"></i>
-              <input id="bMatchR${i}" class="fc" value="${(d.jawaban_benar||'').split('|')[i-1]?.split(':')[1]||''}" placeholder="Kolom kanan ${i}">
-            </div>
-          </div>`).join('')}
-        </div>
+        ${[1,2,3].map(i=>`
+        <div class="fg" style="margin-bottom:10px">
+          <label class="fl" style="display:flex;align-items:center;gap:6px;margin-bottom:6px;color:var(--mu)">
+            <i class="fa-solid fa-link" style="color:var(--p);font-size:11px"></i> Pasangan ${i}${i===1?' <span style="color:var(--er)">*</span>':''}
+          </label>
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center">
+            <input id="bMatchL${i}" class="fc" value="${(d.jawaban_benar||'').split('|')[i-1]?.split(':')[0]||''}" placeholder="Kolom kiri ${i}">
+            <i class="fa-solid fa-arrow-right" style="color:var(--mu)"></i>
+            <input id="bMatchR${i}" class="fc" value="${(d.jawaban_benar||'').split('|')[i-1]?.split(':')[1]||''}" placeholder="Kolom kanan ${i}">
+          </div>
+        </div>`).join('')}
       </div>`;
     hint.innerHTML='<i class="fa-solid fa-circle-info"></i> Kunci diisi otomatis dari pasangan di atas: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">Kiri1:Kanan1|Kiri2:Kanan2|Kiri3:Kanan3</code>';
-    // Auto-fill kunci from match inputs
     const syncMatch=()=>{
       const pairs=[1,2,3].map(i=>{const l=$(`bMatchL${i}`)?.value||'';const r=$(`bMatchR${i}`)?.value||'';return l&&r?`${l}:${r}`:null;}).filter(Boolean);
       const k=$('bKunci');if(k)k.value=pairs.join('|');
@@ -1276,10 +1579,30 @@ function upBTipe(d){
 }
 
 async function svButir(id){
-  const o={kode_soal:$('bKode').value,nomer_soal:parseInt($('bNo').value),pertanyaan:$('bQ').value.trim(),tipe_soal:$('bTipe').value,
-    pilihan_1:$('bP1')?.value||'',pilihan_2:$('bP2')?.value||'',pilihan_3:$('bP3')?.value||'',
-    pilihan_4:$('bP4')?.value||'',pilihan_5:$('bP5')?.value||'',jawaban_benar:$('bKunci').value.trim(),status_soal:$('bSt').value};
-  if(!o.kode_soal||!o.pertanyaan||!o.jawaban_benar){toast('Kode, pertanyaan, dan kunci wajib diisi!','er');return;}
+  // Get pertanyaan from Quill editor
+  const pertanyaan = getQuillHTML('qeditor_pertanyaan');
+
+  // Get pilihan from Quill editors or plain inputs depending on tipe
+  const tipe = $('bTipe')?.value || '';
+  let p1='',p2='',p3='',p4='',p5='';
+
+  if(tipe==='Pilihan Ganda'||tipe==='Pilihan Ganda Kompleks'){
+    p1=getQuillHTML('qop_bP1');
+    p2=getQuillHTML('qop_bP2');
+    p3=getQuillHTML('qop_bP3');
+    p4=getQuillHTML('qop_bP4');
+    p5=getQuillHTML('qop_bP5');
+  }else if(tipe==='Benar/Salah'){
+    p1=getQuillHTML('qop_bP1bs');
+    p2=getQuillHTML('qop_bP2bs');
+    p3=getQuillHTML('qop_bP3bs');
+    p4=getQuillHTML('qop_bP4bs');
+  }
+
+  const o={kode_soal:$('bKode').value,nomer_soal:parseInt($('bNo').value),pertanyaan,tipe_soal:tipe,
+    pilihan_1:p1,pilihan_2:p2,pilihan_3:p3,
+    pilihan_4:p4,pilihan_5:p5,jawaban_benar:$('bKunci').value.trim(),status_soal:$('bSt').value};
+  if(!o.kode_soal||!pertanyaan||!o.jawaban_benar){toast('Kode, pertanyaan, dan kunci wajib diisi!','er');return;}
   if(demoMode){toast('Mode demo: data tidak tersimpan','in');rmModal('mdButir');return;}
   try{
     if(id){await SB.from('butir_soal').update(o).eq('id_soal',id);toast('Soal diperbarui!','ok');}
