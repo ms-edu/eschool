@@ -391,6 +391,7 @@ tbody tr:hover td{background:#fafbff}
   .print-kop{display:block!important;width:100%;margin-bottom:0;border-bottom:3pt solid #000;padding-bottom:3mm}
   .print-kop-inner{display:flex;align-items:center;gap:4mm;width:100%}
   .print-kop-logo{width:20mm;height:20mm;object-fit:contain;flex-shrink:0}
+  .print-kop-logo-ph{width:20mm;height:20mm;flex-shrink:0;border:1pt solid #ccc;display:flex;align-items:center;justify-content:center;font-size:7pt;color:#999;text-align:center;line-height:1.3}
   .print-kop-teks{flex:1;text-align:center}
   .print-kop-teks .ks-nama{font-size:14pt;font-weight:900;margin:0;text-transform:uppercase;letter-spacing:.04em;line-height:1.2}
   .print-kop-teks .ks-sub{font-size:9pt;font-weight:600;margin:.5mm 0;color:#222}
@@ -2148,16 +2149,18 @@ async function rHasil(el){
 
   el.innerHTML=`
   <!-- KOP SURAT — hanya tampil saat cetak -->
-  <div class="print-kop" style="display:none">
-    <div class="print-kop-inner">
-      <img src="https://i.imgur.com/bT70O4C.png" class="print-kop-logo"
-           onerror="this.style.display='none'" alt="">
-      <div class="print-kop-teks">
-        <p class="ks-nama" id="phNamaSekolahH">${pg.nama_sekolah||'NAMA SEKOLAH'}</p>
-        <p class="ks-sub" id="phNamaAppH">${pg.nama_app||'Sistem Ujian CBT'}</p>
-        <p class="ks-alamat">Sistem Penilaian Ujian Berbasis Komputer (Computer Based Test)</p>
-      </div>
-    </div>
+  <div class="print-kop" style="display:none" id="phKopH">
+    ${pg.kop_custom
+      ? `<img src="${pg.kop_custom}" style="width:100%;max-height:70px;object-fit:contain;display:block">`
+      : `<div class="print-kop-inner">
+           ${(pg.logo_sekolah) ? `<img src="${pg.logo_sekolah}" class="print-kop-logo" onerror="this.style.display='none'" alt="">` : ''}
+           <div class="print-kop-teks">
+             <p class="ks-nama" id="phNamaSekolahH">${pg.nama_sekolah||'NAMA SEKOLAH'}</p>
+             <p class="ks-sub" id="phNamaAppH">${pg.nama_app||'Sistem Ujian CBT'}</p>
+             <p class="ks-alamat">${pg.alamat_sekolah||'Sistem Penilaian Ujian Berbasis Komputer (Computer Based Test)'}</p>
+           </div>
+         </div>`
+    }
   </div>
   <!-- JUDUL -->
   <div class="print-judul" style="display:none">
@@ -2283,9 +2286,21 @@ function cetakLaporanHasil(){
   const data=window._hasil||[];
   const now=new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
-  // Update nama sekolah & app di kop
-  var ns=$('phNamaSekolahH');if(ns)ns.textContent=pg.nama_sekolah||'NAMA SEKOLAH';
-  var na=$('phNamaAppH');if(na)na.textContent=pg.nama_app||'Sistem Ujian CBT';
+  // Update kop — re-render sesuai kop_custom / logo_sekolah terkini
+  const kopEl=$('phKopH');
+  if(kopEl){
+    if(pg.kop_custom){
+      kopEl.innerHTML=`<img src="${pg.kop_custom}" style="width:100%;max-height:70px;object-fit:contain;display:block">`;
+    } else {
+      kopEl.innerHTML=`<div class="print-kop-inner">
+        ${pg.logo_sekolah?`<img src="${pg.logo_sekolah}" class="print-kop-logo" onerror="this.style.display='none'" alt="">`:'<div class="print-kop-logo" style="display:flex;align-items:center;justify-content:center;border:1pt solid #ccc;font-size:8pt;color:#999;text-align:center;line-height:1.2">Logo<br>Sekolah</div>'}
+        <div class="print-kop-teks">
+          <p class="ks-nama">${pg.nama_sekolah||'NAMA SEKOLAH'}</p>
+          <p class="ks-sub">${pg.nama_app||'Sistem Ujian CBT'}</p>
+          <p class="ks-alamat">${pg.alamat_sekolah||'Sistem Penilaian Ujian Berbasis Komputer (Computer Based Test)'}</p>
+        </div></div>`;
+    }
+  }
   // Judul sub
   var sub=$('phSubH');if(sub)sub.textContent=kode?`Paket: ${kode} — ${soal.nama_soal||''}`:'Semua Paket Soal';
   // Meta
@@ -2399,16 +2414,18 @@ async function rAnalisa(el){
 
   el.innerHTML=`
   <!-- KOP CETAK -->
-  <div class="print-kop" style="display:none">
-    <div class="print-kop-inner">
-      <img src="https://i.imgur.com/bT70O4C.png" class="print-kop-logo"
-           onerror="this.style.display='none'" alt="">
-      <div class="print-kop-teks">
-        <p class="ks-nama" id="phNamaSekolahA">${pg.nama_sekolah||'NAMA SEKOLAH'}</p>
-        <p class="ks-sub" id="phNamaAppA">${pg.nama_app||'Sistem Ujian CBT'}</p>
-        <p class="ks-alamat">Analisis Butir Soal — Sistem Penilaian Berbasis Komputer</p>
-      </div>
-    </div>
+  <div class="print-kop" style="display:none" id="phKopA">
+    ${pg.kop_custom
+      ? `<img src="${pg.kop_custom}" style="width:100%;max-height:70px;object-fit:contain;display:block">`
+      : `<div class="print-kop-inner">
+           ${(pg.logo_sekolah) ? `<img src="${pg.logo_sekolah}" class="print-kop-logo" onerror="this.style.display='none'" alt="">` : ''}
+           <div class="print-kop-teks">
+             <p class="ks-nama" id="phNamaSekolahA">${pg.nama_sekolah||'NAMA SEKOLAH'}</p>
+             <p class="ks-sub" id="phNamaAppA">${pg.nama_app||'Sistem Ujian CBT'}</p>
+             <p class="ks-alamat">${pg.alamat_sekolah||'Analisis Butir Soal — Sistem Penilaian Berbasis Komputer'}</p>
+           </div>
+         </div>`
+    }
   </div>
   <!-- JUDUL -->
   <div class="print-judul" style="display:none">
@@ -2583,9 +2600,21 @@ function cetakLaporanAnalisa(){
   const now=new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   const soal=dat.soal||{};
 
-  // Update kop
-  var ns=$('phNamaSekolahA');if(ns)ns.textContent=pg.nama_sekolah||'NAMA SEKOLAH';
-  var na=$('phNamaAppA');if(na)na.textContent=pg.nama_app||'Sistem Ujian CBT';
+  // Update kop — re-render sesuai kop_custom / logo_sekolah terkini
+  const kopEl=$('phKopA');
+  if(kopEl){
+    if(pg.kop_custom){
+      kopEl.innerHTML=`<img src="${pg.kop_custom}" style="width:100%;max-height:70px;object-fit:contain;display:block">`;
+    } else {
+      kopEl.innerHTML=`<div class="print-kop-inner">
+        ${pg.logo_sekolah?`<img src="${pg.logo_sekolah}" class="print-kop-logo" onerror="this.style.display='none'" alt="">`:'<div class="print-kop-logo" style="display:flex;align-items:center;justify-content:center;border:1pt solid #ccc;font-size:8pt;color:#999;text-align:center;line-height:1.2">Logo<br>Sekolah</div>'}
+        <div class="print-kop-teks">
+          <p class="ks-nama">${pg.nama_sekolah||'NAMA SEKOLAH'}</p>
+          <p class="ks-sub">${pg.nama_app||'Sistem Ujian CBT'}</p>
+          <p class="ks-alamat">${pg.alamat_sekolah||'Analisis Butir Soal — Sistem Penilaian Berbasis Komputer'}</p>
+        </div></div>`;
+    }
+  }
   // Judul sub
   var sub=$('phSubA');if(sub)sub.textContent=dat.kode?`Paket: ${dat.kode} — ${soal.nama_soal||''}`:'—';
   // Meta
@@ -2714,16 +2743,29 @@ function kartulSiswa(id){
   document.body.insertAdjacentHTML('beforeend',html);
 }
 
-function printKartu(){
+async function printKartu(){
   const content=$('kartuArea')?.innerHTML;if(!content)return;
+  const pg=demoMode?DEMO.pengaturan:((await SB.from('pengaturan').select('*').single()).data||{});
+  const namaSkl=pg.nama_sekolah||'NAMA SEKOLAH';
+  const logoSrc=pg.logo_sekolah||'';
+  const kopHtml=pg.kop_custom
+    ?`<div style="border-bottom:2.5pt solid #000;padding-bottom:6px;margin-bottom:10px"><img src="${pg.kop_custom}" style="width:100%;max-height:70px;object-fit:contain;display:block"></div>`
+    :`<div style="display:flex;align-items:center;gap:10px;border-bottom:2.5pt solid #000;padding-bottom:8px;margin-bottom:10px">
+        ${logoSrc?`<img src="${logoSrc}" alt="Logo" style="width:16mm;height:16mm;object-fit:contain;flex-shrink:0" onerror="this.style.display='none'">`:''}
+        <div style="flex:1;text-align:center">
+          <div style="font-size:13pt;font-weight:800;text-transform:uppercase;letter-spacing:.04em">${namaSkl}</div>
+          ${pg.alamat_sekolah?`<div style="font-size:8pt;color:#444;margin-top:2px">${pg.alamat_sekolah}</div>`:''}
+        </div>
+      </div>`;
   const w=window.open('','_blank');
   w.document.write(`<html><head><title>Kartu Peserta</title><style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Plus Jakarta Sans',sans-serif;padding:20px}
+    @page{size:A4 portrait;margin:15mm}
     .kartu{width:340px;border:2px solid #334155;border-radius:10px;padding:16px}
     .kartu-head{display:flex;align-items:center;gap:10px;border-bottom:2px solid #334155;padding-bottom:10px;margin-bottom:10px}
     .kartu-logo{display:flex;align-items:center;justify-content:center}
-  </style></head><body>${content}</body></html>`);
+  </style></head><body>${kopHtml}${content}</body></html>`);
   w.document.close();w.print();
 }
 
@@ -2743,9 +2785,14 @@ async function delSiswa(id){
   toast('Siswa dihapus!','ok');loadSiswa();
 }
 
-function cetakKartuSiswa(){
+async function cetakKartuSiswa(){
   const siswa=window._siswa||[];
   if(!siswa.length){toast('Tidak ada data siswa!','er');return;}
+
+  // Ambil identitas sekolah
+  const pg=demoMode?DEMO.pengaturan:((await SB.from('pengaturan').select('*').single()).data||{});
+  const namaSkl = pg.nama_sekolah||'NAMA SEKOLAH';
+  const logoSrc = pg.logo_sekolah||'';
   
   // Open print window
   const pw=window.open('','_blank');
@@ -2828,10 +2875,10 @@ function cetakKartuSiswa(){
       pw.document.write(`
         <div class="kartu-print">
           <div class="kartu-head">
-            <div class="kartu-logo"><img src="https://i.imgur.com/bT70O4C.png" alt="Logo" style="width:9mm;height:9mm;object-fit:contain" onerror="this.outerHTML='<span style=\'color:var(--p);font-weight:800;font-size:10pt\'>E</span>'"></div>
+            <div class="kartu-logo">${logoSrc?`<img src="${logoSrc}" alt="Logo" style="width:9mm;height:9mm;object-fit:contain" onerror="this.style.display='none'">`:''}</div>
             <div class="kartu-title">
               <h3>KARTU PESERTA UJIAN</h3>
-              <p>Emes CBT System</p>
+              <p>${namaSkl}</p>
             </div>
           </div>
           <div class="kartu-body">
