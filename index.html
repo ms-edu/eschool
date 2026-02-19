@@ -493,26 +493,8 @@ tbody tr:hover td{background:#fafbff}
 <!-- ADMIN PANEL -->
 <div id="adminPanel" class="app hidden">
   <aside class="sidebar" id="admSB">
-    <div class="sbh"><div class="sblogo"><div class="sbicon"><img src="https://i.imgur.com/bT70O4C.png" alt="Logo" onerror="this.outerHTML='<i class=\'fa-solid fa-clipboard-list\' style=\'color:#fff;font-size:20px\'></i>'"></div> Emes CBT System</div><div class="sbrole">Admin Panel</div></div>
-    <nav class="sbnav">
-      <div class="sbsec">Utama</div>
-      <button class="ni active" data-p="dash" onclick="nav('dash')"><span class="ic"><i class="fa-solid fa-gauge-high"></i></span>Dashboard</button>
-      <div class="sbsec">Ujian</div>
-      <button class="ni" data-p="soal" onclick="nav('soal')"><span class="ic"><i class="fa-solid fa-folder-open"></i></span>Paket Soal</button>
-      <button class="ni" data-p="butir" onclick="nav('butir')"><span class="ic"><i class="fa-solid fa-circle-question"></i></span>Butir Soal</button>
-      <button class="ni" data-p="hasil" onclick="nav('hasil')"><span class="ic"><i class="fa-solid fa-chart-line"></i></span>Hasil Ujian</button>
-      <button class="ni" data-p="analisa" onclick="nav('analisa')"><span class="ic"><i class="fa-solid fa-microscope"></i></span>Analisa Per-butir</button>
-      <div class="sbsec">Manajemen</div>
-      <button class="ni" data-p="siswa" onclick="nav('siswa')"><span class="ic"><i class="fa-solid fa-users"></i></span>Data Siswa</button>
-      <button class="ni" data-p="monitor" onclick="nav('monitor')"><span class="ic"><i class="fa-solid fa-display"></i></span>Monitor Ujian</button>
-      <button class="ni" data-p="lb" onclick="nav('lb')"><span class="ic"><i class="fa-solid fa-trophy"></i></span>Leaderboard</button>
-      <button class="ni" data-p="hadir" onclick="nav('hadir')"><span class="ic"><i class="fa-solid fa-clipboard-user"></i></span>Daftar Hadir</button>
-      <button class="ni" data-p="chat" onclick="nav('chat')"><span class="ic"><i class="fa-solid fa-comments"></i></span>Chat Siswa</button>
-      <div class="sbsec">Sistem</div>
-      <button class="ni" data-p="users" onclick="nav('users')"><span class="ic"><i class="fa-solid fa-user-shield"></i></span>Manajemen User</button>
-      <button class="ni" data-p="faq" onclick="nav('faq')"><span class="ic"><i class="fa-solid fa-circle-info"></i></span>FAQ</button>
-      <button class="ni" data-p="set" onclick="nav('set')"><span class="ic"><i class="fa-solid fa-sliders"></i></span>Pengaturan</button>
-    </nav>
+    <div class="sbh"><div class="sblogo"><div class="sbicon"><img src="https://i.imgur.com/bT70O4C.png" alt="Logo" onerror="this.outerHTML='<i class=\'fa-solid fa-clipboard-list\' style=\'color:#fff;font-size:20px\'></i>'"></div> Emes CBT System</div><div class="sbrole" id="admSBRole">Panel</div></div>
+    <nav class="sbnav" id="admSBNav"><!-- diisi dinamis oleh buildSidebarNav() --></nav>
     <div class="sbfoot">
     <div class="app-footer">&copy; 2026 Emes EduTech</div>
     </div>
@@ -736,7 +718,11 @@ const DEMO={
     {id:3,question:'Jawaban hilang saat internet terputus?',answer:'Jawaban disimpan otomatis ke server setiap 30 detik. Jika terputus, jawaban terakhir yang tersimpan masih ada. Buka kembali ujian untuk melanjutkan.'},
     {id:4,question:'Bagaimana cara melihat nilai?',answer:'Setelah ujian selesai, nilai langsung ditampilkan di layar. Anda juga bisa melihat di menu Nilai Saya kapan saja.'},
   ],
-  users:[{id:1,username:'admin',nama_admin:'Administrator',role:'admin',password:'admin',created_at:new Date().toISOString()}],
+  users:[
+    {id:1,username:'admin',nama_admin:'Administrator',role:'admin',password:'admin',created_at:new Date().toISOString()},
+    {id:2,username:'guru1',nama_admin:'Pak Ahmad (Guru)',role:'guru',password:'guru1',created_at:new Date().toISOString()},
+    {id:3,username:'proktor1',nama_admin:'Bu Sari (Proktor)',role:'proktor',password:'proktor1',created_at:new Date().toISOString()},
+  ],
   pengaturan:{nama_sekolah:'SMP Contoh',nama_app:'CBT E-School',chat:'izin',login_ganda:'izin',sembunyikan_nilai:'tidak',berita_acara:'tidak'},
   skor_game:[]
 };
@@ -1001,19 +987,106 @@ async function loginSiswa(){
 function logoutAdmin(){if(!confirm('Yakin ingin keluar?'))return;adm=null;showAdminLogin();}
 function logoutSiswa(){if(!confirm('Yakin ingin keluar?'))return;sis=null;showSiswaLogin();}
 
+// ═══════════════════════════ RBAC HELPERS ═══════════════════════════
+function getRole(){return(adm?.role||'editor').toLowerCase();}
+function isAdmin(){return getRole()==='admin';}
+function isGuru(){const r=getRole();return r==='guru'||r==='editor';}
+function isProktor(){const r=getRole();return r==='proktor'||r==='pengawas';}
+
+const ROLE_PAGES={
+  // Admin: akses penuh
+  admin:    ['dash','soal','butir','hasil','analisa','siswa','monitor','lb','hadir','chat','users','faq','set'],
+  // Guru/Editor: hanya urusan soal & penilaian + chat
+  guru:     ['dash','soal','butir','hasil','analisa','chat','faq'],
+  editor:   ['dash','soal','butir','hasil','analisa','chat','faq'],
+  // Proktor/Pengawas: pengawasan ujian, monitor, daftar hadir, berita acara, chat
+  proktor:  ['dash','monitor','lb','hadir','chat'],
+  pengawas: ['dash','monitor','lb','hadir','chat'],
+};
+
+function canAccess(page){
+  const r=getRole();
+  const allowed=ROLE_PAGES[r]||ROLE_PAGES['editor'];
+  return allowed.includes(page);
+}
+
+function getRoleLabel(){
+  const map={admin:'Administrator',guru:'Guru',editor:'Guru',proktor:'Proktor / Pengawas',pengawas:'Proktor / Pengawas'};
+  return map[getRole()]||'Staff';
+}
+
+function getRoleColor(){
+  const r=getRole();
+  if(r==='admin')return'var(--p)';
+  if(r==='guru'||r==='editor')return'var(--ok)';
+  return'#6366f1';
+}
+
+const SIDEBAR_DEF=[
+  {sec:'Utama',items:[
+    {p:'dash',icon:'fa-gauge-high',label:'Dashboard'},
+  ]},
+  {sec:'Soal & Penilaian',items:[
+    {p:'soal',   icon:'fa-folder-open',       label:'Paket Soal'},
+    {p:'butir',  icon:'fa-circle-question',   label:'Butir Soal'},
+    {p:'hasil',  icon:'fa-chart-line',        label:'Hasil Ujian'},
+    {p:'analisa',icon:'fa-microscope',        label:'Analisa Per-butir'},
+  ]},
+  {sec:'Pengawasan Ujian',items:[
+    {p:'monitor',icon:'fa-display',           label:'Monitor Ujian'},
+    {p:'lb',     icon:'fa-trophy',            label:'Leaderboard'},
+    {p:'hadir',  icon:'fa-clipboard-user',    label:'Daftar Hadir'},
+  ]},
+  {sec:'Manajemen',items:[
+    {p:'siswa',  icon:'fa-users',             label:'Data Siswa'},
+  ]},
+  {sec:'Komunikasi',items:[
+    {p:'chat',   icon:'fa-comments',          label:'Chat Siswa'},
+  ]},
+  {sec:'Sistem',items:[
+    {p:'users',  icon:'fa-user-shield',       label:'Manajemen User'},
+    {p:'faq',    icon:'fa-circle-info',       label:'FAQ'},
+    {p:'set',    icon:'fa-sliders',           label:'Pengaturan'},
+  ]},
+];
+
+function buildSidebarNav(){
+  const nav=$('admSBNav');if(!nav)return;
+  let html='';
+  SIDEBAR_DEF.forEach(({sec,items})=>{
+    const vis=items.filter(i=>canAccess(i.p));
+    if(!vis.length)return;
+    html+=`<div class="sbsec">${sec}</div>`;
+    vis.forEach(i=>{
+      html+=`<button class="ni" data-p="${i.p}" onclick="nav('${i.p}')"><span class="ic"><i class="fa-solid ${i.icon}"></i></span>${i.label}</button>`;
+    });
+  });
+  nav.innerHTML=html;
+  // Update label role di header sidebar
+  const roleEl=$('admSBRole');
+  if(roleEl)roleEl.textContent=getRoleLabel()+' Panel';
+}
+
 // ═══════════════════════════ ADMIN PANEL ═══════════════════════════
 function showAdminPanel(){
   hideAll(['loginAdmin','loginSiswa','siswaPanel','examScreen','gameScreen','cfgScreen']);show('adminPanel');
   $('admAv').textContent=adm.nama_admin[0].toUpperCase();
-  $('admAv').style.background=adm.role==='admin'?'var(--p)':'var(--ok)';
+  $('admAv').style.background=getRoleColor();
   $('admName').textContent=adm.nama_admin;
-  $('admRole').textContent=adm.role==='admin'?'Administrator':'Editor';
-  nav('dash');
+  $('admRole').textContent=getRoleLabel();
+  buildSidebarNav();
+  const firstPage=(ROLE_PAGES[getRole()]||['dash'])[0];
+  nav(firstPage);
 }
 
 const PGNM={dash:'Dashboard',soal:'Paket Soal',butir:'Butir Soal',hasil:'Hasil Ujian',analisa:'Analisa Per-butir',siswa:'Data Siswa',monitor:'Monitor Ujian',lb:'Leaderboard',hadir:'Daftar Hadir',chat:'Chat Siswa',users:'Manajemen User',faq:'FAQ',set:'Pengaturan'};
 
 function nav(p){
+  // RBAC guard: jika tidak punya akses, redirect ke halaman pertama yang boleh
+  if(!canAccess(p)){
+    const allowed=ROLE_PAGES[getRole()]||['dash'];
+    p=allowed[0];
+  }
   document.querySelectorAll('#adminPanel .ni').forEach(n=>n.classList.remove('active'));
   const ni=document.querySelector(`#adminPanel .ni[data-p="${p}"]`);if(ni)ni.classList.add('active');
   $('admPT').textContent=PGNM[p]||p;
@@ -3130,7 +3203,7 @@ async function rUsers(el){
       ${users.map(u=>`<tr>
         <td><span class="mono">${u.username}</span></td>
         <td style="font-weight:600">${u.nama_admin}</td>
-        <td><span class="badge ${u.role==='admin'?'bno':'bbl'}">${u.role==='admin'?'<i class=\"fa-solid fa-crown\"></i> Admin':'<i class=\"fa-solid fa-pen\"></i> Editor'}</span></td>
+        <td><span class="badge ${{admin:'bno',guru:'bok',editor:'bok',proktor:'bbl',pengawas:'bbl'}[u.role]||'bgr'}">${{admin:'<i class=\"fa-solid fa-crown\"></i> Admin',guru:'<i class=\"fa-solid fa-chalkboard-user\"></i> Guru',editor:'<i class=\"fa-solid fa-chalkboard-user\"></i> Guru',proktor:'<i class=\"fa-solid fa-eye\"></i> Proktor',pengawas:'<i class=\"fa-solid fa-eye\"></i> Pengawas'}[u.role]||u.role}</span></td>
         <td style="font-size:11.5px;color:var(--mu)">${fd(u.created_at)}</td>
         <td><div style="display:flex;gap:5px">
           <button class="btn bsm bo" onclick="mUser(${u.id})"><i class=\"fa-solid fa-pen\"></i></button>
@@ -3148,7 +3221,12 @@ function mUser(id){
       <div class="fg"><label class="fl">Nama Lengkap *</label><input id="muN" class="fc" value="${d.nama_admin||''}" placeholder="Nama admin/guru"></div>
       <div class="fg"><label class="fl">Username *</label><input id="muU" class="fc" value="${d.username||''}" placeholder="Username login"></div>
       <div class="fg"><label class="fl">Password ${id?'(kosong = tidak ubah)':'*'}</label><input id="muP" class="fc" value="${d.password||''}" placeholder="Password"></div>
-      <div class="fg"><label class="fl">Role</label><select id="muR" class="fc"><option value="editor" ${d.role==='editor'?'selected':''}>Editor (bisa kelola soal)</option><option value="admin" ${d.role==='admin'?'selected':''}>Admin (akses penuh)</option></select></div>
+      <div class="fg"><label class="fl">Role</label><select id="muR" class="fc">
+  <option value="admin" \${d.role==='admin'?'selected':''}>Admin — Akses Penuh</option>
+  <option value="guru" \${d.role==='guru'||d.role==='editor'?'selected':''}>Guru — Kelola Soal &amp; Nilai</option>
+  <option value="proktor" \${d.role==='proktor'?'selected':''}>Proktor — Monitor &amp; Daftar Hadir</option>
+  <option value="pengawas" \${d.role==='pengawas'?'selected':''}>Pengawas — Monitor &amp; Daftar Hadir</option>
+</select><p class="fh"><i class="fa-solid fa-circle-info"></i> Role menentukan menu yang dapat diakses</p></div>
     </div>
     <div class="mf"><button class="btn bo" onclick="rmModal('mdUser')">Batal</button><button class="btn bp" onclick="svUser(${id||0})"><i class="fa-solid fa-floppy-disk"><\/i> Simpan</button></div>
   </div></div>`;
