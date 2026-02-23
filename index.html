@@ -1988,33 +1988,50 @@ function upBTipe(d){
   if(t==='Pilihan Ganda'||t==='Pilihan Ganda Kompleks'){
     const labels=['A','B','C','D','E'];
     const isPG=t==='Pilihan Ganda';
+    // Parse existing kunci
+    const existingKunci=(d.jawaban_benar||'').split(',').map(s=>s.trim()).filter(Boolean);
     area.innerHTML=`
       <div style="margin-bottom:10px;padding:14px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
           <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em">
             <i class="fa-solid fa-list-ul" style="color:var(--p)"></i>
-            Opsi Jawaban &mdash; ${isPG?'pilih <b style="color:var(--p)">1</b> benar':'bisa lebih dari 1'}
+            Opsi Jawaban &mdash; ${isPG?'klik <b style="color:var(--p)">1 pilihan</b> sebagai kunci':'centang <b style="color:var(--p)">semua</b> yang benar'}
           </div>
           <span style="font-size:10.5px;color:var(--mu);background:#fff;border:1px solid var(--br);padding:2px 8px;border-radius:100px;flex-shrink:0">
             <i class="fa-solid fa-image" style="color:var(--p)"></i> gambar &amp; KaTeX
           </span>
         </div>
-        <div class="opsi-grid">
-          ${labels.map((l,i)=>`
-          <div class="opsi-grid-item${i===4?' span-full':''}">
-            <div class="opsi-label">
+        <div class="opsi-grid" id="pgOpsiGrid">
+          ${labels.map((l,i)=>{
+            const pKey='pilihan_'+(i+1);
+            const isChecked=existingKunci.includes(pKey);
+            return `
+          <div class="opsi-grid-item${i===4?' span-full':''}" id="pgOpsiItem_${i+1}">
+            <div class="opsi-label" style="display:flex;align-items:center;gap:8px">
               <span class="opsi-badge ${i<2?'primary':'muted'}">${l}</span>
               <span>Pilihan ${l}</span>
               ${i<2?'<span style="color:var(--er);font-size:11px">*</span>':'<span style="color:var(--mu);font-weight:400;font-size:11px">(opsional)</span>'}
+              <button type="button" id="pgKunciBtn_${i+1}" onclick="togglePGKunci('pilihan_${i+1}',${isPG})" 
+                style="margin-left:auto;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;border:1.5px solid;cursor:pointer;transition:all .15s;
+                background:${isChecked?(isPG?'var(--p)':'#059669'):'#fff'};
+                color:${isChecked?'#fff':'var(--mu)'};
+                border-color:${isChecked?(isPG?'var(--p)':'#059669'):'var(--br)'}"
+                title="${isPG?'Jadikan kunci jawaban':'Tandai sebagai jawaban benar'}">
+                ${isChecked?(isPG?'<i class="fa-solid fa-check"></i> Kunci':'<i class="fa-solid fa-check-square"></i> Benar'):(isPG?'Pilih sebagai kunci':'Tandai benar')}
+              </button>
             </div>
             <div id="qop_bP${i+1}" class="ql-opsi-wrap"></div>
-          </div>`).join('')}
+          </div>`;
+          }).join('')}
+        </div>
+        <div style="margin-top:10px;padding:8px 12px;background:${isPG?'#ecfdf5':'#eff6ff'};border-radius:7px;font-size:12px;color:${isPG?'var(--ok)':'#2563eb'};display:flex;align-items:center;gap:8px" id="pgKunciInfo">
+          <i class="fa-solid ${isPG?'fa-circle-dot':'fa-square-check'}"></i>
+          <span id="pgKunciInfoText">${isPG?'Belum ada kunci dipilih':(existingKunci.length>0?`Kunci: ${existingKunci.map(k=>labels[parseInt(k.split('_')[1])-1]).join(', ')}`:'Belum ada kunci dipilih')}</span>
         </div>
       </div>`;
-    hint.innerHTML=isPG
-      ?'<i class="fa-solid fa-circle-info"></i> Format kunci: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">pilihan_1</code> (masukkan angka pilihan yang benar)'
-      :'<i class="fa-solid fa-circle-info"></i> Format kunci: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">pilihan_1,pilihan_3</code> (pisahkan dengan koma, bisa lebih dari satu)';
-    if(kunciWrap)kunciWrap.style.display='';
+    if(kunciWrap)kunciWrap.style.display='none';
+    // Set initial kunci value
+    const kEl=$('bKunci');if(kEl)kEl.value=d.jawaban_benar||'';
     setTimeout(()=>{
       labels.forEach((l,i)=>{
         createQuillEditor(`qop_bP${i+1}`,{
@@ -2027,40 +2044,16 @@ function upBTipe(d){
     },50);
 
   }else if(t==='Benar/Salah'){
-    area.innerHTML=`
-      <div style="margin-bottom:10px;padding:14px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-          <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em">
-            <i class="fa-solid fa-toggle-on" style="color:var(--ok)"></i> Pernyataan Benar / Salah
-          </div>
-          <span style="font-size:10.5px;color:var(--mu);background:#fff;border:1px solid var(--br);padding:2px 8px;border-radius:100px;flex-shrink:0">
-            <i class="fa-solid fa-image" style="color:var(--p)"></i> gambar &amp; KaTeX
-          </span>
-        </div>
-        <div class="bs-grid">
-          ${[1,2,3,4].map(i=>`
-          <div class="bs-grid-item">
-            <div class="opsi-label">
-              <span class="bs-badge" style="background:${i<=2?'var(--ok)':'#cbd5e1'};color:${i<=2?'#fff':'#475569'}">${i}</span>
-              <span>Pernyataan ${i}</span>
-              ${i<=2?'<span style="color:var(--er);font-size:11px">*</span>':'<span style="color:var(--mu);font-weight:400;font-size:11px">(opsional)</span>'}
-            </div>
-            <div id="qop_bP${i}bs" class="ql-opsi-wrap"></div>
-          </div>`).join('')}
-        </div>
-      </div>`;
-    hint.innerHTML='<i class="fa-solid fa-circle-info"></i> Format kunci: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">Benar|Salah|Benar</code> (sesuai urutan pernyataan, pisah dengan | pipe)';
-    if(kunciWrap)kunciWrap.style.display='';
-    setTimeout(()=>{
-      [1,2,3,4].forEach(i=>{
-        createQuillEditor(`qop_bP${i}bs`,{
-          value: d['pilihan_'+i]||'',
-          size: 'sm',
-          placeholder: `Pernyataan ${i}...`,
-          toolbarType: 'compact'
-        });
-      });
-    },50);
+    // Parse existing data
+    const existingPernyataan=[d.pilihan_1||'',d.pilihan_2||'',d.pilihan_3||'',d.pilihan_4||''].filter(Boolean);
+    const existingKunci=(d.jawaban_benar||'').split('|');
+    const numRows=Math.max(2,existingPernyataan.length);
+    window._bsRows=[];
+    for(let i=0;i<numRows;i++){
+      window._bsRows.push({pernyataan:existingPernyataan[i]||'',kunci:existingKunci[i]||''});
+    }
+    renderBSRows();
+    if(kunciWrap)kunciWrap.style.display='none';
 
   }else if(t==='Uraian'){
     area.innerHTML=`
@@ -2074,31 +2067,200 @@ function upBTipe(d){
     if(kunciWrap)kunciWrap.style.display='';
 
   }else if(t==='Menjodohkan'){
-    area.innerHTML=`
-      <div style="margin-bottom:10px;padding:12px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
-        <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">
-          <i class="fa-solid fa-arrows-left-right" style="color:var(--p)"></i> Pasangan Menjodohkan
+    const existingPairs=(d.jawaban_benar||'').split('|').filter(Boolean);
+    window._matchRows=existingPairs.length>0
+      ?existingPairs.map(p=>({left:p.split(':')[0]||'',right:p.split(':')[1]||''}))
+      :[{left:'',right:''},{left:'',right:''},{left:'',right:''}];
+    renderMatchRows();
+    if(kunciWrap)kunciWrap.style.display='none';
+  }
+}
+
+// ─── PG/PGK KUNCI TOGGLE ───
+function togglePGKunci(pKey,isPG){
+  const labels=['A','B','C','D','E'];
+  const idx=parseInt(pKey.split('_')[1])-1;
+  if(isPG){
+    // Single select: clear all, set this one
+    const kEl=$('bKunci');
+    const cur=kEl?kEl.value:'';
+    const newVal=cur===pKey?'':pKey;
+    if(kEl)kEl.value=newVal;
+    // Update all buttons
+    [1,2,3,4,5].forEach(i=>{
+      const btn=$(`pgKunciBtn_${i}`);
+      if(!btn)return;
+      const isThis='pilihan_'+i===newVal;
+      btn.style.background=isThis?'var(--p)':'#fff';
+      btn.style.color=isThis?'#fff':'var(--mu)';
+      btn.style.borderColor=isThis?'var(--p)':'var(--br)';
+      btn.innerHTML=isThis?'<i class="fa-solid fa-check"></i> Kunci':'Pilih sebagai kunci';
+    });
+    const infoText=$('pgKunciInfoText');
+    if(infoText)infoText.textContent=newVal?`Kunci: Pilihan ${labels[parseInt(newVal.split('_')[1])-1]}`:'Belum ada kunci dipilih';
+  }else{
+    // Multi select: toggle
+    const kEl=$('bKunci');
+    const cur=(kEl?kEl.value:'').split(',').map(s=>s.trim()).filter(Boolean);
+    const posIdx=cur.indexOf(pKey);
+    if(posIdx>=0)cur.splice(posIdx,1);else cur.push(pKey);
+    cur.sort();
+    if(kEl)kEl.value=cur.join(',');
+    // Update this button
+    const btn=$(`pgKunciBtn_${idx+1}`);
+    if(btn){
+      const isChecked=cur.includes(pKey);
+      btn.style.background=isChecked?'#059669':'#fff';
+      btn.style.color=isChecked?'#fff':'var(--mu)';
+      btn.style.borderColor=isChecked?'#059669':'var(--br)';
+      btn.innerHTML=isChecked?'<i class="fa-solid fa-check-square"></i> Benar':'Tandai benar';
+    }
+    const infoText=$('pgKunciInfoText');
+    if(infoText){
+      if(cur.length>0){
+        const names=cur.map(k=>labels[parseInt(k.split('_')[1])-1]).join(', ');
+        infoText.textContent=`Kunci: Pilihan ${names}`;
+      }else{
+        infoText.textContent='Belum ada kunci dipilih';
+      }
+    }
+  }
+}
+
+// ─── BENAR/SALAH DYNAMIC ROWS ───
+function renderBSRows(){
+  const area=$('bOpsi');if(!area)return;
+  const rows=window._bsRows||[];
+  area.innerHTML=`
+    <div style="margin-bottom:10px;padding:14px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em">
+          <i class="fa-solid fa-toggle-on" style="color:var(--ok)"></i> Pernyataan Benar / Salah
         </div>
-        ${[1,2,3].map(i=>`
-        <div class="fg" style="margin-bottom:10px">
-          <label class="fl" style="display:flex;align-items:center;gap:6px;margin-bottom:6px;color:var(--mu)">
-            <i class="fa-solid fa-link" style="color:var(--p);font-size:11px"></i> Pasangan ${i}${i===1?' <span style="color:var(--er)">*</span>':''}
-          </label>
-          <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center">
-            <input id="bMatchL${i}" class="fc" value="${(d.jawaban_benar||'').split('|')[i-1]?.split(':')[0]||''}" placeholder="Kolom kiri ${i}">
-            <i class="fa-solid fa-arrow-right" style="color:var(--mu)"></i>
-            <input id="bMatchR${i}" class="fc" value="${(d.jawaban_benar||'').split('|')[i-1]?.split(':')[1]||''}" placeholder="Kolom kanan ${i}">
+        <button type="button" onclick="addBSRow()" class="btn bp bsm"><i class="fa-solid fa-plus"></i> Tambah Pernyataan</button>
+      </div>
+      <div id="bsRowsContainer">
+        ${rows.map((r,i)=>`
+        <div class="bs-editor-row" style="display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:10px;background:#fff;border-radius:8px;border:1px solid var(--br)" id="bsRow_${i}">
+          <div style="font-size:12px;font-weight:700;color:var(--mu);flex-shrink:0;width:22px;text-align:center">${i+1}</div>
+          <div style="flex:1">
+            <input class="fc" id="bsPernyataan_${i}" value="${(r.pernyataan||'').replace(/"/g,'&quot;')}" placeholder="Isi pernyataan ${i+1}..." oninput="syncBSKunci()">
+          </div>
+          <div style="display:flex;gap:4px;flex-shrink:0">
+            <button type="button" id="bsBtnBenar_${i}" onclick="setBSKunci(${i},'Benar')" 
+              style="padding:5px 12px;border-radius:100px;font-size:12px;font-weight:700;border:1.5px solid;cursor:pointer;transition:all .15s;
+              background:${r.kunci==='Benar'?'var(--ok)':'#fff'};color:${r.kunci==='Benar'?'#fff':'var(--ok)'};border-color:var(--ok)">
+              <i class="fa-solid fa-check"></i> Benar
+            </button>
+            <button type="button" id="bsBtnSalah_${i}" onclick="setBSKunci(${i},'Salah')"
+              style="padding:5px 12px;border-radius:100px;font-size:12px;font-weight:700;border:1.5px solid;cursor:pointer;transition:all .15s;
+              background:${r.kunci==='Salah'?'var(--er)':'#fff'};color:${r.kunci==='Salah'?'#fff':'var(--er)'};border-color:var(--er)">
+              <i class="fa-solid fa-xmark"></i> Salah
+            </button>
+            ${rows.length>2?`<button type="button" onclick="removeBSRow(${i})" style="padding:5px 9px;border-radius:6px;font-size:12px;border:1.5px solid var(--br);background:#fff;color:var(--er);cursor:pointer" title="Hapus pernyataan">
+              <i class="fa-solid fa-trash"></i></button>`:''}
           </div>
         </div>`).join('')}
-      </div>`;
-    hint.innerHTML='<i class="fa-solid fa-circle-info"></i> Kunci diisi otomatis dari pasangan di atas: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">Kiri1:Kanan1|Kiri2:Kanan2|Kiri3:Kanan3</code>';
-    const syncMatch=()=>{
-      const pairs=[1,2,3].map(i=>{const l=$(`bMatchL${i}`)?.value||'';const r=$(`bMatchR${i}`)?.value||'';return l&&r?`${l}:${r}`:null;}).filter(Boolean);
-      const k=$('bKunci');if(k)k.value=pairs.join('|');
-    };
-    setTimeout(()=>{[1,2,3].forEach(i=>{$(`bMatchL${i}`)?.addEventListener('input',syncMatch);$(`bMatchR${i}`)?.addEventListener('input',syncMatch);});syncMatch();},50);
-    if(kunciWrap)kunciWrap.style.display='';
-  }
+      </div>
+      <div style="margin-top:10px;padding:8px 12px;background:#ecfdf5;border-radius:7px;font-size:12px;color:var(--ok);display:flex;align-items:center;gap:8px">
+        <i class="fa-solid fa-key"></i>
+        <span>Kunci otomatis: <strong id="bsKunciPreview">${rows.map(r=>r.kunci||'—').join(' | ')}</strong></span>
+      </div>
+    </div>`;
+  syncBSKunci();
+}
+
+function addBSRow(){
+  if(!window._bsRows)window._bsRows=[];
+  if(window._bsRows.length>=8){alert('Maksimal 8 pernyataan');return;}
+  window._bsRows.push({pernyataan:'',kunci:''});
+  renderBSRows();
+}
+
+function removeBSRow(i){
+  if(!window._bsRows||window._bsRows.length<=2)return;
+  window._bsRows.splice(i,1);
+  renderBSRows();
+}
+
+function setBSKunci(i,val){
+  if(!window._bsRows)return;
+  window._bsRows[i].kunci=val;
+  // Update button styles
+  const btnB=$(`bsBtnBenar_${i}`);const btnS=$(`bsBtnSalah_${i}`);
+  if(btnB){btnB.style.background=val==='Benar'?'var(--ok)':'#fff';btnB.style.color=val==='Benar'?'#fff':'var(--ok)';}
+  if(btnS){btnS.style.background=val==='Salah'?'var(--er)':'#fff';btnS.style.color=val==='Salah'?'#fff':'var(--er)';}
+  syncBSKunci();
+}
+
+function syncBSKunci(){
+  if(!window._bsRows)return;
+  // Sync pernyataan text from inputs
+  window._bsRows.forEach((r,i)=>{const el=$(`bsPernyataan_${i}`);if(el)r.pernyataan=el.value;});
+  const kunciStr=window._bsRows.map(r=>r.kunci||'').join('|');
+  const kEl=$('bKunci');if(kEl)kEl.value=kunciStr;
+  const prev=$('bsKunciPreview');if(prev)prev.textContent=window._bsRows.map(r=>r.kunci||'—').join(' | ');
+}
+
+// ─── MENJODOHKAN DYNAMIC ROWS ───
+function renderMatchRows(){
+  const area=$('bOpsi');if(!area)return;
+  const rows=window._matchRows||[];
+  area.innerHTML=`
+    <div style="margin-bottom:10px;padding:14px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em">
+          <i class="fa-solid fa-arrows-left-right" style="color:var(--p)"></i> Pasangan Menjodohkan
+        </div>
+        <button type="button" onclick="addMatchRow()" class="btn bp bsm"><i class="fa-solid fa-plus"></i> Tambah Pasangan</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr auto 1fr auto;gap:8px;align-items:center;margin-bottom:6px;padding:0 4px">
+        <div style="font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.05em">Kolom Kiri (Soal)</div>
+        <div></div>
+        <div style="font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.05em">Kolom Kanan (Jawaban)</div>
+        <div></div>
+      </div>
+      <div id="matchRowsContainer">
+        ${rows.map((r,i)=>`
+        <div style="display:grid;grid-template-columns:1fr auto 1fr auto;gap:8px;align-items:center;margin-bottom:8px" id="matchRow_${i}">
+          <input class="fc" id="matchL_${i}" value="${(r.left||'').replace(/"/g,'&quot;')}" placeholder="Kiri ${i+1}..." oninput="syncMatchKunci()">
+          <i class="fa-solid fa-arrow-right" style="color:var(--mu);font-size:13px"></i>
+          <input class="fc" id="matchR_${i}" value="${(r.right||'').replace(/"/g,'&quot;')}" placeholder="Kanan ${i+1}..." oninput="syncMatchKunci()">
+          ${rows.length>2?`<button type="button" onclick="removeMatchRow(${i})" style="padding:5px 9px;border-radius:6px;font-size:12px;border:1.5px solid var(--br);background:#fff;color:var(--er);cursor:pointer" title="Hapus pasangan">
+            <i class="fa-solid fa-trash"></i></button>`:'<div></div>'}
+        </div>`).join('')}
+      </div>
+      <div style="margin-top:10px;padding:8px 12px;background:#ecfdf5;border-radius:7px;font-size:12px;color:var(--ok);display:flex;align-items:center;gap:8px">
+        <i class="fa-solid fa-key"></i>
+        <span>Kunci otomatis: <strong id="matchKunciPreview">${rows.map(r=>r.left&&r.right?`${r.left}:${r.right}`:'(belum lengkap)').join(' | ')}</strong></span>
+      </div>
+    </div>`;
+  syncMatchKunci();
+}
+
+function addMatchRow(){
+  if(!window._matchRows)window._matchRows=[];
+  if(window._matchRows.length>=8){alert('Maksimal 8 pasangan');return;}
+  window._matchRows.push({left:'',right:''});
+  renderMatchRows();
+}
+
+function removeMatchRow(i){
+  if(!window._matchRows||window._matchRows.length<=2)return;
+  window._matchRows.splice(i,1);
+  renderMatchRows();
+}
+
+function syncMatchKunci(){
+  if(!window._matchRows)return;
+  window._matchRows.forEach((r,i)=>{
+    const l=$(`matchL_${i}`);const rEl=$(`matchR_${i}`);
+    if(l)r.left=l.value;if(rEl)r.right=rEl.value;
+  });
+  const pairs=window._matchRows.map(r=>r.left&&r.right?`${r.left}:${r.right}`:null).filter(Boolean);
+  const kEl=$('bKunci');if(kEl)kEl.value=pairs.join('|');
+  const prev=$('matchKunciPreview');
+  if(prev)prev.textContent=window._matchRows.map(r=>r.left&&r.right?`${r.left}:${r.right}`:'(belum lengkap)').join(' | ');
 }
 
 async function svButir(id){
@@ -2116,10 +2278,15 @@ async function svButir(id){
     p4=getQuillHTML('qop_bP4');
     p5=getQuillHTML('qop_bP5');
   }else if(tipe==='Benar/Salah'){
-    p1=getQuillHTML('qop_bP1bs');
-    p2=getQuillHTML('qop_bP2bs');
-    p3=getQuillHTML('qop_bP3bs');
-    p4=getQuillHTML('qop_bP4bs');
+    syncBSKunci();
+    const rows=window._bsRows||[];
+    p1=rows[0]?.pernyataan||'';
+    p2=rows[1]?.pernyataan||'';
+    p3=rows[2]?.pernyataan||'';
+    p4=rows[3]?.pernyataan||'';
+    p5=rows[4]?.pernyataan||'';
+  }else if(tipe==='Menjodohkan'){
+    syncMatchKunci();
   }
 
   const o={kode_soal:$('bKode').value,nomer_soal:parseInt($('bNo').value),pertanyaan,tipe_soal:tipe,
