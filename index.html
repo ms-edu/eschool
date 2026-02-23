@@ -1923,7 +1923,11 @@ function mButir(id){
   const kodeOpts=(window._soalListB||[]).map(s=>`<option value="${s.kode_soal}" ${d.kode_soal===s.kode_soal?'selected':''}>${s.kode_soal}</option>`).join('');
   const tipeOpts=['Pilihan Ganda','Pilihan Ganda Kompleks','Benar/Salah','Uraian','Menjodohkan'].map(t=>`<option ${d.tipe_soal===t?'selected':''}>${t}</option>`).join('');
   const html=`<div class="mo" id="mdButir"><div class="md mdxl"><div class="mh">
-    <div class="mtt"><i class="fa-solid fa-pen-to-square" style="color:var(--p)"></i> ${id?'Edit':'Tambah'} Butir Soal</div>
+    <div class="mtt"><i class="fa-solid fa-pen-to-square" style="color:var(--p)"></i> ${id?'Edit':'Tambah'} Butir Soal
+      <span style="font-size:10.5px;background:var(--pl);color:var(--pd);padding:2px 8px;border-radius:100px;margin-left:8px;font-weight:600">
+        <i class="fa-solid fa-image"></i> Rich Editor + KaTeX
+      </span>
+    </div>
     <button class="xb" onclick="rmModal('mdButir')">✕</button></div>
     <div class="mbb">
       <div class="fr">
@@ -1935,7 +1939,11 @@ function mButir(id){
         <div class="fg"><label class="fl">Status Soal</label><select id="bSt" class="fc"><option value="Aktif" ${d.status_soal!=='Nonaktif'?'selected':''}>Aktif</option><option value="Nonaktif" ${d.status_soal==='Nonaktif'?'selected':''}>Nonaktif</option></select></div>
       </div>
       <div class="fg">
-        <label class="fl">Pertanyaan *</label>
+        <label class="fl">Pertanyaan *
+          <span style="font-size:10.5px;font-weight:400;color:var(--mu);margin-left:6px">
+            <i class="fa-solid fa-circle-info"></i> Mendukung rich text, gambar (paste/drag/upload), dan rumus matematika KaTeX
+          </span>
+        </label>
         <div id="qeditor_pertanyaan"></div>
       </div>
       <div id="bOpsi"></div>
@@ -1956,7 +1964,7 @@ function mButir(id){
     createQuillEditor('qeditor_pertanyaan', {
       value: d.pertanyaan||'',
       size: 'lg',
-      placeholder: 'Ketik pertanyaan di sini...',
+      placeholder: 'Ketik pertanyaan di sini... Anda dapat paste gambar, drag & drop gambar, upload gambar, atau sisipkan rumus KaTeX dengan tombol Σ',
       toolbarType: 'full'
     });
     upBTipe(d);
@@ -1980,48 +1988,33 @@ function upBTipe(d){
   if(t==='Pilihan Ganda'||t==='Pilihan Ganda Kompleks'){
     const labels=['A','B','C','D','E'];
     const isPG=t==='Pilihan Ganda';
-    // Parse existing kunci
-    const existingKunci=(d.jawaban_benar||'').split(',').map(s=>s.trim()).filter(Boolean);
     area.innerHTML=`
       <div style="margin-bottom:10px;padding:14px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
           <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em">
             <i class="fa-solid fa-list-ul" style="color:var(--p)"></i>
-            Opsi Jawaban &mdash; ${isPG?'klik <b style="color:var(--p)">1 pilihan</b> sebagai kunci':'centang <b style="color:var(--p)">semua</b> yang benar'}
+            Opsi Jawaban &mdash; ${isPG?'pilih <b style="color:var(--p)">1</b> benar':'bisa lebih dari 1'}
           </div>
-
+          <span style="font-size:10.5px;color:var(--mu);background:#fff;border:1px solid var(--br);padding:2px 8px;border-radius:100px;flex-shrink:0">
+            <i class="fa-solid fa-image" style="color:var(--p)"></i> gambar &amp; KaTeX
+          </span>
         </div>
-        <div class="opsi-grid" id="pgOpsiGrid">
-          ${labels.map((l,i)=>{
-            const pKey='pilihan_'+(i+1);
-            const isChecked=existingKunci.includes(pKey);
-            return `
-          <div class="opsi-grid-item${i===4?' span-full':''}" id="pgOpsiItem_${i+1}">
-            <div class="opsi-label" style="display:flex;align-items:center;gap:8px">
+        <div class="opsi-grid">
+          ${labels.map((l,i)=>`
+          <div class="opsi-grid-item${i===4?' span-full':''}">
+            <div class="opsi-label">
               <span class="opsi-badge ${i<2?'primary':'muted'}">${l}</span>
               <span>Pilihan ${l}</span>
               ${i<2?'<span style="color:var(--er);font-size:11px">*</span>':'<span style="color:var(--mu);font-weight:400;font-size:11px">(opsional)</span>'}
-              <button type="button" id="pgKunciBtn_${i+1}" onclick="togglePGKunci('pilihan_${i+1}',${isPG})" 
-                style="margin-left:auto;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;border:1.5px solid;cursor:pointer;transition:all .15s;
-                background:${isChecked?(isPG?'var(--p)':'#059669'):'#fff'};
-                color:${isChecked?'#fff':'var(--mu)'};
-                border-color:${isChecked?(isPG?'var(--p)':'#059669'):'var(--br)'}"
-                title="${isPG?'Jadikan kunci jawaban':'Tandai sebagai jawaban benar'}">
-                ${isChecked?(isPG?'<i class="fa-solid fa-check"></i> Kunci':'<i class="fa-solid fa-check-square"></i> Benar'):(isPG?'Pilih sebagai kunci':'Tandai benar')}
-              </button>
             </div>
             <div id="qop_bP${i+1}" class="ql-opsi-wrap"></div>
-          </div>`;
-          }).join('')}
-        </div>
-        <div style="margin-top:10px;padding:8px 12px;background:${isPG?'#ecfdf5':'#eff6ff'};border-radius:7px;font-size:12px;color:${isPG?'var(--ok)':'#2563eb'};display:flex;align-items:center;gap:8px" id="pgKunciInfo">
-          <i class="fa-solid ${isPG?'fa-circle-dot':'fa-square-check'}"></i>
-          <span id="pgKunciInfoText">${isPG?'Belum ada kunci dipilih':(existingKunci.length>0?`Kunci: ${existingKunci.map(k=>labels[parseInt(k.split('_')[1])-1]).join(', ')}`:'Belum ada kunci dipilih')}</span>
+          </div>`).join('')}
         </div>
       </div>`;
-    if(kunciWrap)kunciWrap.style.display='none';
-    // Set initial kunci value
-    const kEl=$('bKunci');if(kEl)kEl.value=d.jawaban_benar||'';
+    hint.innerHTML=isPG
+      ?'<i class="fa-solid fa-circle-info"></i> Format kunci: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">pilihan_1</code> (masukkan angka pilihan yang benar)'
+      :'<i class="fa-solid fa-circle-info"></i> Format kunci: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">pilihan_1,pilihan_3</code> (pisahkan dengan koma, bisa lebih dari satu)';
+    if(kunciWrap)kunciWrap.style.display='';
     setTimeout(()=>{
       labels.forEach((l,i)=>{
         createQuillEditor(`qop_bP${i+1}`,{
@@ -2034,16 +2027,40 @@ function upBTipe(d){
     },50);
 
   }else if(t==='Benar/Salah'){
-    // Parse existing data
-    const existingPernyataan=[d.pilihan_1||'',d.pilihan_2||'',d.pilihan_3||'',d.pilihan_4||''].filter(Boolean);
-    const existingKunci=(d.jawaban_benar||'').split('|');
-    const numRows=Math.max(2,existingPernyataan.length);
-    window._bsRows=[];
-    for(let i=0;i<numRows;i++){
-      window._bsRows.push({pernyataan:existingPernyataan[i]||'',kunci:existingKunci[i]||''});
-    }
-    renderBSRows();
-    if(kunciWrap)kunciWrap.style.display='none';
+    area.innerHTML=`
+      <div style="margin-bottom:10px;padding:14px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em">
+            <i class="fa-solid fa-toggle-on" style="color:var(--ok)"></i> Pernyataan Benar / Salah
+          </div>
+          <span style="font-size:10.5px;color:var(--mu);background:#fff;border:1px solid var(--br);padding:2px 8px;border-radius:100px;flex-shrink:0">
+            <i class="fa-solid fa-image" style="color:var(--p)"></i> gambar &amp; KaTeX
+          </span>
+        </div>
+        <div class="bs-grid">
+          ${[1,2,3,4].map(i=>`
+          <div class="bs-grid-item">
+            <div class="opsi-label">
+              <span class="bs-badge" style="background:${i<=2?'var(--ok)':'#cbd5e1'};color:${i<=2?'#fff':'#475569'}">${i}</span>
+              <span>Pernyataan ${i}</span>
+              ${i<=2?'<span style="color:var(--er);font-size:11px">*</span>':'<span style="color:var(--mu);font-weight:400;font-size:11px">(opsional)</span>'}
+            </div>
+            <div id="qop_bP${i}bs" class="ql-opsi-wrap"></div>
+          </div>`).join('')}
+        </div>
+      </div>`;
+    hint.innerHTML='<i class="fa-solid fa-circle-info"></i> Format kunci: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">Benar|Salah|Benar</code> (sesuai urutan pernyataan, pisah dengan | pipe)';
+    if(kunciWrap)kunciWrap.style.display='';
+    setTimeout(()=>{
+      [1,2,3,4].forEach(i=>{
+        createQuillEditor(`qop_bP${i}bs`,{
+          value: d['pilihan_'+i]||'',
+          size: 'sm',
+          placeholder: `Pernyataan ${i}...`,
+          toolbarType: 'compact'
+        });
+      });
+    },50);
 
   }else if(t==='Uraian'){
     area.innerHTML=`
@@ -2057,200 +2074,31 @@ function upBTipe(d){
     if(kunciWrap)kunciWrap.style.display='';
 
   }else if(t==='Menjodohkan'){
-    const existingPairs=(d.jawaban_benar||'').split('|').filter(Boolean);
-    window._matchRows=existingPairs.length>0
-      ?existingPairs.map(p=>({left:p.split(':')[0]||'',right:p.split(':')[1]||''}))
-      :[{left:'',right:''},{left:'',right:''},{left:'',right:''}];
-    renderMatchRows();
-    if(kunciWrap)kunciWrap.style.display='none';
-  }
-}
-
-// ─── PG/PGK KUNCI TOGGLE ───
-function togglePGKunci(pKey,isPG){
-  const labels=['A','B','C','D','E'];
-  const idx=parseInt(pKey.split('_')[1])-1;
-  if(isPG){
-    // Single select: clear all, set this one
-    const kEl=$('bKunci');
-    const cur=kEl?kEl.value:'';
-    const newVal=cur===pKey?'':pKey;
-    if(kEl)kEl.value=newVal;
-    // Update all buttons
-    [1,2,3,4,5].forEach(i=>{
-      const btn=$(`pgKunciBtn_${i}`);
-      if(!btn)return;
-      const isThis='pilihan_'+i===newVal;
-      btn.style.background=isThis?'var(--p)':'#fff';
-      btn.style.color=isThis?'#fff':'var(--mu)';
-      btn.style.borderColor=isThis?'var(--p)':'var(--br)';
-      btn.innerHTML=isThis?'<i class="fa-solid fa-check"></i> Kunci':'Pilih sebagai kunci';
-    });
-    const infoText=$('pgKunciInfoText');
-    if(infoText)infoText.textContent=newVal?`Kunci: Pilihan ${labels[parseInt(newVal.split('_')[1])-1]}`:'Belum ada kunci dipilih';
-  }else{
-    // Multi select: toggle
-    const kEl=$('bKunci');
-    const cur=(kEl?kEl.value:'').split(',').map(s=>s.trim()).filter(Boolean);
-    const posIdx=cur.indexOf(pKey);
-    if(posIdx>=0)cur.splice(posIdx,1);else cur.push(pKey);
-    cur.sort();
-    if(kEl)kEl.value=cur.join(',');
-    // Update this button
-    const btn=$(`pgKunciBtn_${idx+1}`);
-    if(btn){
-      const isChecked=cur.includes(pKey);
-      btn.style.background=isChecked?'#059669':'#fff';
-      btn.style.color=isChecked?'#fff':'var(--mu)';
-      btn.style.borderColor=isChecked?'#059669':'var(--br)';
-      btn.innerHTML=isChecked?'<i class="fa-solid fa-check-square"></i> Benar':'Tandai benar';
-    }
-    const infoText=$('pgKunciInfoText');
-    if(infoText){
-      if(cur.length>0){
-        const names=cur.map(k=>labels[parseInt(k.split('_')[1])-1]).join(', ');
-        infoText.textContent=`Kunci: Pilihan ${names}`;
-      }else{
-        infoText.textContent='Belum ada kunci dipilih';
-      }
-    }
-  }
-}
-
-// ─── BENAR/SALAH DYNAMIC ROWS ───
-function renderBSRows(){
-  const area=$('bOpsi');if(!area)return;
-  const rows=window._bsRows||[];
-  area.innerHTML=`
-    <div style="margin-bottom:10px;padding:14px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em">
-          <i class="fa-solid fa-toggle-on" style="color:var(--ok)"></i> Pernyataan Benar / Salah
-        </div>
-        <button type="button" onclick="addBSRow()" class="btn bp bsm"><i class="fa-solid fa-plus"></i> Tambah Pernyataan</button>
-      </div>
-      <div id="bsRowsContainer">
-        ${rows.map((r,i)=>`
-        <div class="bs-editor-row" style="display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:10px;background:#fff;border-radius:8px;border:1px solid var(--br)" id="bsRow_${i}">
-          <div style="font-size:12px;font-weight:700;color:var(--mu);flex-shrink:0;width:22px;text-align:center">${i+1}</div>
-          <div style="flex:1">
-            <input class="fc" id="bsPernyataan_${i}" value="${(r.pernyataan||'').replace(/"/g,'&quot;')}" placeholder="Isi pernyataan ${i+1}..." oninput="syncBSKunci()">
-          </div>
-          <div style="display:flex;gap:4px;flex-shrink:0">
-            <button type="button" id="bsBtnBenar_${i}" onclick="setBSKunci(${i},'Benar')" 
-              style="padding:5px 12px;border-radius:100px;font-size:12px;font-weight:700;border:1.5px solid;cursor:pointer;transition:all .15s;
-              background:${r.kunci==='Benar'?'var(--ok)':'#fff'};color:${r.kunci==='Benar'?'#fff':'var(--ok)'};border-color:var(--ok)">
-              <i class="fa-solid fa-check"></i> Benar
-            </button>
-            <button type="button" id="bsBtnSalah_${i}" onclick="setBSKunci(${i},'Salah')"
-              style="padding:5px 12px;border-radius:100px;font-size:12px;font-weight:700;border:1.5px solid;cursor:pointer;transition:all .15s;
-              background:${r.kunci==='Salah'?'var(--er)':'#fff'};color:${r.kunci==='Salah'?'#fff':'var(--er)'};border-color:var(--er)">
-              <i class="fa-solid fa-xmark"></i> Salah
-            </button>
-            ${rows.length>2?`<button type="button" onclick="removeBSRow(${i})" style="padding:5px 9px;border-radius:6px;font-size:12px;border:1.5px solid var(--br);background:#fff;color:var(--er);cursor:pointer" title="Hapus pernyataan">
-              <i class="fa-solid fa-trash"></i></button>`:''}
-          </div>
-        </div>`).join('')}
-      </div>
-      <div style="margin-top:10px;padding:8px 12px;background:#ecfdf5;border-radius:7px;font-size:12px;color:var(--ok);display:flex;align-items:center;gap:8px">
-        <i class="fa-solid fa-key"></i>
-        <span>Kunci otomatis: <strong id="bsKunciPreview">${rows.map(r=>r.kunci||'—').join(' | ')}</strong></span>
-      </div>
-    </div>`;
-  syncBSKunci();
-}
-
-function addBSRow(){
-  if(!window._bsRows)window._bsRows=[];
-  if(window._bsRows.length>=8){alert('Maksimal 8 pernyataan');return;}
-  window._bsRows.push({pernyataan:'',kunci:''});
-  renderBSRows();
-}
-
-function removeBSRow(i){
-  if(!window._bsRows||window._bsRows.length<=2)return;
-  window._bsRows.splice(i,1);
-  renderBSRows();
-}
-
-function setBSKunci(i,val){
-  if(!window._bsRows)return;
-  window._bsRows[i].kunci=val;
-  // Update button styles
-  const btnB=$(`bsBtnBenar_${i}`);const btnS=$(`bsBtnSalah_${i}`);
-  if(btnB){btnB.style.background=val==='Benar'?'var(--ok)':'#fff';btnB.style.color=val==='Benar'?'#fff':'var(--ok)';}
-  if(btnS){btnS.style.background=val==='Salah'?'var(--er)':'#fff';btnS.style.color=val==='Salah'?'#fff':'var(--er)';}
-  syncBSKunci();
-}
-
-function syncBSKunci(){
-  if(!window._bsRows)return;
-  // Sync pernyataan text from inputs
-  window._bsRows.forEach((r,i)=>{const el=$(`bsPernyataan_${i}`);if(el)r.pernyataan=el.value;});
-  const kunciStr=window._bsRows.map(r=>r.kunci||'').join('|');
-  const kEl=$('bKunci');if(kEl)kEl.value=kunciStr;
-  const prev=$('bsKunciPreview');if(prev)prev.textContent=window._bsRows.map(r=>r.kunci||'—').join(' | ');
-}
-
-// ─── MENJODOHKAN DYNAMIC ROWS ───
-function renderMatchRows(){
-  const area=$('bOpsi');if(!area)return;
-  const rows=window._matchRows||[];
-  area.innerHTML=`
-    <div style="margin-bottom:10px;padding:14px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em">
+    area.innerHTML=`
+      <div style="margin-bottom:10px;padding:12px;background:#f8fafc;border-radius:8px;border:1px solid var(--br)">
+        <div style="font-size:11.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">
           <i class="fa-solid fa-arrows-left-right" style="color:var(--p)"></i> Pasangan Menjodohkan
         </div>
-        <button type="button" onclick="addMatchRow()" class="btn bp bsm"><i class="fa-solid fa-plus"></i> Tambah Pasangan</button>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr auto 1fr auto;gap:8px;align-items:center;margin-bottom:6px;padding:0 4px">
-        <div style="font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.05em">Kolom Kiri (Soal)</div>
-        <div></div>
-        <div style="font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.05em">Kolom Kanan (Jawaban)</div>
-        <div></div>
-      </div>
-      <div id="matchRowsContainer">
-        ${rows.map((r,i)=>`
-        <div style="display:grid;grid-template-columns:1fr auto 1fr auto;gap:8px;align-items:center;margin-bottom:8px" id="matchRow_${i}">
-          <input class="fc" id="matchL_${i}" value="${(r.left||'').replace(/"/g,'&quot;')}" placeholder="Kiri ${i+1}..." oninput="syncMatchKunci()">
-          <i class="fa-solid fa-arrow-right" style="color:var(--mu);font-size:13px"></i>
-          <input class="fc" id="matchR_${i}" value="${(r.right||'').replace(/"/g,'&quot;')}" placeholder="Kanan ${i+1}..." oninput="syncMatchKunci()">
-          ${rows.length>2?`<button type="button" onclick="removeMatchRow(${i})" style="padding:5px 9px;border-radius:6px;font-size:12px;border:1.5px solid var(--br);background:#fff;color:var(--er);cursor:pointer" title="Hapus pasangan">
-            <i class="fa-solid fa-trash"></i></button>`:'<div></div>'}
+        ${[1,2,3].map(i=>`
+        <div class="fg" style="margin-bottom:10px">
+          <label class="fl" style="display:flex;align-items:center;gap:6px;margin-bottom:6px;color:var(--mu)">
+            <i class="fa-solid fa-link" style="color:var(--p);font-size:11px"></i> Pasangan ${i}${i===1?' <span style="color:var(--er)">*</span>':''}
+          </label>
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center">
+            <input id="bMatchL${i}" class="fc" value="${(d.jawaban_benar||'').split('|')[i-1]?.split(':')[0]||''}" placeholder="Kolom kiri ${i}">
+            <i class="fa-solid fa-arrow-right" style="color:var(--mu)"></i>
+            <input id="bMatchR${i}" class="fc" value="${(d.jawaban_benar||'').split('|')[i-1]?.split(':')[1]||''}" placeholder="Kolom kanan ${i}">
+          </div>
         </div>`).join('')}
-      </div>
-      <div style="margin-top:10px;padding:8px 12px;background:#ecfdf5;border-radius:7px;font-size:12px;color:var(--ok);display:flex;align-items:center;gap:8px">
-        <i class="fa-solid fa-key"></i>
-        <span>Kunci otomatis: <strong id="matchKunciPreview">${rows.map(r=>r.left&&r.right?`${r.left}:${r.right}`:'(belum lengkap)').join(' | ')}</strong></span>
-      </div>
-    </div>`;
-  syncMatchKunci();
-}
-
-function addMatchRow(){
-  if(!window._matchRows)window._matchRows=[];
-  if(window._matchRows.length>=8){alert('Maksimal 8 pasangan');return;}
-  window._matchRows.push({left:'',right:''});
-  renderMatchRows();
-}
-
-function removeMatchRow(i){
-  if(!window._matchRows||window._matchRows.length<=2)return;
-  window._matchRows.splice(i,1);
-  renderMatchRows();
-}
-
-function syncMatchKunci(){
-  if(!window._matchRows)return;
-  window._matchRows.forEach((r,i)=>{
-    const l=$(`matchL_${i}`);const rEl=$(`matchR_${i}`);
-    if(l)r.left=l.value;if(rEl)r.right=rEl.value;
-  });
-  const pairs=window._matchRows.map(r=>r.left&&r.right?`${r.left}:${r.right}`:null).filter(Boolean);
-  const kEl=$('bKunci');if(kEl)kEl.value=pairs.join('|');
-  const prev=$('matchKunciPreview');
-  if(prev)prev.textContent=window._matchRows.map(r=>r.left&&r.right?`${r.left}:${r.right}`:'(belum lengkap)').join(' | ');
+      </div>`;
+    hint.innerHTML='<i class="fa-solid fa-circle-info"></i> Kunci diisi otomatis dari pasangan di atas: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">Kiri1:Kanan1|Kiri2:Kanan2|Kiri3:Kanan3</code>';
+    const syncMatch=()=>{
+      const pairs=[1,2,3].map(i=>{const l=$(`bMatchL${i}`)?.value||'';const r=$(`bMatchR${i}`)?.value||'';return l&&r?`${l}:${r}`:null;}).filter(Boolean);
+      const k=$('bKunci');if(k)k.value=pairs.join('|');
+    };
+    setTimeout(()=>{[1,2,3].forEach(i=>{$(`bMatchL${i}`)?.addEventListener('input',syncMatch);$(`bMatchR${i}`)?.addEventListener('input',syncMatch);});syncMatch();},50);
+    if(kunciWrap)kunciWrap.style.display='';
+  }
 }
 
 async function svButir(id){
@@ -2268,15 +2116,10 @@ async function svButir(id){
     p4=getQuillHTML('qop_bP4');
     p5=getQuillHTML('qop_bP5');
   }else if(tipe==='Benar/Salah'){
-    syncBSKunci();
-    const rows=window._bsRows||[];
-    p1=rows[0]?.pernyataan||'';
-    p2=rows[1]?.pernyataan||'';
-    p3=rows[2]?.pernyataan||'';
-    p4=rows[3]?.pernyataan||'';
-    p5=rows[4]?.pernyataan||'';
-  }else if(tipe==='Menjodohkan'){
-    syncMatchKunci();
+    p1=getQuillHTML('qop_bP1bs');
+    p2=getQuillHTML('qop_bP2bs');
+    p3=getQuillHTML('qop_bP3bs');
+    p4=getQuillHTML('qop_bP4bs');
   }
 
   const o={kode_soal:$('bKode').value,nomer_soal:parseInt($('bNo').value),pertanyaan,tipe_soal:tipe,
@@ -2947,16 +2790,16 @@ async function cetakKartuSiswa(){
   if(!siswa.length){toast('Tidak ada data siswa!','er');return;}
 
   // Ambil data pengaturan — hanya field yang benar-benar ada di DB
-  const pg=demoMode?DEMO.pengaturan:((await SB.from('pengaturan').select('*').single()).data||{});
+  const pg=demoMode?DEMO.pengaturan:((await SB.from('pengaturan').select('*').maybeSingle()).data||{});
   const namaSkl    = pg.nama_sekolah   || 'NAMA SEKOLAH';
   const alamat     = pg.alamat_sekolah || '';
   const logoSrc    = pg.logo_sekolah   || '';
   const namaKepsek = pg.nama_kepsek    || '';
   const nipKepsek  = pg.nip_kepsek     || '';
 
-  // Parse kota dari alamat (cari kata setelah "Kota " atau "Kab. ", fallback nama sekolah terakhir kata)
+  // Parse kota dari alamat (cari kata setelah "Kota " atau "Kab. ")
   const kotaMatch = alamat.match(/(?:Kota|Kab\.?)\s+([A-Za-z\s]+?)(?:,|$)/i);
-  const kota = kotaMatch ? kotaMatch[1].trim() : (namaSkl.split(' ').slice(-1)[0]||'');
+  const kota = kotaMatch ? kotaMatch[1].trim() : '';
   const tglCetak = new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
   const thn = new Date().getFullYear();
 
@@ -2966,11 +2809,8 @@ async function cetakKartuSiswa(){
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:Arial,sans-serif;background:#fff}
     @page{size:A4 portrait;margin:5mm}
-    /* Usable area: 210-10=200mm x 297-10=287mm */
-    /* 2 kolom x 4 baris, gap 2mm: kartu = (200-2)/2=99mm lebar, (287-6)/4=70.25mm tinggi */
     .halaman{
-      width:200mm;
-      height:287mm;
+      width:200mm;height:287mm;
       display:grid;
       grid-template-columns:1fr 1fr;
       grid-template-rows:repeat(4,1fr);
@@ -2978,96 +2818,38 @@ async function cetakKartuSiswa(){
       page-break-after:always;
     }
     .halaman:last-child{page-break-after:auto}
-
-    .kartu{
-      border:1pt solid #000;
-      display:flex;
-      flex-direction:column;
-      overflow:hidden;
-      background:#fff;
-    }
-
-    /* ── HEADER ── */
-    .k-head{
-      display:flex;
-      align-items:center;
-      border-bottom:1pt solid #000;
-      padding:1.2mm 2mm;
-      gap:1.5mm;
-      flex-shrink:0;
-    }
-    .k-logo{
-      width:11mm;height:11mm;flex-shrink:0;
-      display:flex;align-items:center;justify-content:center;
-    }
+    .kartu{border:1pt solid #000;display:flex;flex-direction:column;overflow:hidden;background:#fff}
+    .k-head{display:flex;align-items:center;border-bottom:1pt solid #000;padding:1.2mm 2mm;gap:1.5mm;flex-shrink:0}
+    .k-logo{width:11mm;height:11mm;flex-shrink:0;display:flex;align-items:center;justify-content:center}
     .k-logo img{width:11mm;height:11mm;object-fit:contain}
-    .k-logo-ph{
-      width:11mm;height:11mm;flex-shrink:0;
-      border:1pt solid #ccc;
-      display:flex;align-items:center;justify-content:center;
-      font-size:4pt;color:#bbb;text-align:center;line-height:1.3;
-    }
+    .k-logo-ph{width:11mm;height:11mm;flex-shrink:0;border:1pt solid #ccc;display:flex;align-items:center;justify-content:center;font-size:4pt;color:#bbb;text-align:center;line-height:1.3}
     .k-title{flex:1;text-align:center;line-height:1.4}
     .k-title .t1{display:block;font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
     .k-title .t2{display:block;font-size:6pt;font-weight:700;text-transform:uppercase}
     .k-title .t3{display:block;font-size:5.5pt}
-    .k-badge{
-      font-size:6pt;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
-      border:1pt solid #000;padding:.7mm 1.8mm;
-      align-self:flex-start;white-space:nowrap;flex-shrink:0;
-    }
-
-    /* ── INFO ROWS ── */
-    .k-info{
-      padding:1mm 2mm;
-      flex:1;
-      display:flex;flex-direction:column;justify-content:center;
-    }
-    .k-row{
-      display:flex;align-items:flex-start;
-      font-size:5.8pt;padding:.4mm 0;
-      border-bottom:.3pt solid #e0e0e0;line-height:1.35;
-    }
+    .k-badge{font-size:6pt;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border:1pt solid #000;padding:.7mm 1.8mm;align-self:flex-start;white-space:nowrap;flex-shrink:0}
+    .k-info{padding:1mm 2mm;flex:1;display:flex;flex-direction:column;justify-content:center}
+    .k-row{display:flex;align-items:flex-start;font-size:5.8pt;padding:.4mm 0;border-bottom:.3pt solid #e0e0e0;line-height:1.35}
     .k-row:last-child{border-bottom:none}
     .k-lbl{width:24mm;flex-shrink:0;color:#222}
     .k-sep{width:3mm;flex-shrink:0;color:#222;text-align:center}
     .k-val{flex:1;font-weight:400;color:#000;word-break:break-word}
-
-    /* ── FOOTER ── */
-    .k-foot{
-      display:flex;align-items:flex-end;
-      padding:.8mm 2mm 1.5mm;gap:2mm;
-      flex-shrink:0;border-top:.3pt solid #e8e8e8;
-    }
-    .k-foto{
-      width:13mm;height:18mm;
-      border:1pt solid #999;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      font-size:5pt;color:#aaa;text-align:center;flex-shrink:0;
-      background:#f8f8f8;line-height:1.5;
-    }
+    .k-foot{display:flex;align-items:flex-end;padding:.8mm 2mm 1.5mm;gap:2mm;flex-shrink:0;border-top:.3pt solid #e8e8e8}
+    .k-foto{width:13mm;height:18mm;border:1pt solid #999;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:5pt;color:#aaa;text-align:center;flex-shrink:0;background:#f8f8f8;line-height:1.5}
     .k-ttd{flex:1;font-size:5pt;line-height:1.5;color:#000}
     .k-ttd-ruang{height:9mm}
     .k-ttd-garis{border-bottom:1pt solid #000;margin-bottom:.5mm;width:100%}
     .k-ttd-nama{font-weight:700;font-size:5.2pt}
     .k-ttd-nip{font-size:4.8pt;color:#333}
-    .k-qr{
-      width:15mm;height:15mm;border:1pt solid #999;
-      display:flex;align-items:center;justify-content:center;
-      font-size:4pt;color:#bbb;text-align:center;
-      flex-shrink:0;background:#fff;align-self:flex-end;
-    }
+    .k-qr{width:15mm;height:15mm;border:1pt solid #999;display:flex;align-items:center;justify-content:center;font-size:4pt;color:#bbb;text-align:center;flex-shrink:0;background:#fff;align-self:flex-end}
     .k-empty{border-color:transparent!important;background:transparent!important}
   </style></head><body>`);
 
   const perHalaman=4;
-
   const buatKartu=(s,urut,badge)=>`
     <div class="kartu">
       <div class="k-head">
-        ${logoSrc
-          ?`<div class="k-logo"><img src="${logoSrc}" onerror="this.style.display='none'"></div>`
-          :`<div class="k-logo-ph">Logo<br>Sekolah</div>`}
+        ${logoSrc?`<div class="k-logo"><img src="${logoSrc}" onerror="this.style.display='none'"></div>`:`<div class="k-logo-ph">Logo<br>Sekolah</div>`}
         <div class="k-title">
           <span class="t1">Kartu Peserta Ujian</span>
           <span class="t2">${namaSkl}</span>
@@ -3177,14 +2959,9 @@ function impButir(){
   const html=`<div class="mo" id="mdImpButir"><div class="md mdlg"><div class="mh"><div class="mtt"><i class="fa-solid fa-file-excel" style="color:var(--ok)"></i> Import Butir Soal dari Excel</div><button class="xb" onclick="rmModal('mdImpButir')">✕</button></div>
     <div class="mbb">
       <div class="al alin" style="margin-bottom:12px"><i class="fa-solid fa-circle-info" style="color:var(--p)"></i><div>
-        <strong>Kolom yang dibutuhkan:</strong> nomer_soal, pertanyaan, tipe_soal, pilihan_1 s/d pilihan_5, jawaban_benar<br>
-        <div style="margin-top:8px;display:grid;gap:3px;font-size:11.5px;color:var(--mu)">
-          <div><b style="color:var(--tx)">Pilihan Ganda</b> — jawaban_benar: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">A</code> atau <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">B</code> (huruf pilihan)</div>
-          <div><b style="color:var(--tx)">Pilihan Ganda Kompleks</b> — jawaban_benar: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">A,C</code> (huruf dipisah koma)</div>
-          <div><b style="color:var(--tx)">Benar/Salah</b> — jawaban_benar: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">Benar|Salah|Benar</code> (sesuai urutan pernyataan)</div>
-          <div><b style="color:var(--tx)">Menjodohkan</b> — jawaban_benar: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">Kiri1:Kanan1|Kiri2:Kanan2</code></div>
-          <div><b style="color:var(--tx)">Uraian</b> — jawaban_benar: teks referensi koreksi guru</div>
-        </div>
+        Format kolom Excel yang dibutuhkan:<br>
+        <strong>nomer_soal, pertanyaan, tipe_soal, pilihan_1, pilihan_2, pilihan_3, pilihan_4, pilihan_5, jawaban_benar</strong><br>
+        <span style="font-size:11.5px;color:var(--mu)">Kolom tipe_soal: Pilihan Ganda / Pilihan Ganda Kompleks / Benar/Salah / Uraian / Menjodohkan</span>
       </div></div>
       <div class="fg"><label class="fl">Masukkan ke Paket Soal *</label>
         <select id="ibKode" class="fc">${kodeOpts||'<option value="">— Tidak ada paket soal —</option>'}</select></div>
@@ -3207,16 +2984,9 @@ function impButir(){
       const rows=XLSX.utils.sheet_to_json(ws);
       window._ibData=rows;
       if(!rows.length){$('ibPrev').innerHTML='<div class="al aler">File kosong atau format tidak dikenali.</div>';return;}
-      const normalized=rows.map(r=>normalizeImportRow(r));
-      const errs=normalized.filter(r=>r._warn);
-      $('ibPrev').innerHTML=`<div class="al alok"><i class="fa-solid fa-circle-check" style="color:var(--ok)"></i><div><strong>${rows.length} soal</strong> ditemukan${errs.length?' — <span style="color:var(--wa)">'+errs.length+' baris perlu dicek</span>':''}</div></div>
-        <div class="tw" style="max-height:180px;overflow-y:auto"><table><thead><tr><th>No</th><th>Tipe</th><th>Pertanyaan</th><th>Kunci (hasil normalisasi)</th></tr></thead><tbody>
-        ${normalized.slice(0,5).map((r,i)=>`<tr ${r._warn?'style="background:#fffbeb"':''}>
-          <td>${r.nomer_soal||i+1}</td>
-          <td><span class="badge bbl" style="font-size:10px">${r.tipe_soal||'Pilihan Ganda'}</span></td>
-          <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${String(r.pertanyaan||'').substring(0,55)}</td>
-          <td style="font-size:11px;font-family:monospace">${r.jawaban_benar||'<span style="color:var(--er)">kosong!</span>'}</td>
-        </tr>`).join('')}
+      $('ibPrev').innerHTML=`<div class="al alok"><i class="fa-solid fa-circle-check" style="color:var(--ok)"></i><div><strong>${rows.length} soal</strong> ditemukan. Kolom: ${Object.keys(rows[0]).join(', ')}</div></div>
+        <div class="tw" style="max-height:160px;overflow-y:auto"><table><thead><tr><th>No</th><th>Tipe</th><th>Pertanyaan</th><th>Kunci</th></tr></thead><tbody>
+        ${rows.slice(0,5).map((r,i)=>`<tr><td>${r.nomer_soal||i+1}</td><td><span class="badge bbl" style="font-size:10px">${r.tipe_soal||'PG'}</span></td><td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${String(r.pertanyaan||'').substring(0,60)}</td><td style="font-size:11px">${r.jawaban_benar||''}</td></tr>`).join('')}
         </tbody></table></div>
         ${rows.length>5?`<p style="font-size:11.5px;color:var(--mu);text-align:center;margin-top:6px">… dan ${rows.length-5} soal lainnya</p>`:''}`;
     };reader.readAsBinaryString(f);
@@ -3226,48 +2996,13 @@ function impButir(){
 function dlTemplateButir(e){
   e.preventDefault();
   const template=[
-    {nomer_soal:1,pertanyaan:'Berapakah hasil dari 2 + 3?',tipe_soal:'Pilihan Ganda',pilihan_1:'4',pilihan_2:'5',pilihan_3:'6',pilihan_4:'7',pilihan_5:'',jawaban_benar:'B'},
-    {nomer_soal:2,pertanyaan:'Pilih semua bilangan prima!',tipe_soal:'Pilihan Ganda Kompleks',pilihan_1:'2',pilihan_2:'4',pilihan_3:'7',pilihan_4:'9',pilihan_5:'11',jawaban_benar:'A,C,E'},
-    {nomer_soal:3,pertanyaan:'Tentukan Benar atau Salah pernyataan berikut!',tipe_soal:'Benar/Salah',pilihan_1:'2 + 2 = 4',pilihan_2:'3 x 3 = 8',pilihan_3:'10 ÷ 2 = 5',pilihan_4:'',pilihan_5:'',jawaban_benar:'Benar|Salah|Benar'},
-    {nomer_soal:4,pertanyaan:'Pasangkan istilah dengan definisinya!',tipe_soal:'Menjodohkan',pilihan_1:'',pilihan_2:'',pilihan_3:'',pilihan_4:'',pilihan_5:'',jawaban_benar:'Fotosintesis:Proses pembuatan makanan tumbuhan|Respirasi:Proses penguraian energi|Transpirasi:Penguapan air melalui daun'},
-    {nomer_soal:5,pertanyaan:'Jelaskan proses terjadinya hujan!',tipe_soal:'Uraian',pilihan_1:'',pilihan_2:'',pilihan_3:'',pilihan_4:'',pilihan_5:'',jawaban_benar:'Air menguap karena panas matahari, membentuk awan, lalu jatuh sebagai hujan.'},
+    {nomer_soal:1,pertanyaan:'Contoh soal pilihan ganda?',tipe_soal:'Pilihan Ganda',pilihan_1:'Jawaban A',pilihan_2:'Jawaban B',pilihan_3:'Jawaban C',pilihan_4:'Jawaban D',pilihan_5:'',jawaban_benar:'pilihan_1'},
+    {nomer_soal:2,pertanyaan:'Contoh soal benar salah — 2+2=4?',tipe_soal:'Benar/Salah',pilihan_1:'2+2=4',pilihan_2:'3+3=7',pilihan_3:'',pilihan_4:'',pilihan_5:'',jawaban_benar:'Benar|Salah'},
+    {nomer_soal:3,pertanyaan:'Jelaskan konsep fotosintesis!',tipe_soal:'Uraian',pilihan_1:'',pilihan_2:'',pilihan_3:'',pilihan_4:'',pilihan_5:'',jawaban_benar:'Proses pembuatan makanan oleh tumbuhan menggunakan cahaya matahari'},
   ];
   const ws=XLSX.utils.json_to_sheet(template);
-  // Lebar kolom supaya mudah dibaca
-  ws['!cols']=[{wch:6},{wch:40},{wch:22},{wch:16},{wch:16},{wch:16},{wch:16},{wch:10},{wch:50}];
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Template Soal');
   XLSX.writeFile(wb,'template-butir-soal.xlsx');toast('Template diunduh!','ok');
-}
-
-// Normalisasi baris dari Excel ke format internal
-// PG: A/B/C/D/E → pilihan_1/2/3/4/5
-// PGK: A,C,E → pilihan_1,pilihan_3,pilihan_5
-// Benar/Salah & Menjodohkan & Uraian: tetap
-function normalizeImportRow(r){
-  const row=Object.assign({},r);
-  const tipe=String(row.tipe_soal||'Pilihan Ganda').trim();
-  const labelMap={A:'pilihan_1',B:'pilihan_2',C:'pilihan_3',D:'pilihan_4',E:'pilihan_5'};
-  let kunci=String(row.jawaban_benar||'').trim();
-  row._warn=false;
-  if(tipe==='Pilihan Ganda'){
-    // Terima: A/B/C/D/E, a/b/c/d/e, atau pilihan_1..5 (format lama)
-    if(/^[a-eA-E]$/.test(kunci)){
-      row.jawaban_benar=labelMap[kunci.toUpperCase()]||kunci;
-    }else if(/^pilihan_[1-5]$/.test(kunci)){
-      // sudah format internal, biarkan
-    }else{row._warn=true;}
-  }else if(tipe==='Pilihan Ganda Kompleks'){
-    // Terima: A,C,E atau pilihan_1,pilihan_3,pilihan_5
-    if(/^[a-eA-E,\s]+$/.test(kunci)&&!/pilihan/.test(kunci)){
-      row.jawaban_benar=kunci.split(',').map(s=>s.trim()).filter(Boolean)
-        .map(l=>labelMap[l.toUpperCase()]||l).join(',');
-    }else if(/^(pilihan_[1-5],?)+$/.test(kunci)){
-      // sudah format internal
-    }else{row._warn=true;}
-  }
-  // Benar/Salah, Menjodohkan, Uraian: tidak perlu konversi
-  if(!kunci)row._warn=true;
-  return row;
 }
 
 async function doImpButir(){
@@ -3278,24 +3013,23 @@ async function doImpButir(){
   setBtn('ibBtn','<span class="spin"></span> Mengimport...');
   let ok=0,fail=0;
   for(const r of d){
-    const row=normalizeImportRow(r);
     try{
       await SB.from('butir_soal').insert({
         kode_soal:kode,
-        nomer_soal:parseInt(row.nomer_soal)||ok+1,
-        pertanyaan:String(row.pertanyaan||''),
-        tipe_soal:String(row.tipe_soal||'Pilihan Ganda'),
-        pilihan_1:String(row.pilihan_1||''),
-        pilihan_2:String(row.pilihan_2||''),
-        pilihan_3:String(row.pilihan_3||''),
-        pilihan_4:String(row.pilihan_4||''),
-        pilihan_5:String(row.pilihan_5||''),
-        jawaban_benar:String(row.jawaban_benar||''),
+        nomer_soal:parseInt(r.nomer_soal)||ok+1,
+        pertanyaan:String(r.pertanyaan||''),
+        tipe_soal:String(r.tipe_soal||'Pilihan Ganda'),
+        pilihan_1:String(r.pilihan_1||''),
+        pilihan_2:String(r.pilihan_2||''),
+        pilihan_3:String(r.pilihan_3||''),
+        pilihan_4:String(r.pilihan_4||''),
+        pilihan_5:String(r.pilihan_5||''),
+        jawaban_benar:String(r.jawaban_benar||''),
         status_soal:'Aktif'
       });ok++;
-    }catch(e){fail++;console.warn('Import row error:',e.message,row);}
+    }catch(e){fail++;}
   }
-  toast(`Import selesai: ${ok} soal berhasil${fail?', '+fail+' gagal':''}!`,fail?'wa':'ok');
+  toast(`Import selesai: ${ok} soal berhasil${fail?', '+fail+' gagal':''}!`,'ok');
   rmModal('mdImpButir');loadButir();
 }
 
@@ -4134,40 +3868,55 @@ async function svSet(){
 
   if(!nm){toast('Nama sekolah wajib diisi!','er');$('stNm')?.focus();return;}
 
-  const o={
-    nama_sekolah  : nm,
-    alamat_sekolah: al,
-    nama_kepsek   : ks,
-    nip_kepsek    : nip,
-    logo_sekolah  : window._logoB64 || ($('stNm') ? (demoMode?DEMO.pengaturan.logo_sekolah:'') : ''),
-    kop_custom    : window._kopB64  || ($('stNm') ? (demoMode?DEMO.pengaturan.kop_custom:'')  : ''),
-    chat          : $('stChat')?.value||'izin',
-    login_ganda   : $('stLg')?.value||'izin',
-    sembunyikan_nilai: $('stNl')?.value||'tidak',
-  };
-
-  // Pertahankan nilai lama jika tidak ada upload baru
-  if(!window._logoB64 && !demoMode){
-    const old = await SB.from('pengaturan').select('logo_sekolah,kop_custom').single();
-    if(old.data){
-      if(!window._logoB64) o.logo_sekolah = old.data.logo_sekolah||'';
-      if(!window._kopB64)  o.kop_custom   = old.data.kop_custom||'';
-    }
-  }
+  // Mode demo
   if(demoMode){
-    DEMO.pengaturan={...DEMO.pengaturan,...o};
-    // Reset upload state
-    window._logoB64=null;window._kopB64=null;
+    DEMO.pengaturan={
+      ...DEMO.pengaturan,
+      nama_sekolah:nm, alamat_sekolah:al, nama_kepsek:ks, nip_kepsek:nip,
+      logo_sekolah: window._logoB64||DEMO.pengaturan.logo_sekolah||'',
+      kop_custom  : window._kopB64 ||DEMO.pengaturan.kop_custom||'',
+      chat:$('stChat')?.value||'izin',
+      login_ganda:$('stLg')?.value||'izin',
+      sembunyikan_nilai:$('stNl')?.value||'tidak',
+    };
+    window._logoB64=null; window._kopB64=null;
     toast('Pengaturan tersimpan (mode demo)','ok');
     return;
   }
+
   try{
-    const{data:existing}=await SB.from('pengaturan').select('id').single();
-    if(existing) await SB.from('pengaturan').update(o).eq('id',existing.id);
-    else         await SB.from('pengaturan').insert(o);
-    window._logoB64=null;window._kopB64=null;
+    // 1. Ambil data lama (logo/kop) agar tidak tertimpa jika tidak ada upload baru
+    //    Gunakan maybeSingle() agar tidak error saat tabel kosong
+    const{data:old}=await SB.from('pengaturan').select('id,logo_sekolah,kop_custom').maybeSingle();
+
+    const o={
+      nama_sekolah     : nm,
+      alamat_sekolah   : al,
+      nama_kepsek      : ks,
+      nip_kepsek       : nip,
+      logo_sekolah     : window._logoB64 || old?.logo_sekolah || '',
+      kop_custom       : window._kopB64  || old?.kop_custom   || '',
+      chat             : $('stChat')?.value||'izin',
+      login_ganda      : $('stLg')?.value||'izin',
+      sembunyikan_nilai: $('stNl')?.value||'tidak',
+    };
+
+    // 2. Jika sudah ada row → update by id; jika belum ada → insert
+    let err;
+    if(old?.id){
+      ({error:err}=await SB.from('pengaturan').update(o).eq('id',old.id));
+    }else{
+      ({error:err}=await SB.from('pengaturan').insert(o));
+    }
+
+    if(err) throw err;
+
+    window._logoB64=null; window._kopB64=null;
     toast('Pengaturan berhasil disimpan!','ok');
-  }catch(e){toast('Error: '+e.message,'er');}
+  }catch(e){
+    toast('Gagal menyimpan: '+(e.message||JSON.stringify(e)),'er');
+    console.error('svSet error:',e);
+  }
 }
 
 async function resetDataUjian(){
