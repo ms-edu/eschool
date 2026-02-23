@@ -2950,119 +2950,243 @@ async function cetakKartuSiswa(){
   const pg=demoMode?DEMO.pengaturan:((await SB.from('pengaturan').select('*').single()).data||{});
   const namaSkl = pg.nama_sekolah||'NAMA SEKOLAH';
   const logoSrc = pg.logo_sekolah||'';
-  
-  // Open print window
+  const namaKepsek = pg.nama_kepsek||pg.kepala_sekolah||'Kepala Sekolah';
+  const nipKepsek = pg.nip_kepsek||pg.nip||'';
+  const ttdKepsek = pg.ttd_kepsek||pg.tanda_tangan||'';
+  const stempelSkl = pg.stempel||pg.cap_sekolah||'';
+  const tahunPelajaran = pg.tahun_pelajaran||new Date().getFullYear();
+  const kota = pg.kota||pg.kota_sekolah||'';
+  const today=new Date();
+  const tglCetak=today.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
+
+  // Buat halaman cetak
   const pw=window.open('','_blank');
-  pw.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Kartu Peserta Ujian</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  pw.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Kartu Peserta</title>
+    <link href="https://fonts.googleapis.com/css2?family=Times+New+Roman:wght@400;700&family=Arial:wght@400;700&display=swap" rel="stylesheet">
     <style>
       *{margin:0;padding:0;box-sizing:border-box}
-      body{font-family:'Plus Jakarta Sans',sans-serif}
-      /* A4: 210mm x 297mm, margin 10mm each side => usable 190mm x 277mm */
-      /* 2 cols x 5 rows per page */
-      .kartu-grid{
+      body{font-family:Arial,sans-serif;background:#fff;width:210mm}
+      @page{size:A4 portrait;margin:8mm 8mm 8mm 8mm}
+      @media print{body{width:auto}}
+
+      /* Judul halaman di atas setiap halaman */
+      .page-header{
+        text-align:center;
+        font-size:9pt;
+        font-weight:700;
+        text-transform:uppercase;
+        margin-bottom:3mm;
+        line-height:1.5;
+        letter-spacing:.03em;
+      }
+
+      /* Grid: 2 kolom x 4 baris per halaman */
+      .kartu-page{
+        width:194mm; /* 210mm - 2*8mm */
+        min-height:281mm; /* 297mm - 2*8mm */
         display:grid;
         grid-template-columns:1fr 1fr;
-        gap:5mm;
-        padding:10mm;
-        width:210mm;
-        min-height:297mm;
-        box-sizing:border-box;
+        grid-template-rows:repeat(4,1fr);
+        gap:3mm;
+        page-break-after:always;
       }
-      /* Each card: (190mm - 5mm gap) / 2 = 92.5mm wide, (277mm - 4*5mm) / 5 = 51.4mm tall */
+      .kartu-page:last-child{page-break-after:auto}
+
+      /* Satu kartu */
       .kartu-print{
-        width:92.5mm;
-        height:51mm;
-        border:1.5pt solid #1e293b;
-        border-radius:3mm;
-        padding:3mm;
-        box-sizing:border-box;
-        page-break-inside:avoid;
-        overflow:hidden;
+        border:1pt solid #000;
         display:flex;
         flex-direction:column;
-        justify-content:flex-start;
+        overflow:hidden;
+        page-break-inside:avoid;
+        position:relative;
+        background:#fff;
       }
-      .kartu-head{
+
+      /* Header kartu: logo + judul */
+      .kp-head{
         display:flex;
         align-items:center;
         gap:2mm;
-        border-bottom:1.5pt solid #1e293b;
-        padding-bottom:1.5mm;
-        margin-bottom:1.5mm;
+        border-bottom:1pt solid #000;
+        padding:1.5mm 2mm;
+        background:#fff;
       }
-      .kartu-logo{
+      .kp-logo{
+        width:9mm;height:9mm;flex-shrink:0;
         display:flex;align-items:center;justify-content:center;
-        flex-shrink:0;overflow:visible;
       }
-      .kartu-title{flex:1}
-      .kartu-title h3{font-size:7pt;font-weight:800;margin-bottom:0.5mm}
-      .kartu-title p{font-size:6pt;color:#64748b}
-      /* Photo placeholder 2x3 cm (roughly 20x30mm, scaled down to fit) */
-      .kartu-photo{
-        width:14mm;height:20mm;
-        border:1pt solid #94a3b8;
-        border-radius:1mm;
-        display:flex;flex-direction:column;
-        align-items:center;justify-content:center;
-        font-size:5pt;color:#94a3b8;text-align:center;
+      .kp-logo img{width:9mm;height:9mm;object-fit:contain}
+      .kp-judul{flex:1;text-align:center}
+      .kp-judul .kj-t1{font-size:6pt;font-weight:700;text-transform:uppercase;letter-spacing:.04em;line-height:1.3}
+      .kp-judul .kj-t2{font-size:5.5pt;font-weight:700;text-transform:uppercase;line-height:1.3}
+      .kp-judul .kj-t3{font-size:5pt;color:#333;line-height:1.3}
+
+      /* Badge PANITIA / PESERTA di kanan atas */
+      .kp-badge{
+        font-size:5.5pt;font-weight:700;
+        border:1pt solid #000;
+        padding:1mm 2mm;
+        align-self:flex-start;
         flex-shrink:0;
-        background:#f8fafc;
+        text-transform:uppercase;
+        letter-spacing:.05em;
+      }
+
+      /* Baris info: label — nilai */
+      .kp-info{
+        padding:1mm 2mm 0;
+        flex:1;
+      }
+      .kp-row{
+        display:flex;
+        align-items:flex-start;
+        font-size:5.5pt;
+        padding:0.4mm 0;
+        border-bottom:.3pt solid #ddd;
         line-height:1.3;
       }
-      .kartu-body{display:flex;gap:2mm;flex:1;min-height:0}
-      .kartu-info{flex:1;display:flex;flex-direction:column;gap:0.5mm;justify-content:center}
-      .kartu-row{display:flex;justify-content:space-between;padding:0.7mm 0;font-size:7pt;border-bottom:0.3pt solid #e2e8f0}
-      .kartu-row:last-child{border-bottom:none}
-      .kartu-label{color:#64748b;flex-shrink:0;margin-right:1mm}
-      .kartu-value{font-weight:700;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:45mm}
-      @page{size:A4 portrait;margin:0}
-      @media print{
-        body{padding:0}
-        .kartu-grid{padding:10mm}
+      .kp-row:last-child{border-bottom:none}
+      .kp-lbl{width:22mm;flex-shrink:0;color:#000}
+      .kp-sep{width:3mm;flex-shrink:0;color:#000}
+      .kp-val{flex:1;font-weight:400;color:#000}
+      .kp-val ul{list-style:disc;padding-left:3mm}
+
+      /* Bagian bawah: foto + tanda tangan */
+      .kp-foot{
+        display:flex;
+        align-items:flex-end;
+        padding:1mm 2mm 1.5mm;
+        gap:2mm;
+        margin-top:auto;
       }
+      /* Foto siswa */
+      .kp-foto{
+        width:12mm;height:17mm;
+        border:1pt solid #555;
+        display:flex;flex-direction:column;
+        align-items:center;justify-content:center;
+        font-size:4.5pt;color:#888;text-align:center;
+        flex-shrink:0;background:#f5f5f5;
+        line-height:1.3;
+      }
+      /* Kolom tanda tangan */
+      .kp-ttd{
+        flex:1;
+        font-size:4.8pt;
+        line-height:1.4;
+        color:#000;
+      }
+      .kp-ttd-kota{margin-bottom:0.3mm}
+      .kp-ttd-jabatan{margin-bottom:3mm}
+      .kp-ttd-img{
+        height:6mm;display:flex;align-items:center;justify-content:flex-start;
+        gap:1mm;margin-bottom:.5mm;
+      }
+      .kp-ttd-img img{height:6mm;max-width:12mm;object-fit:contain}
+      .kp-ttd-garis{border-bottom:1pt solid #000;margin-bottom:.5mm}
+      .kp-ttd-nama{font-weight:700;font-size:5pt}
+      .kp-ttd-nip{font-size:4.5pt}
+
+      /* QR placeholder */
+      .kp-qr{
+        width:13mm;height:13mm;
+        border:1pt solid #888;
+        display:flex;align-items:center;justify-content:center;
+        font-size:4.5pt;color:#888;text-align:center;
+        flex-shrink:0;background:#fff;
+        align-self:flex-end;
+      }
+
+      /* Kosong (slot filler) */
+      .kartu-empty{border-color:transparent!important}
     </style></head><body>`);
 
-  // Chunk into pages of 10 (2 cols x 5 rows)
-  const perPage=10;
-  for(let i=0;i<siswa.length;i+=perPage){
-    const page=siswa.slice(i,i+perPage);
-    pw.document.write(`<div class="kartu-grid" style="${i+perPage<siswa.length?'page-break-after:always':''}">`);
-    page.forEach(s=>{
-      pw.document.write(`
-        <div class="kartu-print">
-          <div class="kartu-head">
-            <div class="kartu-logo">${logoSrc?`<img src="${logoSrc}" alt="Logo" style="width:9mm;height:9mm;object-fit:contain" onerror="this.style.display='none'">`:''}</div>
-            <div class="kartu-title">
-              <h3>KARTU PESERTA UJIAN</h3>
-              <p>${namaSkl}</p>
-            </div>
-          </div>
-          <div class="kartu-body">
-            <div class="kartu-photo">
-              <div style="font-size:8pt;opacity:.4">📷</div>
-              <div>Foto</div>
-              <div>2 × 3</div>
-            </div>
-            <div class="kartu-info">
-              <div class="kartu-row"><span class="kartu-label">Nama</span><span class="kartu-value">${s.nama_siswa}</span></div>
-              <div class="kartu-row"><span class="kartu-label">NIS</span><span class="kartu-value">${s.username}</span></div>
-              <div class="kartu-row"><span class="kartu-label">Kelas</span><span class="kartu-value">${s.kelas} – ${s.rombel}</span></div>
-              <div class="kartu-row"><span class="kartu-label">Password</span><span class="kartu-value">${s.password}</span></div>
-              <div class="kartu-row"><span class="kartu-label">Status</span><span class="kartu-value">${s.status}</span></div>
-            </div>
-          </div>
-        </div>`);
-    });
-    // Fill empty slots to maintain grid alignment
-    const empty=perPage-page.length;
-    for(let j=0;j<empty;j++)pw.document.write('<div class="kartu-print" style="border-color:transparent"></div>');
-    pw.document.write('</div>');
-  }
+  // Judul halaman (di atas grid, tapi di dalam @page margin)
+  // Kita buat per-page header di dalam grid via pseudo / atau sebelum grid
+  // Lebih simpel: buat sebagai bagian pertama di setiap .kartu-page dengan grid-column: span 2
   
+  // 8 kartu per halaman (2 col x 4 row)
+  const perPage=8;
+  // Tiap siswa dicetak 2x (PANITIA & PESERTA) secara berdampingan per baris
+  // Sehingga 1 baris = 1 siswa (kiri=PANITIA, kanan=PESERTA)
+  // 4 baris per halaman = 4 siswa per halaman
+  const siswaPerHalaman=4;
+
+  // Kelompokkan per halaman
+  for(let i=0;i<siswa.length;i+=siswaPerHalaman){
+    const pageSiswa=siswa.slice(i,i+siswaPerHalaman);
+    const isLast=i+siswaPerHalaman>=siswa.length;
+    
+    pw.document.write(`<div style="text-align:center;font-size:7.5pt;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2mm;line-height:1.5">
+      KARTU PESERTA TES KEMAMPUAN AKADEMIK SMK<br>${namaSkl}<br>TAHUN PELAJARAN ${tahunPelajaran}
+    </div>`);
+    pw.document.write(`<div class="kartu-page" style="${!isLast?'page-break-after:always':''}">`);
+
+    pageSiswa.forEach((s,idx)=>{
+      // Nomor urut peserta
+      const noUrut=String(i+idx+1).padStart(4,'0');
+      const noPeserta=s.no_peserta||s.nomor_peserta||`T${tahunPelajaran}-${noUrut}`;
+
+      // Template kartu (dipakai 2x: PANITIA & PESERTA)
+      const buatKartu=(badge)=>`
+        <div class="kartu-print">
+          <div class="kp-head">
+            <div class="kp-logo">${logoSrc?`<img src="${logoSrc}" alt="Logo" onerror="this.style.display='none'">`:'<div style="width:9mm;height:9mm;border:1pt solid #ccc;display:flex;align-items:center;justify-content:center;font-size:4pt;color:#999">Logo</div>'}</div>
+            <div class="kp-judul">
+              <div class="kj-t1">KARTU PESERTA</div>
+              <div class="kj-t2">TES KEMAMPUAN AKADEMIK SMK</div>
+              <div class="kj-t3">TAHUN ${tahunPelajaran}</div>
+            </div>
+            <div class="kp-badge">${badge}</div>
+          </div>
+          <div class="kp-info">
+            <div class="kp-row"><span class="kp-lbl">Nomor Peserta</span><span class="kp-sep">:</span><span class="kp-val">${noPeserta}</span></div>
+            <div class="kp-row"><span class="kp-lbl">Nama Peserta</span><span class="kp-sep">:</span><span class="kp-val">${s.nama_siswa}</span></div>
+            <div class="kp-row"><span class="kp-lbl">Tmp &amp; Tanggal Lahir</span><span class="kp-sep">:</span><span class="kp-val">${s.tempat_lahir||s.ttl||'—'}</span></div>
+            <div class="kp-row"><span class="kp-lbl">Asal Sekolah</span><span class="kp-sep">:</span><span class="kp-val">${namaSkl}</span></div>
+            <div class="kp-row"><span class="kp-lbl">Mata Pelajaran Pilihan</span><span class="kp-sep">:</span><span class="kp-val">${s.mapel||s.mata_pelajaran||s.kelas||'—'}</span></div>
+          </div>
+          <div class="kp-foot">
+            <div class="kp-foto">
+              <div style="opacity:.4;font-size:8pt">📷</div>
+              <div>Foto</div>
+            </div>
+            <div class="kp-ttd">
+              <div class="kp-ttd-kota">${kota?kota+', ':''} ${tglCetak}</div>
+              <div class="kp-ttd-jabatan">Kepala Satuan Pendidikan,</div>
+              <div class="kp-ttd-img">
+                ${stempelSkl?`<img src="${stempelSkl}" onerror="this.style.display='none'" style="height:6mm;max-width:12mm;object-fit:contain">`:
+                  '<div style="width:10mm;height:6mm;border-radius:50%;border:1pt solid #aaa;opacity:.2"></div>'}
+                ${ttdKepsek?`<img src="${ttdKepsek}" onerror="this.style.display='none'" style="height:6mm;max-width:10mm;object-fit:contain">`:''}
+              </div>
+              <div class="kp-ttd-garis"></div>
+              <div class="kp-ttd-nama">${namaKepsek}</div>
+              <div class="kp-ttd-nip">NIP. ${nipKepsek||'—'}</div>
+            </div>
+            <div class="kp-qr">
+              <div style="font-size:4pt;color:#999;text-align:center">QR<br>Code</div>
+            </div>
+          </div>
+        </div>`;
+
+      pw.document.write(buatKartu('PANITIA'));
+      pw.document.write(buatKartu('PESERTA'));
+    });
+
+    // Isi slot kosong agar grid tetap rapi
+    const kosong=siswaPerHalaman-pageSiswa.length;
+    for(let k=0;k<kosong;k++){
+      pw.document.write('<div class="kartu-print kartu-empty"></div>');
+      pw.document.write('<div class="kartu-print kartu-empty"></div>');
+    }
+
+    pw.document.write('</div>'); // .kartu-page
+  }
+
   pw.document.write('</body></html>');
   pw.document.close();
-  setTimeout(()=>pw.print(),600);
+  setTimeout(()=>pw.print(),800);
 }
 
 function impSiswa(){
