@@ -2814,85 +2814,86 @@ async function cetakKartuSiswa(){
   const tglCetak   = new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
   const thn        = new Date().getFullYear();
 
+  const css=[
+    '*{margin:0;padding:0;box-sizing:border-box}',
+    'body{font-family:Arial,sans-serif;background:#fff}',
+    '@page{size:A4 portrait;margin:5mm}',
+    '.halaman{width:200mm;height:287mm;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,1fr);gap:2mm;page-break-after:always}',
+    '.halaman:last-child{page-break-after:auto}',
+    '.kartu{border:1pt solid #000;display:flex;flex-direction:column;overflow:hidden;background:#fff}',
+    '.k-head{display:flex;align-items:center;border-bottom:1pt solid #000;padding:1.2mm 2mm;gap:1.5mm;flex-shrink:0}',
+    '.k-logo{width:11mm;height:11mm;flex-shrink:0;display:flex;align-items:center;justify-content:center}',
+    '.k-logo img{width:11mm;height:11mm;object-fit:contain}',
+    '.k-logo-ph{width:11mm;height:11mm;flex-shrink:0;border:1pt solid #ccc;display:flex;align-items:center;justify-content:center;font-size:4pt;color:#bbb;text-align:center;line-height:1.3}',
+    '.k-title{flex:1;text-align:center;line-height:1.4}',
+    '.k-title .t1{display:block;font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:.03em}',
+    '.k-title .t2{display:block;font-size:6pt;font-weight:700;text-transform:uppercase}',
+    '.k-title .t3{display:block;font-size:5.5pt}',
+    '.k-info{padding:1mm 2mm;flex:1;display:flex;flex-direction:column;justify-content:center}',
+    '.k-row{display:flex;align-items:flex-start;font-size:5.8pt;padding:.4mm 0;border-bottom:.3pt solid #e0e0e0;line-height:1.35}',
+    '.k-row:last-child{border-bottom:none}',
+    '.k-lbl{width:24mm;flex-shrink:0;color:#222}',
+    '.k-sep{width:3mm;flex-shrink:0;text-align:center}',
+    '.k-val{flex:1;color:#000;word-break:break-word}',
+    '.k-foot{display:flex;align-items:flex-end;padding:.8mm 2mm 1.5mm;gap:2mm;flex-shrink:0;border-top:.3pt solid #e8e8e8}',
+    '.k-foto{width:13mm;height:18mm;border:1pt solid #999;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:5pt;color:#aaa;text-align:center;flex-shrink:0;background:#f8f8f8;line-height:1.5}',
+    '.k-ttd{flex:1;font-size:5pt;line-height:1.6;color:#000}',
+    '.k-ttd-ruang{height:9mm}',
+    '.k-ttd-nama{font-weight:700;font-size:5.2pt}',
+    '.k-ttd-nip{font-size:4.8pt;color:#333}',
+    '.k-empty{border-color:transparent!important;background:transparent!important}'
+  ].join('\n');
+
+  const logoEl = logoSrc
+    ? '<div class="k-logo"><img src="'+logoSrc+'" onerror="this.style.display=\'none\'"></div>'
+    : '<div class="k-logo-ph">Logo<br>Sekolah</div>';
+
+  function buatKartu(s, urut){
+    return (
+      '<div class="kartu">'+
+        '<div class="k-head">'+
+          logoEl+
+          '<div class="k-title">'+
+            '<span class="t1">Kartu Peserta Ujian</span>'+
+            '<span class="t2">'+namaSkl+'</span>'+
+            '<span class="t3">Tahun Pelajaran '+thn+'/'+(thn+1)+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<div class="k-info">'+
+          '<div class="k-row"><span class="k-lbl">Nomor Peserta</span><span class="k-sep">:</span><span class="k-val">'+String(urut).padStart(4,'0')+'</span></div>'+
+          '<div class="k-row"><span class="k-lbl">Nama Peserta</span><span class="k-sep">:</span><span class="k-val">'+(s.nama_siswa||'—')+'</span></div>'+
+          '<div class="k-row"><span class="k-lbl">Kelas / Rombel</span><span class="k-sep">:</span><span class="k-val">'+([s.kelas,s.rombel].filter(Boolean).join(' - ')||'—')+'</span></div>'+
+          '<div class="k-row"><span class="k-lbl">Asal Sekolah</span><span class="k-sep">:</span><span class="k-val">'+namaSkl+'</span></div>'+
+          '<div class="k-row"><span class="k-lbl">Username / NIS</span><span class="k-sep">:</span><span class="k-val">'+(s.username||'—')+'</span></div>'+
+          '<div class="k-row"><span class="k-lbl">Password</span><span class="k-sep">:</span><span class="k-val">'+(s.password||'—')+'</span></div>'+
+        '</div>'+
+        '<div class="k-foot">'+
+          '<div class="k-foto">Foto<br>3 \u00d7 4</div>'+
+          '<div class="k-ttd">'+
+            '<div>Singkawang, '+tglCetak+'</div>'+
+            '<div>Kepala Satuan Pendidikan,</div>'+
+            '<div class="k-ttd-ruang"></div>'+
+            '<div class="k-ttd-nama">'+(namaKepsek||'.................................')+'</div>'+
+            (nipKepsek?'<div class="k-ttd-nip">NIP. '+nipKepsek+'</div>':'')+
+          '</div>'+
+        '</div>'+
+      '</div>'
+    );
+  }
+
   const pw=window.open('','_blank');
-  pw.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Kartu Peserta</title>
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:Arial,sans-serif;background:#fff}
-    @page{size:A4 portrait;margin:5mm}
-    .halaman{
-      width:200mm;height:287mm;
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      grid-template-rows:repeat(4,1fr);
-      gap:2mm;
-      page-break-after:always;
-    }
-    .halaman:last-child{page-break-after:auto}
-    .kartu{border:1pt solid #000;display:flex;flex-direction:column;overflow:hidden;background:#fff}
-    .k-head{display:flex;align-items:center;border-bottom:1pt solid #000;padding:1.2mm 2mm;gap:1.5mm;flex-shrink:0}
-    .k-logo{width:11mm;height:11mm;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-    .k-logo img{width:11mm;height:11mm;object-fit:contain}
-    .k-logo-ph{width:11mm;height:11mm;flex-shrink:0;border:1pt solid #ccc;display:flex;align-items:center;justify-content:center;font-size:4pt;color:#bbb;text-align:center;line-height:1.3}
-    .k-title{flex:1;text-align:center;line-height:1.4}
-    .k-title .t1{display:block;font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
-    .k-title .t2{display:block;font-size:6pt;font-weight:700;text-transform:uppercase}
-    .k-title .t3{display:block;font-size:5.5pt}
-    .k-info{padding:1mm 2mm;flex:1;display:flex;flex-direction:column;justify-content:center}
-    .k-row{display:flex;align-items:flex-start;font-size:5.8pt;padding:.4mm 0;border-bottom:.3pt solid #e0e0e0;line-height:1.35}
-    .k-row:last-child{border-bottom:none}
-    .k-lbl{width:24mm;flex-shrink:0;color:#222}
-    .k-sep{width:3mm;flex-shrink:0;color:#222;text-align:center}
-    .k-val{flex:1;font-weight:400;color:#000;word-break:break-word}
-    .k-foot{display:flex;align-items:flex-end;padding:.8mm 2mm 1.5mm;gap:2mm;flex-shrink:0;border-top:.3pt solid #e8e8e8}
-    .k-foto{width:13mm;height:18mm;border:1pt solid #999;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:5pt;color:#aaa;text-align:center;flex-shrink:0;background:#f8f8f8;line-height:1.5}
-    .k-ttd{flex:1;font-size:5pt;line-height:1.6;color:#000}
-    .k-ttd-ruang{height:9mm}
-    .k-ttd-nama{font-weight:700;font-size:5.2pt}
-    .k-ttd-nip{font-size:4.8pt;color:#333}
-    .k-empty{border-color:transparent!important;background:transparent!important}
-  </style></head><body>`);
+  pw.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Kartu Peserta</title><style>'+css+'</style></head><body>');
 
   const perHalaman=4;
-  const buatKartu=(s,urut)=>`
-    <div class="kartu">
-      <div class="k-head">
-        \${logoSrc?`<div class="k-logo"><img src="\${logoSrc}" onerror="this.style.display='none'"></div>`:`<div class="k-logo-ph">Logo<br>Sekolah</div>`}
-        <div class="k-title">
-          <span class="t1">Kartu Peserta Ujian</span>
-          <span class="t2">\${namaSkl}</span>
-          <span class="t3">Tahun Pelajaran \${thn}/\${thn+1}</span>
-        </div>
-      </div>
-      <div class="k-info">
-        <div class="k-row"><span class="k-lbl">Nomor Peserta</span><span class="k-sep">:</span><span class="k-val">\${String(urut).padStart(4,'0')}</span></div>
-        <div class="k-row"><span class="k-lbl">Nama Peserta</span><span class="k-sep">:</span><span class="k-val">\${s.nama_siswa||'—'}</span></div>
-        <div class="k-row"><span class="k-lbl">Kelas / Rombel</span><span class="k-sep">:</span><span class="k-val">\${[s.kelas,s.rombel].filter(Boolean).join(' - ')||'—'}</span></div>
-        <div class="k-row"><span class="k-lbl">Asal Sekolah</span><span class="k-sep">:</span><span class="k-val">\${namaSkl}</span></div>
-        <div class="k-row"><span class="k-lbl">Username / NIS</span><span class="k-sep">:</span><span class="k-val">\${s.username||'—'}</span></div>
-        <div class="k-row"><span class="k-lbl">Password</span><span class="k-sep">:</span><span class="k-val">\${s.password||'—'}</span></div>
-      </div>
-      <div class="k-foot">
-        <div class="k-foto">Foto<br>3 × 4</div>
-        <div class="k-ttd">
-          <div>Singkawang, \${tglCetak}</div>
-          <div>Kepala Satuan Pendidikan,</div>
-          <div class="k-ttd-ruang"></div>
-          <div class="k-ttd-nama">\${namaKepsek||'.................................'}</div>
-          \${nipKepsek?`<div class="k-ttd-nip">NIP. \${nipKepsek}</div>`:''}
-        </div>
-      </div>
-    </div>`;
-
   for(let i=0;i<siswa.length;i+=perHalaman){
     const halaman=siswa.slice(i,i+perHalaman);
     pw.document.write('<div class="halaman">');
-    halaman.forEach((s,j)=>{
-      const urut=i+j+1;
+    halaman.forEach(function(s,j){
+      var urut=i+j+1;
       pw.document.write(buatKartu(s,urut));
       pw.document.write(buatKartu(s,urut));
     });
-    for(let k=halaman.length;k<perHalaman;k++){
+    for(var k=halaman.length;k<perHalaman;k++){
       pw.document.write('<div class="kartu k-empty"></div><div class="kartu k-empty"></div>');
     }
     pw.document.write('</div>');
@@ -2900,9 +2901,8 @@ async function cetakKartuSiswa(){
 
   pw.document.write('</body></html>');
   pw.document.close();
-  setTimeout(()=>pw.print(),600);
+  setTimeout(function(){pw.print();},600);
 }
-
 function impSiswa(){
   document.getElementById('mdImp')?.remove();
   const html=`<div class="mo" id="mdImp"><div class="md mdlg"><div class="mh"><div class="mtt"><i class="fa-solid fa-file-excel"></i> Import Siswa dari Excel</div><button class="xb" onclick="rmModal('mdImp')">✕</button></div>
