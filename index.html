@@ -938,11 +938,28 @@ insert into pengaturan (nama_sekolah, nama_app, alamat_sekolah, nama_kepsek, nip
 values ('MIN Singkawang', 'CBT E-School', 'Jl. Pendidikan No.1, Singkawang', '', '', 'izin', 'izin', 'tidak')
 on conflict do nothing;
 
--- Enable Row Level Security (optional tapi disarankan)
--- alter table admins enable row level security;
--- Untuk development, buat policy terbuka dulu:
--- create policy "allow all" on admins for all using (true) with check (true);
--- (ulangi untuk semua tabel)
+-- ─── ROW LEVEL SECURITY ───
+-- Jalankan ini di Supabase SQL Editor jika data tidak bisa masuk database:
+alter table pengaturan enable row level security;
+create policy "allow all pengaturan" on pengaturan for all using (true) with check (true);
+
+alter table admins enable row level security;
+create policy "allow all admins" on admins for all using (true) with check (true);
+
+alter table siswa enable row level security;
+create policy "allow all siswa" on siswa for all using (true) with check (true);
+
+alter table soal enable row level security;
+create policy "allow all soal" on soal for all using (true) with check (true);
+
+alter table butir_soal enable row level security;
+create policy "allow all butir_soal" on butir_soal for all using (true) with check (true);
+
+alter table nilai enable row level security;
+create policy "allow all nilai" on nilai for all using (true) with check (true);
+
+alter table jawaban_siswa enable row level security;
+create policy "allow all jawaban_siswa" on jawaban_siswa for all using (true) with check (true);
 `;}
 
 // ═══════════════════════════ INIT ═══════════════════════════
@@ -2789,19 +2806,13 @@ async function cetakKartuSiswa(){
   const siswa=window._siswa||[];
   if(!siswa.length){toast('Tidak ada data siswa!','er');return;}
 
-  // Ambil data pengaturan — hanya field yang benar-benar ada di DB
   const pg=demoMode?DEMO.pengaturan:((await SB.from('pengaturan').select('*').maybeSingle()).data||{});
   const namaSkl    = pg.nama_sekolah   || 'NAMA SEKOLAH';
-  const alamat     = pg.alamat_sekolah || '';
   const logoSrc    = pg.logo_sekolah   || '';
   const namaKepsek = pg.nama_kepsek    || '';
   const nipKepsek  = pg.nip_kepsek     || '';
-
-  // Parse kota dari alamat (cari kata setelah "Kota " atau "Kab. ")
-  const kotaMatch = alamat.match(/(?:Kota|Kab\.?)\s+([A-Za-z\s]+?)(?:,|$)/i);
-  const kota = kotaMatch ? kotaMatch[1].trim() : '';
-  const tglCetak = new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
-  const thn = new Date().getFullYear();
+  const tglCetak   = new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
+  const thn        = new Date().getFullYear();
 
   const pw=window.open('','_blank');
   pw.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Kartu Peserta</title>
@@ -2827,7 +2838,6 @@ async function cetakKartuSiswa(){
     .k-title .t1{display:block;font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
     .k-title .t2{display:block;font-size:6pt;font-weight:700;text-transform:uppercase}
     .k-title .t3{display:block;font-size:5.5pt}
-    .k-badge{font-size:6pt;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border:1pt solid #000;padding:.7mm 1.8mm;align-self:flex-start;white-space:nowrap;flex-shrink:0}
     .k-info{padding:1mm 2mm;flex:1;display:flex;flex-direction:column;justify-content:center}
     .k-row{display:flex;align-items:flex-start;font-size:5.8pt;padding:.4mm 0;border-bottom:.3pt solid #e0e0e0;line-height:1.35}
     .k-row:last-child{border-bottom:none}
@@ -2836,46 +2846,41 @@ async function cetakKartuSiswa(){
     .k-val{flex:1;font-weight:400;color:#000;word-break:break-word}
     .k-foot{display:flex;align-items:flex-end;padding:.8mm 2mm 1.5mm;gap:2mm;flex-shrink:0;border-top:.3pt solid #e8e8e8}
     .k-foto{width:13mm;height:18mm;border:1pt solid #999;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:5pt;color:#aaa;text-align:center;flex-shrink:0;background:#f8f8f8;line-height:1.5}
-    .k-ttd{flex:1;font-size:5pt;line-height:1.5;color:#000}
+    .k-ttd{flex:1;font-size:5pt;line-height:1.6;color:#000}
     .k-ttd-ruang{height:9mm}
-    .k-ttd-garis{border-bottom:1pt solid #000;margin-bottom:.5mm;width:100%}
     .k-ttd-nama{font-weight:700;font-size:5.2pt}
     .k-ttd-nip{font-size:4.8pt;color:#333}
-    .k-qr{width:15mm;height:15mm;border:1pt solid #999;display:flex;align-items:center;justify-content:center;font-size:4pt;color:#bbb;text-align:center;flex-shrink:0;background:#fff;align-self:flex-end}
     .k-empty{border-color:transparent!important;background:transparent!important}
   </style></head><body>`);
 
   const perHalaman=4;
-  const buatKartu=(s,urut,badge)=>`
+  const buatKartu=(s,urut)=>`
     <div class="kartu">
       <div class="k-head">
-        ${logoSrc?`<div class="k-logo"><img src="${logoSrc}" onerror="this.style.display='none'"></div>`:`<div class="k-logo-ph">Logo<br>Sekolah</div>`}
+        \${logoSrc?`<div class="k-logo"><img src="\${logoSrc}" onerror="this.style.display='none'"></div>`:`<div class="k-logo-ph">Logo<br>Sekolah</div>`}
         <div class="k-title">
           <span class="t1">Kartu Peserta Ujian</span>
-          <span class="t2">${namaSkl}</span>
-          <span class="t3">Tahun Pelajaran ${thn}/${thn+1}</span>
+          <span class="t2">\${namaSkl}</span>
+          <span class="t3">Tahun Pelajaran \${thn}/\${thn+1}</span>
         </div>
-        <div class="k-badge">${badge}</div>
       </div>
       <div class="k-info">
-        <div class="k-row"><span class="k-lbl">Nomor Peserta</span><span class="k-sep">:</span><span class="k-val">${String(urut).padStart(4,'0')}</span></div>
-        <div class="k-row"><span class="k-lbl">Nama Peserta</span><span class="k-sep">:</span><span class="k-val">${s.nama_siswa||'—'}</span></div>
-        <div class="k-row"><span class="k-lbl">Kelas / Rombel</span><span class="k-sep">:</span><span class="k-val">${[s.kelas,s.rombel].filter(Boolean).join(' - ')||'—'}</span></div>
-        <div class="k-row"><span class="k-lbl">Asal Sekolah</span><span class="k-sep">:</span><span class="k-val">${namaSkl}</span></div>
-        <div class="k-row"><span class="k-lbl">Username / NIS</span><span class="k-sep">:</span><span class="k-val">${s.username||'—'}</span></div>
-        <div class="k-row"><span class="k-lbl">Password</span><span class="k-sep">:</span><span class="k-val">${s.password||'—'}</span></div>
+        <div class="k-row"><span class="k-lbl">Nomor Peserta</span><span class="k-sep">:</span><span class="k-val">\${String(urut).padStart(4,'0')}</span></div>
+        <div class="k-row"><span class="k-lbl">Nama Peserta</span><span class="k-sep">:</span><span class="k-val">\${s.nama_siswa||'—'}</span></div>
+        <div class="k-row"><span class="k-lbl">Kelas / Rombel</span><span class="k-sep">:</span><span class="k-val">\${[s.kelas,s.rombel].filter(Boolean).join(' - ')||'—'}</span></div>
+        <div class="k-row"><span class="k-lbl">Asal Sekolah</span><span class="k-sep">:</span><span class="k-val">\${namaSkl}</span></div>
+        <div class="k-row"><span class="k-lbl">Username / NIS</span><span class="k-sep">:</span><span class="k-val">\${s.username||'—'}</span></div>
+        <div class="k-row"><span class="k-lbl">Password</span><span class="k-sep">:</span><span class="k-val">\${s.password||'—'}</span></div>
       </div>
       <div class="k-foot">
         <div class="k-foto">Foto<br>3 × 4</div>
         <div class="k-ttd">
-          <div>${kota?kota+', ':''}${tglCetak}</div>
+          <div>Singkawang, \${tglCetak}</div>
           <div>Kepala Satuan Pendidikan,</div>
           <div class="k-ttd-ruang"></div>
-          <div class="k-ttd-garis"></div>
-          <div class="k-ttd-nama">${namaKepsek||'.................................'}</div>
-          ${nipKepsek?`<div class="k-ttd-nip">NIP. ${nipKepsek}</div>`:''}
+          <div class="k-ttd-nama">\${namaKepsek||'.................................'}</div>
+          \${nipKepsek?`<div class="k-ttd-nip">NIP. \${nipKepsek}</div>`:''}
         </div>
-        <div class="k-qr">QR<br>Code</div>
       </div>
     </div>`;
 
@@ -2884,8 +2889,8 @@ async function cetakKartuSiswa(){
     pw.document.write('<div class="halaman">');
     halaman.forEach((s,j)=>{
       const urut=i+j+1;
-      pw.document.write(buatKartu(s,urut,'PANITIA'));
-      pw.document.write(buatKartu(s,urut,'PESERTA'));
+      pw.document.write(buatKartu(s,urut));
+      pw.document.write(buatKartu(s,urut));
     });
     for(let k=halaman.length;k<perHalaman;k++){
       pw.document.write('<div class="kartu k-empty"></div><div class="kartu k-empty"></div>');
@@ -3182,11 +3187,8 @@ async function loadHadir(){
   window._hadirData={soal,siswa,kelas,rombel};
   
   res.innerHTML=`<div id="hadirPrint" style="page-break-after:always">
-    <div style="text-align:center;margin-bottom:18px;border-bottom:2px solid #000;padding-bottom:12px">
-      <div style="font-weight:800;font-size:18px;margin-bottom:4px">DAFTAR HADIR UJIAN</div>
-      <div style="font-size:14px;margin-bottom:2px"><strong>${soal.nama_soal||'—'}</strong></div>
-      <div style="font-size:12px;color:#666">Kode: ${soal.kode_soal||kode} · ${soal.mapel||'—'} · Tanggal: ${fd(soal.tanggal)}</div>
-      <div style="font-weight:700;font-size:13px;margin-top:4px">Kelas ${kelas} - Rombel ${rombel}</div>
+    <div style="text-align:center;margin-bottom:12px;border-bottom:2px solid #000;padding-bottom:8px">
+      <div style="font-weight:800;font-size:18px">DAFTAR HADIR UJIAN</div>
     </div>
     <table style="width:100%;border-collapse:collapse;font-size:11pt">
       <thead><tr style="background:#f0f0f0">
@@ -3289,9 +3291,8 @@ async function cetakHadir(){
            </div>
          </div>`
     }
-    <div style="text-align:center;margin:6px 0 8px;border-bottom:1pt solid #ccc;padding-bottom:6px">
+    <div style="text-align:center;margin:6px 0 10px">
       <div style="font-size:11pt;font-weight:800;text-transform:uppercase;letter-spacing:.06em;text-decoration:underline;text-underline-offset:2pt">Daftar Hadir Ujian</div>
-      <div style="font-size:9pt;color:#444;margin-top:2px">${soal.nama_soal||'—'} &nbsp;·&nbsp; Kelas ${kelas} / ${rombel} &nbsp;·&nbsp; ${hari}, ${fd(soal.tanggal)}</div>
     </div>
 
     <div class="meta-grid">
@@ -3870,11 +3871,10 @@ async function svSet(){
 
   // Mode demo
   if(demoMode){
-    DEMO.pengaturan={
-      ...DEMO.pengaturan,
+    DEMO.pengaturan={...DEMO.pengaturan,
       nama_sekolah:nm, alamat_sekolah:al, nama_kepsek:ks, nip_kepsek:nip,
-      logo_sekolah: window._logoB64||DEMO.pengaturan.logo_sekolah||'',
-      kop_custom  : window._kopB64 ||DEMO.pengaturan.kop_custom||'',
+      logo_sekolah:window._logoB64||DEMO.pengaturan.logo_sekolah||'',
+      kop_custom:window._kopB64||DEMO.pengaturan.kop_custom||'',
       chat:$('stChat')?.value||'izin',
       login_ganda:$('stLg')?.value||'izin',
       sembunyikan_nilai:$('stNl')?.value||'tidak',
@@ -3885,36 +3885,38 @@ async function svSet(){
   }
 
   try{
-    // 1. Ambil data lama (logo/kop) agar tidak tertimpa jika tidak ada upload baru
-    //    Gunakan maybeSingle() agar tidak error saat tabel kosong
-    const{data:old}=await SB.from('pengaturan').select('id,logo_sekolah,kop_custom').maybeSingle();
+    // maybeSingle() tidak throw error jika tabel kosong (single() akan throw error)
+    const{data:existing, error:selErr}=await SB.from('pengaturan')
+      .select('id,logo_sekolah,kop_custom').maybeSingle();
+    if(selErr) throw selErr;
 
     const o={
       nama_sekolah     : nm,
       alamat_sekolah   : al,
       nama_kepsek      : ks,
       nip_kepsek       : nip,
-      logo_sekolah     : window._logoB64 || old?.logo_sekolah || '',
-      kop_custom       : window._kopB64  || old?.kop_custom   || '',
+      // Pertahankan logo/kop lama jika tidak ada upload baru
+      logo_sekolah     : window._logoB64 || existing?.logo_sekolah || '',
+      kop_custom       : window._kopB64  || existing?.kop_custom   || '',
       chat             : $('stChat')?.value||'izin',
       login_ganda      : $('stLg')?.value||'izin',
       sembunyikan_nilai: $('stNl')?.value||'tidak',
     };
 
-    // 2. Jika sudah ada row → update by id; jika belum ada → insert
-    let err;
-    if(old?.id){
-      ({error:err}=await SB.from('pengaturan').update(o).eq('id',old.id));
+    let error;
+    if(existing?.id){
+      // Update row yang sudah ada
+      ({error}=await SB.from('pengaturan').update(o).eq('id',existing.id));
     }else{
-      ({error:err}=await SB.from('pengaturan').insert(o));
+      // Insert jika tabel masih kosong
+      ({error}=await SB.from('pengaturan').insert(o));
     }
-
-    if(err) throw err;
+    if(error) throw error;
 
     window._logoB64=null; window._kopB64=null;
     toast('Pengaturan berhasil disimpan!','ok');
   }catch(e){
-    toast('Gagal menyimpan: '+(e.message||JSON.stringify(e)),'er');
+    toast('Gagal menyimpan: '+(e?.message||JSON.stringify(e)),'er');
     console.error('svSet error:',e);
   }
 }
