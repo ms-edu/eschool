@@ -1923,11 +1923,7 @@ function mButir(id){
   const kodeOpts=(window._soalListB||[]).map(s=>`<option value="${s.kode_soal}" ${d.kode_soal===s.kode_soal?'selected':''}>${s.kode_soal}</option>`).join('');
   const tipeOpts=['Pilihan Ganda','Pilihan Ganda Kompleks','Benar/Salah','Uraian','Menjodohkan'].map(t=>`<option ${d.tipe_soal===t?'selected':''}>${t}</option>`).join('');
   const html=`<div class="mo" id="mdButir"><div class="md mdxl"><div class="mh">
-    <div class="mtt"><i class="fa-solid fa-pen-to-square" style="color:var(--p)"></i> ${id?'Edit':'Tambah'} Butir Soal
-      <span style="font-size:10.5px;background:var(--pl);color:var(--pd);padding:2px 8px;border-radius:100px;margin-left:8px;font-weight:600">
-        <i class="fa-solid fa-image"></i> Rich Editor + KaTeX
-      </span>
-    </div>
+    <div class="mtt"><i class="fa-solid fa-pen-to-square" style="color:var(--p)"></i> ${id?'Edit':'Tambah'} Butir Soal</div>
     <button class="xb" onclick="rmModal('mdButir')">✕</button></div>
     <div class="mbb">
       <div class="fr">
@@ -1939,11 +1935,7 @@ function mButir(id){
         <div class="fg"><label class="fl">Status Soal</label><select id="bSt" class="fc"><option value="Aktif" ${d.status_soal!=='Nonaktif'?'selected':''}>Aktif</option><option value="Nonaktif" ${d.status_soal==='Nonaktif'?'selected':''}>Nonaktif</option></select></div>
       </div>
       <div class="fg">
-        <label class="fl">Pertanyaan *
-          <span style="font-size:10.5px;font-weight:400;color:var(--mu);margin-left:6px">
-            <i class="fa-solid fa-circle-info"></i> Mendukung rich text, gambar (paste/drag/upload), dan rumus matematika KaTeX
-          </span>
-        </label>
+        <label class="fl">Pertanyaan *</label>
         <div id="qeditor_pertanyaan"></div>
       </div>
       <div id="bOpsi"></div>
@@ -1964,7 +1956,7 @@ function mButir(id){
     createQuillEditor('qeditor_pertanyaan', {
       value: d.pertanyaan||'',
       size: 'lg',
-      placeholder: 'Ketik pertanyaan di sini... Anda dapat paste gambar, drag & drop gambar, upload gambar, atau sisipkan rumus KaTeX dengan tombol Σ',
+      placeholder: 'Ketik pertanyaan di sini...',
       toolbarType: 'full'
     });
     upBTipe(d);
@@ -1997,9 +1989,7 @@ function upBTipe(d){
             <i class="fa-solid fa-list-ul" style="color:var(--p)"></i>
             Opsi Jawaban &mdash; ${isPG?'klik <b style="color:var(--p)">1 pilihan</b> sebagai kunci':'centang <b style="color:var(--p)">semua</b> yang benar'}
           </div>
-          <span style="font-size:10.5px;color:var(--mu);background:#fff;border:1px solid var(--br);padding:2px 8px;border-radius:100px;flex-shrink:0">
-            <i class="fa-solid fa-image" style="color:var(--p)"></i> gambar &amp; KaTeX
-          </span>
+
         </div>
         <div class="opsi-grid" id="pgOpsiGrid">
           ${labels.map((l,i)=>{
