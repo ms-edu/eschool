@@ -129,6 +129,11 @@ textarea.fc{resize:vertical;min-height:88px}
 .pww{position:relative}.pww .fc{padding-right:36px}
 .pwb{position:absolute;right:9px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:14px;color:var(--mu)}
 .tw{overflow-x:auto}
+.tw table{width:100%}
+@media(max-width:768px){
+  .tw table td,.tw table th{padding:8px 10px;font-size:12px;white-space:normal;word-break:break-word}
+  .tw table th{font-size:11px}
+}
 table{width:100%;border-collapse:collapse}
 thead th{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--mu);padding:9px 12px;background:var(--bg);border-bottom:1px solid var(--br);text-align:left;white-space:nowrap}
 tbody td{padding:11px 12px;border-bottom:1px solid var(--br);font-size:13px}
@@ -162,34 +167,34 @@ tbody tr:hover td{background:#fafbff}
 @keyframes sp{to{transform:rotate(360deg)}}
 .ov{position:fixed;inset:0;background:#fff;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}
 /* LOGIN - New centered card design matching screenshot */
-.lw{height:100dvh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#d1fae5 0%,#ecfdf5 40%,#f0fdf4 100%);padding:8px;flex-direction:column;overflow:hidden}
-.login-card{background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(5,150,105,.12),0 2px 8px rgba(0,0,0,.06);width:100%;max-width:400px;overflow:hidden}
-.login-header{text-align:center;padding:10px 18px 8px}
-.login-logo-wrap{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:11px}
-.login-logo-icon{width:38px;height:38px;flex-shrink:0}
-.login-logo-icon img{width:38px;height:38px;object-fit:contain}
+.lw{height:100dvh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#d1fae5 0%,#ecfdf5 40%,#f0fdf4 100%);padding:24px 16px;flex-direction:column;overflow:hidden}
+.login-card{background:#fff;border-radius:20px;box-shadow:0 12px 40px rgba(5,150,105,.14),0 2px 8px rgba(0,0,0,.06);width:100%;max-width:440px;overflow:hidden}
+.login-header{text-align:center;padding:28px 28px 16px}
+.login-logo-wrap{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:12px}
+.login-logo-icon{width:48px;height:48px;flex-shrink:0}
+.login-logo-icon img{width:48px;height:48px;object-fit:contain}
 .login-logo-text{text-align:left}
-.login-title{font-size:17px;font-weight:800;color:var(--tx);margin:0;line-height:1.2}
-.login-subtitle{font-size:10.5px;color:var(--p);font-weight:600;letter-spacing:.04em;margin:0}
-.login-school{font-size:10.5px;color:var(--mu);margin:0}
-.login-tabs{display:flex;border-bottom:2px solid #e2e8f0;padding:0 14px}
-.login-tab{flex:1;padding:6px 8px;font-size:12px;font-weight:600;color:var(--mu);border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;position:relative;transition:color .15s}
+.login-title{font-size:21px;font-weight:800;color:var(--tx);margin:0;line-height:1.2}
+.login-subtitle{font-size:11.5px;color:var(--p);font-weight:600;letter-spacing:.04em;margin:0}
+.login-school{font-size:11px;color:var(--mu);margin:2px 0 0}
+.login-tabs{display:flex;border-bottom:2px solid #e2e8f0;padding:0 20px}
+.login-tab{flex:1;padding:10px 8px;font-size:13px;font-weight:600;color:var(--mu);border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;position:relative;transition:color .15s}
 .login-tab.active{color:var(--tx)}
 .login-tab.active::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:var(--p);border-radius:2px 2px 0 0}
 .login-tab:hover:not(.active){color:var(--tx)}
-.login-body{padding:10px 18px 12px}
-.login-body h2{font-size:13.5px;font-weight:800;margin:0 0 1px;color:var(--tx)}
-.login-body .ls{font-size:11px;color:var(--mu);margin:0 0 6px}
-.login-body .fg{margin-bottom:5px}
-.login-body .fl{font-size:11px;margin-bottom:2px}
-.login-body .fc{padding:5px 10px;font-size:12.5px}
-.login-body .blg{padding:7px 18px;font-size:13px}
-.lw .lp-footer{font-size:11px;color:#94a3b8;text-align:center;margin-top:5px}
+.login-body{padding:20px 28px 24px}
+.login-body h2{font-size:15px;font-weight:800;margin:0 0 2px;color:var(--tx)}
+.login-body .ls{font-size:12px;color:var(--mu);margin:0 0 16px}
+.login-body .fg{margin-bottom:12px}
+.login-body .fl{font-size:12px;margin-bottom:4px}
+.login-body .fc{padding:9px 12px;font-size:13px}
+.login-body .blg{padding:11px 18px;font-size:13.5px}
+.lw .lp-footer{font-size:11.5px;color:#94a3b8;text-align:center;margin-top:12px}
 /* Captcha */
 .captcha-wrap{display:flex;align-items:center;gap:7px}
-.captcha-img{flex:1;background:linear-gradient(135deg,#f0fdf4,#fff);border:1.5px solid var(--br);border-radius:7px;padding:4px 10px;font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;letter-spacing:5px;user-select:none;text-align:center;min-height:32px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.captcha-img{flex:1;background:linear-gradient(135deg,#f0fdf4,#fff);border:1.5px solid var(--br);border-radius:8px;padding:8px 12px;font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:700;letter-spacing:6px;user-select:none;text-align:center;min-height:44px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
 .captcha-img::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(5,150,105,.04) 4px,rgba(5,150,105,.04) 8px)}
-.captcha-refresh{background:none;border:1.5px solid var(--br);border-radius:7px;width:29px;height:29px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--p);font-size:12px;transition:all .15s;flex-shrink:0}
+.captcha-refresh{background:none;border:1.5px solid var(--br);border-radius:8px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--p);font-size:14px;transition:all .15s;flex-shrink:0}
 .captcha-refresh:hover{background:var(--pl);border-color:var(--p)}
 /* Sidebar collapsed desktop */
 .sb-collapsed.sidebar{width:60px}
@@ -200,6 +205,31 @@ tbody tr:hover td{background:#fafbff}
 .sb-collapsed.sidebar .smg-ic,.sb-collapsed.sidebar .ni .ic{margin:0;width:auto}
 .sb-collapsed.sidebar .smg-body{display:none}
 .app.sb-collapsed .main{margin-left:60px}
+/* Mon table mobile */
+.mon-tw table{min-width:0!important}
+.hide-xs{display:table-cell}
+@media(max-width:600px){
+  .hide-xs{display:none!important}
+  .mon-tw table thead tr th:nth-child(2){display:none}
+  .mon-tw table tbody tr td:nth-child(2){display:none}
+}
+/* Compact stat cards + general mobile polish */
+@media(max-width:480px){
+  .g3{grid-template-columns:repeat(3,1fr)!important}
+  .g4{grid-template-columns:repeat(2,1fr)!important}
+  .stc{padding:10px 8px}
+  .stv{font-size:18px}
+  .stl{font-size:9px;letter-spacing:.02em}
+  .sts{font-size:10px}
+  .pb{padding:10px}
+  /* Sembunyikan kolom tabel yang tidak penting di layar sangat kecil */
+  .tw table th:nth-child(n+4):not(:last-child),
+  .tw table td:nth-child(n+4):not(:last-child){display:none}
+  /* Card header wrap */
+  .ch{flex-direction:column;align-items:flex-start;gap:8px}
+  .ch > div:last-child{width:100%;display:flex;gap:6px}
+  .ch .btn,.ch button{flex:1;justify-content:center}
+}
 /* Legacy - kept for backward compat */
 .la{display:none}
 .lp{display:none}
@@ -324,12 +354,35 @@ tbody tr:hover td{background:#fafbff}
 .kartu-logo{display:flex;align-items:center;justify-content:center;flex-shrink:0}
 @media(max-width:768px){
   .sidebar{transform:translateX(-100%);z-index:100}.sidebar.open{transform:translateX(0)}
-  .main{margin-left:0}.g4,.g3{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}
+  .main{margin-left:0}
+  /* Grid: stat cards g3 jadi 3 kolom kecil yang proporsional, g4→2, g2→1 */
+  .g4{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:1fr}
   .fr,.fr3{grid-template-columns:1fr}.la{display:none}.lp{width:100%;padding:28px 20px}
   .resgrid{grid-template-columns:1fr 1fr 1fr}
   .tbunm,.tburl{display:none}
   .tb-usrtrig .tbunm,.tb-usrtrig .tburl{display:none}
-  
+  /* Page body lebih ringkas */
+  .pb{padding:12px}
+  .g{gap:10px}
+  /* Stat card lebih compact di mobile */
+  .stc{padding:12px 10px}
+  .stv{font-size:20px}
+  .stl{font-size:9.5px}
+  .sts{font-size:10.5px;margin-top:2px}
+  /* Card header */
+  .ch{padding:10px 14px;flex-wrap:wrap;gap:6px}
+  .ch > div:last-child{display:flex;flex-wrap:wrap;gap:6px}
+  /* Table: card-style rows di mobile */
+  .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tw table{min-width:0;width:100%;border-collapse:collapse}
+  /* Mobile table: sembunyikan kolom tidak penting */
+  .tw table thead tr th:nth-child(5){display:none}
+  .tw table tbody tr td:nth-child(5){display:none}
+  /* Search bar */
+  .sbar{flex-direction:column;gap:7px}
+  .siw{min-width:100%;flex:none}
   /* Mobile Exam Screen */
   .exl{flex-direction:column}
   .exsb{width:100%;height:auto;position:fixed;bottom:0;left:0;right:0;z-index:200;flex-direction:row;border-right:none;border-top:2px solid var(--br);max-height:50vh;overflow-y:auto}
@@ -348,19 +401,12 @@ tbody tr:hover td{background:#fafbff}
   .opt{font-size:12px}
   .exnav{flex-wrap:wrap}
   .exnav .btn{flex:1;min-width:100px}
-  
   /* Touch-friendly buttons */
   .btn{min-height:44px;padding:10px 16px}
   .bsm{min-height:38px;padding:7px 12px}
   .op,.pk,.bsb{min-height:44px}
-  
-  /* Mobile tables - horizontal scroll */
-  .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  table{min-width:600px}
-  
   /* Mobile forms */
-  .fc{font-size:16px;padding:10px 12px} /* Prevent zoom on iOS */
-  
+  .fc{font-size:16px;padding:10px 12px}
   /* Collapsible sidebar toggle */
   .exsb.collapsed{height:50px;overflow:hidden}
   .exsb.collapsed .ngw,.exsb.collapsed .leg,.exsb.collapsed .timebox{display:none}
@@ -559,9 +605,9 @@ tbody tr:hover td{background:#fafbff}
           <div class="captcha-img" id="captchaDisplay"></div>
           <button class="captcha-refresh" onclick="refreshCaptcha()" title="Refresh"><i class="fa-solid fa-rotate-right"></i></button>
         </div>
-        <input id="captchaInput" class="fc" style="margin-top:5px" placeholder="Ketik karakter di atas" onkeydown="if(event.key==='Enter')loginAdmin()">
+        <input id="captchaInput" class="fc" style="margin-top:8px" placeholder="Ketik karakter di atas" onkeydown="if(event.key==='Enter')loginAdmin()">
       </div>
-      <button class="btn bp blg" style="width:100%;margin-top:3px" onclick="loginAdmin()" id="admBtn">
+      <button class="btn bp blg" style="width:100%;margin-top:6px" onclick="loginAdmin()" id="admBtn">
         <i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk
       </button>
     </div>
@@ -591,14 +637,14 @@ tbody tr:hover td{background:#fafbff}
           <div class="captcha-img" id="captchaDisplaySiswa"></div>
           <button class="captcha-refresh" onclick="refreshCaptchaSiswa()" title="Refresh"><i class="fa-solid fa-rotate-right"></i></button>
         </div>
-        <input id="captchaInputSiswa" class="fc" style="margin-top:5px" placeholder="Ketik karakter di atas" onkeydown="if(event.key==='Enter')loginSiswa()">
+        <input id="captchaInputSiswa" class="fc" style="margin-top:8px" placeholder="Ketik karakter di atas" onkeydown="if(event.key==='Enter')loginSiswa()">
       </div>
-      <button class="btn bp blg" style="width:100%;margin-top:3px;background:#059669;border-color:#059669" onclick="loginSiswa()" id="sisBtn">
+      <button class="btn bp blg" style="width:100%;margin-top:6px;background:#059669;border-color:#059669" onclick="loginSiswa()" id="sisBtn">
         <i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk
       </button>
     </div>
   </div>
-  <div style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">&copy; Emes EduTech</div>
+  <div style="font-size:11.5px;color:#94a3b8;text-align:center;margin-top:12px">&copy; Emes EduTech</div>
 </div>
 
 <!-- LOGIN SISWA (hidden, redirect to unified) -->
@@ -3291,7 +3337,7 @@ async function doImpButir(){
 
 // ─── MONITOR ───
 async function rMonitor(el){
-  el.innerHTML=`<div class="g g3" style="margin-bottom:14px">
+  el.innerHTML=`<div class="g g3 stat-row" style="margin-bottom:14px">
     <div class="card stc" style="background:linear-gradient(135deg,#047857,#059669);color:#fff;border:none">
       <div class="stl" style="color:rgba(255,255,255,.65)">Sedang Ujian</div><div class="stv" id="monAkt">—</div><div class="sts" style="color:rgba(255,255,255,.6)">Aktif sekarang</div></div>
     <div class="card stc" style="background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none">
@@ -3300,10 +3346,10 @@ async function rMonitor(el){
       <div class="stl" style="color:rgba(255,255,255,.65)">Non-Aktif/Terputus</div><div class="stv" id="monNA">—</div><div class="sts" style="color:rgba(255,255,255,.6)">Keluar atau terputus</div></div>
   </div>
   <div class="card"><div class="ch"><div class="ct"><i class=\"fa-solid fa-display\" style=\"color:var(--p)\"></i> Monitor Ujian Real-time</div>
-    <div style="display:flex;gap:7px">
-      <button class="btn bsm bo" onclick="nav('monitor')">Refresh</button>
-      <button class="btn bsm bd" onclick="pakuAll()">⏹ Paksa Selesai Semua</button></div></div>
-  <div class="tw"><table><thead><tr><th>Siswa</th><th>Paket Soal</th><th>Status</th><th>Waktu Sisa</th><th>Terakhir Aktif</th><th>Aksi</th></tr></thead>
+    <div style="display:flex;gap:7px;flex-wrap:wrap">
+      <button class="btn bsm bo" onclick="nav('monitor')"><i class=\"fa-solid fa-rotate-right\"></i> Refresh</button>
+      <button class="btn bsm bd" onclick="pakuAll()"><i class=\"fa-solid fa-stop\"></i> Paksa Selesai Semua</button></div></div>
+  <div class="tw mon-tw"><table class="mon-table"><thead><tr><th>Siswa</th><th>Paket Soal</th><th>Status</th><th>Waktu Sisa</th><th class="hide-xs">Terakhir Aktif</th><th>Aksi</th></tr></thead>
   <tbody id="tbMon"></tbody></table></div></div>`;
   loadMonitor();
 }
@@ -3324,9 +3370,9 @@ async function loadMonitor(){
       <td style="font-weight:600">${j.nama_siswa}</td>
       <td><span class="mono">${j.kode_soal}</span></td>
       <td><span class="badge bok"><i class="fa-solid fa-circle" style="font-size:8px;color:var(--ok)"></i> Aktif</span></td>
-      <td><span class="badge bwa">⏱ ${Math.floor(j.waktu_sisa/60)}m ${j.waktu_sisa%60}s</span></td>
-      <td style="font-size:11.5px;color:var(--mu)">${j.waktu_dijawab?fdt(j.waktu_dijawab):'—'}</td>
-      <td><button class="btn bsm bd" onclick="pakuLogout(${j.id_jawaban})">⏹ Paksa</button></td>
+      <td><span class="badge bwa"><i class="fa-solid fa-clock" style="font-size:9px"></i> ${Math.floor(j.waktu_sisa/60)}m ${j.waktu_sisa%60}s</span></td>
+      <td class="hide-xs" style="font-size:11.5px;color:var(--mu)">${j.waktu_dijawab?fdt(j.waktu_dijawab):'—'}</td>
+      <td><button class="btn bsm bd" onclick="pakuLogout(${j.id_jawaban})"><i class="fa-solid fa-stop"></i> Paksa</button></td>
     </tr>`).join('');
   }catch(e){tb.innerHTML=`<tr><td colspan="6" style="padding:16px;color:var(--er)">${e.message}</td></tr>`;}
 }
