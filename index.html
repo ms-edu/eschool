@@ -139,17 +139,34 @@ tbody tr:hover td{background:#fafbff}
 .spin{width:18px;height:18px;border:2px solid rgba(5,150,105,.2);border-top-color:var(--p);border-radius:50%;animation:sp .7s linear infinite;display:inline-block}
 @keyframes sp{to{transform:rotate(360deg)}}
 .ov{position:fixed;inset:0;background:#fff;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}
-/* LOGIN */
-.lw{min-height:100vh;display:flex}
-.la{flex:1;display:flex;align-items:center;justify-content:center;padding:40px;position:relative;overflow:hidden}
-.laart{position:relative;z-index:1;color:#fff;text-align:center;max-width:400px}
-.laart h1{font-size:36px;font-weight:800;line-height:1.2;margin-bottom:12px}
-.laart p{font-size:14.5px;color:rgba(255,255,255,.72);line-height:1.65}
-.chips{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:24px}
-.chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:100px;padding:4px 12px;font-size:12px;color:#fff;backdrop-filter:blur(4px)}
-.lp{width:400px;background:#fff;display:flex;flex-direction:column;justify-content:center;padding:44px 38px;flex-shrink:0}
-.lp h2{font-size:21px;font-weight:800;margin-bottom:3px}
-.lp .ls{font-size:12.5px;color:var(--mu);margin-bottom:24px}
+/* LOGIN - New centered card design matching screenshot */
+.lw{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#d1fae5 0%,#ecfdf5 40%,#f0fdf4 100%);padding:20px;flex-direction:column}
+.login-card{background:#fff;border-radius:18px;box-shadow:0 8px 32px rgba(5,150,105,.12),0 2px 8px rgba(0,0,0,.06);width:100%;max-width:420px;overflow:hidden}
+.login-header{text-align:center;padding:32px 28px 20px}
+.login-logo-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:6px}
+.login-logo-icon{width:56px;height:56px}
+.login-logo-icon img{width:56px;height:56px;object-fit:contain}
+.login-title{font-size:22px;font-weight:800;color:var(--tx);margin:0}
+.login-subtitle{font-size:12px;color:var(--p);font-weight:600;letter-spacing:.04em;margin:0}
+.login-school{font-size:11.5px;color:var(--mu);margin:0}
+.login-tabs{display:flex;border-bottom:2px solid #e2e8f0;padding:0 24px}
+.login-tab{flex:1;padding:11px 8px;font-size:13px;font-weight:600;color:var(--mu);border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;position:relative;transition:color .15s}
+.login-tab.active{color:var(--tx)}
+.login-tab.active::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:var(--p);border-radius:2px 2px 0 0}
+.login-tab:hover:not(.active){color:var(--tx)}
+.login-body{padding:24px 28px 28px}
+.login-body h2{font-size:16px;font-weight:800;margin:0 0 2px;color:var(--tx)}
+.login-body .ls{font-size:12px;color:var(--mu);margin:0 0 18px}
+.lw .lp-footer{font-size:11px;color:#94a3b8;text-align:center;margin-top:18px}
+/* Captcha */
+.captcha-wrap{display:flex;align-items:center;gap:8px}
+.captcha-img{flex:1;background:linear-gradient(135deg,#f0fdf4,#fff);border:1.5px solid var(--br);border-radius:8px;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;letter-spacing:6px;user-select:none;text-align:center;min-height:46px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.captcha-img::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(5,150,105,.04) 4px,rgba(5,150,105,.04) 8px)}
+.captcha-refresh{background:none;border:1.5px solid var(--br);border-radius:8px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--p);font-size:15px;transition:all .15s;flex-shrink:0}
+.captcha-refresh:hover{background:var(--pl);border-color:var(--p)}
+/* Legacy - kept for backward compat */
+.la{display:none}
+.lp{display:none}
 .llogo{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:800;margin-bottom:5px}
 .lic{width:40px;height:40px;border-radius:0;display:flex;align-items:center;justify-content:center;background:none;flex-shrink:0;overflow:visible}
 .lic img{width:40px;height:40px;object-fit:contain;filter:none}
@@ -457,64 +474,99 @@ tbody tr:hover td{background:#fafbff}
 <!-- CONFIG SCREEN -->
 <!-- APP WRAPPER -->
 <div id="appWrap" class="hidden">
-<!-- LOGIN ADMIN -->
+<!-- LOGIN UNIFIED (Admin + Siswa tabs) -->
 <div id="loginAdmin" class="lw hidden">
-  <div class="la" style="background:linear-gradient(135deg,#064e3b 0%,#059669 60%,#10b981 100%)">
-    <div class="laart">
-      <div style="margin-bottom:20px"><img src="https://i.imgur.com/bT70O4C.png" alt="Emes CBT System" style="width:80px;height:80px;object-fit:contain;filter:brightness(0) invert(1);opacity:.92" onerror="this.outerHTML='<i class=\'fa-solid fa-laptop-code\' style=\'font-size:64px;color:#fff;opacity:.9\'></i>'"></div>
-      <h1>Emes CBT System</h1>
-      <p>Sistem ujian berbasis komputer modern. 5 tipe soal, penilaian otomatis, monitor real-time, analisa per-butir, chat, dan leaderboard.</p>
-      <div class="chips">
-        <span class="chip"><i class="fa-solid fa-circle-check"></i> Pilihan Ganda</span><span class="chip"><i class="fa-solid fa-circle-check"></i> PG Kompleks</span>
-        <span class="chip"><i class="fa-solid fa-circle-check"></i> Benar/Salah</span><span class="chip"><i class="fa-solid fa-circle-check"></i> Uraian</span>
-        <span class="chip"><i class="fa-solid fa-circle-check"></i> Menjodohkan</span><span class="chip"><i class="fa-solid fa-circle-check"></i> Monitor Real-time</span>
-        <span class="chip"><i class="fa-solid fa-circle-check"></i> Analisa Per-butir</span><span class="chip"><i class="fa-solid fa-circle-check"></i> Chat Siswa</span>
-        <span class="chip"><i class="fa-solid fa-circle-check"></i> Export Excel</span><span class="chip"><i class="fa-solid fa-circle-check"></i> Import Siswa</span>
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-logo-wrap">
+        <div class="login-logo-icon">
+          <img src="https://i.imgur.com/bT70O4C.png" alt="Logo" onerror="this.outerHTML='<i class=\'fa-solid fa-clipboard-list\' style=\'color:var(--p);font-size:40px\'></i>'">
+        </div>
+        <div>
+          <div class="login-title">Emes CBT</div>
+          <div class="login-subtitle">Computer-Based Test System</div>
+          <div class="login-school" id="loginSchoolName">MIN SINGKAWANG</div>
+        </div>
       </div>
-      <div class="login-footer">&copy; 2026 Emes EduTech. All rights reserved.</div>
+    </div>
+    <div class="login-tabs">
+      <button class="login-tab" id="tabPeserta" onclick="switchLoginTab('peserta')">
+        <i class="fa-solid fa-user-graduate"></i> Peserta
+      </button>
+      <button class="login-tab active" id="tabAdmin" onclick="switchLoginTab('admin')">
+        <i class="fa-solid fa-user-shield"></i> Administrator
+      </button>
+    </div>
+    <!-- Admin Form -->
+    <div class="login-body" id="loginBodyAdmin">
+      <h2>Masuk sebagai Administrator</h2>
+      <p class="ls">Panel pengelolaan sistem CBT</p>
+      <div id="admErr" class="al aler hidden"></div>
+      <div class="fg">
+        <label class="fl">Username Admin</label>
+        <div style="position:relative">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--mu);font-size:13px"><i class="fa-regular fa-user"></i></span>
+          <input id="admU" class="fc" style="padding-left:32px" placeholder="Username admin" onkeydown="if(event.key==='Enter')loginAdmin()">
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Password</label>
+        <div class="pww">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--mu);font-size:13px;z-index:1"><i class="fa-solid fa-lock"></i></span>
+          <input id="admP" type="password" class="fc" style="padding-left:32px" placeholder="Password admin" onkeydown="if(event.key==='Enter')loginAdmin()">
+          <button class="pwb" onclick="tpw('admP',this)"><i class="fa-solid fa-eye"></i></button>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Verifikasi Keamanan</label>
+        <div class="captcha-wrap">
+          <div class="captcha-img" id="captchaDisplay"></div>
+          <button class="captcha-refresh" onclick="refreshCaptcha()" title="Refresh"><i class="fa-solid fa-rotate-right"></i></button>
+        </div>
+        <input id="captchaInput" class="fc" style="margin-top:8px" placeholder="Ketik karakter di atas" onkeydown="if(event.key==='Enter')loginAdmin()">
+      </div>
+      <button class="btn bp blg" style="width:100%;margin-top:4px" onclick="loginAdmin()" id="admBtn">
+        <i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk
+      </button>
+    </div>
+    <!-- Siswa Form -->
+    <div class="login-body hidden" id="loginBodySiswa">
+      <h2>Masuk sebagai Peserta</h2>
+      <p class="ls">Login untuk mengikuti ujian CBT</p>
+      <div id="sisErr" class="al aler hidden"></div>
+      <div class="fg">
+        <label class="fl">Nomor Peserta / NIS</label>
+        <div style="position:relative">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--mu);font-size:13px"><i class="fa-solid fa-id-card"></i></span>
+          <input id="sisU" class="fc" style="padding-left:32px" placeholder="Nomor peserta" onkeydown="if(event.key==='Enter')loginSiswa()">
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Password</label>
+        <div class="pww">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--mu);font-size:13px;z-index:1"><i class="fa-solid fa-lock"></i></span>
+          <input id="sisP" type="password" class="fc" style="padding-left:32px" placeholder="Password" onkeydown="if(event.key==='Enter')loginSiswa()">
+          <button class="pwb" onclick="tpw('sisP',this)"><i class="fa-solid fa-eye"></i></button>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Verifikasi Keamanan</label>
+        <div class="captcha-wrap">
+          <div class="captcha-img" id="captchaDisplaySiswa"></div>
+          <button class="captcha-refresh" onclick="refreshCaptchaSiswa()" title="Refresh"><i class="fa-solid fa-rotate-right"></i></button>
+        </div>
+        <input id="captchaInputSiswa" class="fc" style="margin-top:8px" placeholder="Ketik karakter di atas" onkeydown="if(event.key==='Enter')loginSiswa()">
+      </div>
+      <button class="btn bp blg" style="width:100%;margin-top:4px;background:#059669;border-color:#059669" onclick="loginSiswa()" id="sisBtn">
+        <i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk
+      </button>
     </div>
   </div>
-  <div class="lp" style="display:flex;flex-direction:column">
-    <div class="llogo"><div class="lic"><img src="https://i.imgur.com/bT70O4C.png" alt="Logo" onerror="this.outerHTML='<i class=\'fa-solid fa-clipboard-list\' style=\'color:var(--p);font-size:28px\'></i>'"></div> Emes CBT System</div>
-    <p style="font-size:11.5px;color:var(--mu);margin-bottom:22px">Admin &amp; Guru</p>
-    <h2>Selamat Datang</h2>
-    <p class="ls">Masuk ke panel pengelolaan ujian</p>
-    <div id="admErr" class="al aler hidden"></div>
-    <div class="fg"><label class="fl">Username</label><input id="admU" class="fc" placeholder="Username" onkeydown="if(event.key==='Enter')loginAdmin()"></div>
-    <div class="fg"><label class="fl">Password</label><div class="pww"><input id="admP" type="password" class="fc" placeholder="Password" onkeydown="if(event.key==='Enter')loginAdmin()"><button class="pwb" onclick="tpw('admP',this)"><i class="fa-solid fa-eye"></i></button></div></div>
-    <button class="btn bp blg" style="width:100%" onclick="loginAdmin()" id="admBtn">Masuk <i class="fa-solid fa-arrow-right"></i></button>
-    <div class="swl"><a onclick="showSiswaLogin()">Login sebagai Siswa <i class="fa-solid fa-arrow-right"></i></a></div>  
-    <div class="lp-footer">&copy; 2026 Emes EduTech</div>
-  </div>
+  <div style="font-size:11px;color:#94a3b8;text-align:center;margin-top:14px">&copy; Emes EduTech</div>
 </div>
 
-<!-- LOGIN SISWA -->
+<!-- LOGIN SISWA (hidden, redirect to unified) -->
 <div id="loginSiswa" class="lw hidden">
-  <div class="la" style="background:linear-gradient(135deg,#065f46,#047857,#059669)">
-    <div class="laart">
-      <div style="margin-bottom:20px"><img src="https://i.imgur.com/bT70O4C.png" alt="Emes CBT System" style="width:80px;height:80px;object-fit:contain;filter:brightness(0) invert(1);opacity:.92" onerror="this.outerHTML='<i class=\'fa-solid fa-graduation-cap\' style=\'font-size:64px;color:#fff;opacity:.9\'></i>'"></div>
-      <h1>Portal Ujian Online</h1>
-      <p>Masuk untuk mengikuti ujian. Jawaban tersimpan otomatis setiap 30 detik. Tersedia mini game saat menunggu ujian dimulai.</p>
-      <div class="chips">
-        <span class="chip"><i class="fa-solid fa-stopwatch"></i> Timer Otomatis</span><span class="chip"><i class="fa-solid fa-floppy-disk"></i> Auto-Save</span>
-        <span class="chip"><i class="fa-solid fa-chart-bar"></i> Nilai Langsung</span><span class="chip"><i class="fa-solid fa-gamepad"></i> Mini Game</span>
-        <span class="chip"><i class="fa-solid fa-comments"></i> Chat Guru</span>
-      </div>
-      <div class="login-footer">&copy; 2026 Emes EduTech. All rights reserved.</div>
-    </div>
-  </div>
-  <div class="lp" style="display:flex;flex-direction:column">
-    <div class="llogo"><div class="lic"><img src="https://i.imgur.com/bT70O4C.png" alt="Logo" onerror="this.outerHTML='<i class=\'fa-solid fa-graduation-cap\' style=\'color:#059669;font-size:28px\'></i>'"></div> Emes CBT System</div>
-    <p style="font-size:11.5px;color:var(--mu);margin-bottom:22px">Portal Siswa</p>
-    <h2>Login Siswa</h2>
-    <p class="ls">Masukkan nomor peserta dan password</p>
-    <div id="sisErr" class="al aler hidden"></div>
-    <div class="fg"><label class="fl">Nomor Peserta / NIS</label><input id="sisU" class="fc" placeholder="Nomor peserta" onkeydown="if(event.key==='Enter')loginSiswa()"></div>
-    <div class="fg"><label class="fl">Password</label><div class="pww"><input id="sisP" type="password" class="fc" placeholder="Password" onkeydown="if(event.key==='Enter')loginSiswa()"><button class="pwb" onclick="tpw('sisP',this)"><i class="fa-solid fa-eye"></i></button></div></div>
-    <button class="btn bs blg" style="width:100%;background:#059669;border-color:#059669" onclick="loginSiswa()" id="sisBtn">Masuk <i class="fa-solid fa-arrow-right"></i></button>
-    <div class="swl"><a onclick="showAdminLogin()"><i class="fa-solid fa-arrow-left"></i> Login sebagai Admin/Guru</a></div>
-    <div class="lp-footer">&copy; 2026 Emes EduTech</div>
-  </div>
 </div>
 
 <!-- ADMIN PANEL -->
@@ -1007,47 +1059,118 @@ function showSQLGuide(){
 function copySQL(){navigator.clipboard.writeText(getSQL()).then(()=>toast('SQL disalin ke clipboard!','ok'));}
 
 // ═══════════════════════════ AUTH ═══════════════════════════
-function showAdminLogin(){hideAll(['loginSiswa','adminPanel','siswaPanel','examScreen','gameScreen','cfgScreen']);show('loginAdmin');$('admErr').classList.add('hidden');$('admU').value='';$('admP').value='';}
-function showSiswaLogin(){hideAll(['loginAdmin','adminPanel','siswaPanel','examScreen','gameScreen','cfgScreen']);show('loginSiswa');$('sisErr').classList.add('hidden');$('sisU').value='';$('sisP').value='';}
+// ─── CAPTCHA ───
+let _captchaCode='', _captchaCodeSiswa='';
+const CAPTCHA_CHARS='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const CAPTCHA_COLORS=['#059669','#7c3aed','#b45309','#0369a1','#be123c','#065f46'];
+
+function genCaptchaCode(){
+  let s='';for(let i=0;i<5;i++)s+=CAPTCHA_CHARS[Math.floor(Math.random()*CAPTCHA_CHARS.length)];return s;
+}
+
+function renderCaptcha(elId,code){
+  const el=$(elId);if(!el)return;
+  el.innerHTML='';
+  for(let i=0;i<code.length;i++){
+    const span=document.createElement('span');
+    span.textContent=code[i];
+    const color=CAPTCHA_COLORS[Math.floor(Math.random()*CAPTCHA_COLORS.length)];
+    const rot=(Math.random()*30-15).toFixed(1);
+    const size=(18+Math.floor(Math.random()*6))+'px';
+    span.style.cssText=`color:${color};font-size:${size};font-weight:800;display:inline-block;transform:rotate(${rot}deg);font-family:'JetBrains Mono',monospace;letter-spacing:3px`;
+    el.appendChild(span);
+  }
+}
+
+function refreshCaptcha(){_captchaCode=genCaptchaCode();renderCaptcha('captchaDisplay',_captchaCode);if($('captchaInput'))$('captchaInput').value='';}
+function refreshCaptchaSiswa(){_captchaCodeSiswa=genCaptchaCode();renderCaptcha('captchaDisplaySiswa',_captchaCodeSiswa);if($('captchaInputSiswa'))$('captchaInputSiswa').value='';}
+
+// ─── TAB SWITCH ───
+function switchLoginTab(tab){
+  const isAdmin=tab==='admin';
+  $('tabAdmin')?.classList.toggle('active',isAdmin);
+  $('tabPeserta')?.classList.toggle('active',!isAdmin);
+  $('loginBodyAdmin')?.classList.toggle('hidden',!isAdmin);
+  $('loginBodySiswa')?.classList.toggle('hidden',isAdmin);
+  if(!isAdmin&&!_captchaCodeSiswa){refreshCaptchaSiswa();}
+  if(isAdmin&&!_captchaCode){refreshCaptcha();}
+}
+
+function showAdminLogin(){
+  hideAll(['loginSiswa','adminPanel','siswaPanel','examScreen','gameScreen','cfgScreen']);
+  show('loginAdmin');
+  $('admErr')?.classList.add('hidden');
+  if($('admU'))$('admU').value='';
+  if($('admP'))$('admP').value='';
+  // Default to admin tab, init captcha
+  switchLoginTab('admin');
+  if(!_captchaCode)refreshCaptcha();
+  // Load school name from pengaturan
+  loadSchoolNameForLogin();
+}
+
+function showSiswaLogin(){
+  show('loginAdmin');
+  switchLoginTab('peserta');
+  $('sisErr')?.classList.add('hidden');
+  if($('sisU'))$('sisU').value='';
+  if($('sisP'))$('sisP').value='';
+  if(!_captchaCodeSiswa)refreshCaptchaSiswa();
+}
+
+async function loadSchoolNameForLogin(){
+  try{
+    const el=$('loginSchoolName');if(!el)return;
+    if(demoMode){el.textContent=(DEMO.pengaturan?.nama_sekolah||'MIN SINGKAWANG').toUpperCase();return;}
+    if(SB){const{data:pg}=await SB.from('pengaturan').select('nama_sekolah').maybeSingle();if(pg?.nama_sekolah)el.textContent=pg.nama_sekolah.toUpperCase();}
+  }catch(e){}
+}
+// showSiswaLogin defined above
 
 async function loginAdmin(){
   const u=$('admU').value.trim(),p=$('admP').value.trim();
+  const captchaIn=($('captchaInput')?.value||'').trim().toUpperCase();
   const er=$('admErr');er.classList.add('hidden');
   if(!u||!p){showErr(er,'Username dan password wajib diisi!');return;}
+  if(_captchaCode&&captchaIn!==_captchaCode){showErr(er,'Kode verifikasi salah! Silakan coba lagi.');refreshCaptcha();return;}
   setBtn('admBtn','<span class="spin"></span> Masuk...');
   try{
     if(demoMode){
-      if(u==='admin'&&p==='admin'){adm={...DEMO.admin};setBtn('admBtn','Masuk →');showAdminPanel();return;}
+      if(u==='admin'&&p==='admin'){adm={...DEMO.admin};setBtn('admBtn','<i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk');showAdminPanel();return;}
       showErr(er,'Username atau password salah! Coba: admin/admin');
     }else{
       const{data,error}=await SB.from('admins').select('*').eq('username',u).single();
-      if(error||!data){showErr(er,'Username tidak ditemukan!');setBtn('admBtn','Masuk →');return;}
-      if(data.password!==p){showErr(er,'Password salah!');setBtn('admBtn','Masuk →');return;}
-      adm=data;setBtn('admBtn','Masuk →');showAdminPanel();return;
+      if(error||!data){showErr(er,'Username tidak ditemukan!');setBtn('admBtn','<i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk');refreshCaptcha();return;}
+      if(data.password!==p){showErr(er,'Password salah!');setBtn('admBtn','<i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk');refreshCaptcha();return;}
+      adm=data;setBtn('admBtn','<i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk');showAdminPanel();return;
     }
   }catch(e){showErr(er,'Error: '+e.message);}
-  setBtn('admBtn','Masuk →');
+  setBtn('admBtn','<i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk');
+  refreshCaptcha();
 }
 
 async function loginSiswa(){
   const u=$('sisU').value.trim(),p=$('sisP').value.trim();
+  const captchaIn=($('captchaInputSiswa')?.value||'').trim().toUpperCase();
   const er=$('sisErr');er.classList.add('hidden');
   if(!u||!p){showErr(er,'Username dan password wajib diisi!');return;}
+  if(_captchaCodeSiswa&&captchaIn!==_captchaCodeSiswa){showErr(er,'Kode verifikasi salah! Silakan coba lagi.');refreshCaptchaSiswa();return;}
   setBtn('sisBtn','<span class="spin"></span> Masuk...');
   try{
     if(demoMode){
       const s=DEMO.siswa.find(x=>x.username===u&&x.password===p);
-      if(s){sis={...s};setBtn('sisBtn','Masuk →');showSiswaPanel();return;}
+      if(s){sis={...s};setBtn('sisBtn','<i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk');showSiswaPanel();return;}
       showErr(er,'Tidak ditemukan! Coba: 123456/123456');
     }else{
       const{data,error}=await SB.from('siswa').select('*').eq('username',u).single();
-      if(error||!data){showErr(er,'Nomor peserta tidak ditemukan!');setBtn('sisBtn','Masuk →');return;}
-      if(data.password!==p){showErr(er,'Password salah!');setBtn('sisBtn','Masuk →');return;}
-      if(data.status==='Nonaktif'){showErr(er,'Akun Anda dinonaktifkan. Hubungi admin.');setBtn('sisBtn','Masuk →');return;}
-      sis=data;setBtn('sisBtn','Masuk →');showSiswaPanel();return;
+      if(error||!data){showErr(er,'Nomor peserta tidak ditemukan!');setBtn('sisBtn','<i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk');refreshCaptchaSiswa();return;}
+      if(data.password!==p){showErr(er,'Password salah!');setBtn('sisBtn','<i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk');refreshCaptchaSiswa();return;}
+      if(data.status==='Nonaktif'){showErr(er,'Akun Anda dinonaktifkan. Hubungi admin.');setBtn('sisBtn','<i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk');return;}
+      sis=data;setBtn('sisBtn','<i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk');showSiswaPanel();return;
     }
   }catch(e){showErr(er,'Error: '+e.message);}
-  setBtn('sisBtn','Masuk →');
+  setBtn('sisBtn','<i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk');
+  refreshCaptchaSiswa();
 }
 
 function logoutAdmin(){if(!confirm('Yakin ingin keluar?'))return;adm=null;showAdminLogin();}
